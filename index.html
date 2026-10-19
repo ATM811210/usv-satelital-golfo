@@ -761,7 +761,11 @@
         <form style="margin-top: 0.65rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.78rem;">
           <label for="chkShowUsvTrack" class="checkbox-fallback-label">
             <input type="checkbox" id="chkShowUsvTrack" class="visually-hidden" checked />
-            <span>Mostrar Barrido Acústico del USV 48V</span>
+            <span>Mostrar Ruta y Navegación del USV 48V</span>
+          </label>
+          <label for="chkShowZigZag" class="checkbox-fallback-label">
+            <input type="checkbox" id="chkShowZigZag" class="visually-hidden" checked />
+            <span>Mostrar Barrido en Zig-Zag de Captura de Datos</span>
           </label>
           <label for="chkShowRockHazards" class="checkbox-fallback-label">
             <input type="checkbox" id="chkShowRockHazards" class="visually-hidden" checked />
@@ -787,13 +791,14 @@
             Sistema Lagunar Topolobampo – Ohuira – Santa María (Brazas: 2 a 12 bz)
           </strong>
           <div style="font-size: 0.73rem; color: #94a3b8;">
-            Haz clic en cualquier polígono o en el USV Trimarán para inspeccionar telemetría acústica, temperatura de fondo y salinidad.
+            El USV navega por el canal seguro (línea cian) y al entrar a cada polígono <strong>apaga el motor térmico 4T</strong> y barre en <strong>Zig-Zag (línea amarilla)</strong> para capturar datos sin espantar la biomasa.
           </div>
         </div>
         <div class="legend-bar">
-          <span class="legend-item"><i class="swatch" style="background:#10b981;"></i> Prioridad 1 (HSI &gt;90% Confirmado USV)</span>
-          <span class="legend-item"><i class="swatch" style="background:#f59e0b;"></i> Prioridad 2 (HSI 80-89%)</span>
-          <span class="legend-item"><i class="swatch" style="background:#d946ef;"></i> Exclusión Roca (&gt;2.4 kHz Rompe-Redes)</span>
+          <span class="legend-item"><i class="swatch" style="background:#10b981;"></i> Prioridad 1 (HSI &gt;90%)</span>
+          <span class="legend-item"><i class="swatch" style="background:#facc15;"></i> Zig-Zag Captura (Motor 4T OFF 🔇)</span>
+          <span class="legend-item"><i class="swatch" style="background:#38bdf8;"></i> Tránsito Canal Dragado</span>
+          <span class="legend-item"><i class="swatch" style="background:#d946ef;"></i> Exclusión Roca (&gt;2.4 kHz)</span>
         </div>
       </div>
       <div id="map"></div>
@@ -808,31 +813,45 @@
         </h2>
         <div class="kv-row">
           <span>Estado de Misión:</span>
-          <strong id="usvMissionState" style="color:#34d399;">Barrido Silencioso 3.0 kt</strong>
+          <strong id="usvMissionState" style="color:#34d399;">Barrido Zig-Zag 3.0 kt</strong>
         </div>
         <div class="kv-row">
-          <span>Propulsión 48V:</span>
-          <strong>2x Flipsky 65161 (3.0 kW c/u)</strong>
+          <span>Propulsión Eléctrica 48V:</span>
+          <strong id="usvPropState" style="color:#34d399;">ACTIVA • 2x Flipsky 3.0 kW</strong>
         </div>
         <div class="kv-row">
           <span>ESC Enfriado por Agua:</span>
           <strong>Dual FSESC75200 Pro (200A)</strong>
         </div>
         <div class="kv-row">
-          <span>Generador Híbrido 4T:</span>
-          <strong id="usvGenState">APAGADO (0 Ruido Acústico)</strong>
+          <span>Motor Generador 4T:</span>
+          <strong id="usvGenState" style="color:#facc15;">🔇 APAGADO EN ZIG-ZAG (0 dB)</strong>
         </div>
         <div class="kv-row">
           <span>Rumbo Dual RTK (2x F9P):</span>
           <strong id="usvHeading">294.2° (Precisión 0.1° True Yaw)</strong>
         </div>
         <div class="kv-row">
-          <span>Enlace y Seguridad Legal:</span>
-          <strong>Starlink Mini + RFD900x + AIS B</strong>
+          <span>Muestras Capturadas Hoy:</span>
+          <strong id="usvSamplesCount" style="color:#67e8f9;">18 Puntos (Sonar + CTD + Chl-a)</strong>
         </div>
-        <div class="kv-row">
-          <span>Visión Anticolisión:</span>
-          <strong>FLIR Boson 320 + Radar 24 GHz</strong>
+
+        <!-- CONTROLES DIRECTOS DE APAGADO DE MOTOR Y BARRIDO ZIG-ZAG -->
+        <div style="margin-top:0.65rem; padding-top:0.65rem; border-top:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:0.45rem;">
+          <div style="font-size:0.72rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em;">
+            🎛️ Control Directo de Motores y Captura Zig-Zag:
+          </div>
+          <button type="button" id="btnToggleTotalMotorStop" style="background:rgba(244,63,94,0.2); color:#fecdd3; border:1px solid #f43f5e; font-weight:700; width:100%; text-align:center;">
+            🛑 APAGAR MOTORES (Paro Total Propulsión 0.0 kt)
+          </button>
+          <div style="display:flex; gap:0.4rem;">
+            <button type="button" id="btnToggleGenSilence" class="btn-cyan" style="flex:1; font-size:0.73rem; padding:0.4rem;">
+              🔇 Forzar Apagado Motor 4T
+            </button>
+            <button type="button" id="btnZoomZigZag" class="btn-primary" style="flex:1; font-size:0.73rem; padding:0.4rem;">
+              🌀 Enfocar Zig-Zag Captura
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1440,24 +1459,76 @@
         zoom: 12,
         bannerTitle: "Sistema Lagunar Topolobampo – Ohuira – Canal de la Barra (Sinaloa)",
         NOCTURNO_CAMARON: {
-          usvPos: [25.5969, -109.0365],
+          usvPos: [25.6140, -109.0070],
+          // Ruta completa por agua: incluye Zig-Zag en TOPO-N1 -> Tránsito Canal -> Zig-Zag en TOPO-N2 -> Tránsito Barra -> Zig-Zag en TOPO-N3
           usvTrack: [
-            [25.6168, -109.0098], // 1. Interior Bahía de Ohuira (Agua limpia)
-            [25.6040, -109.0220], // 2. Canal Las Copas (Ohuira)
-            [25.5969, -109.0365], // 3. Entrada Estrecho Topolobampo
-            [25.5945, -109.0475], // 4. Curva Norte Cerro Partido (Canal dragado)
-            [25.5920, -109.0544], // 5. Estrecho Frente a Muelle API Topolobampo
-            [25.5858, -109.0544], // 6. Paso profundo entre Islas Topolobampo
-            [25.5765, -109.0558], // 7. Salida Sur del Estrecho
-            [25.5722, -109.0812], // 8. Canal Central Sur El Maviri
-            [25.5647, -109.1052], // 9. Garganta Interior de la Barra
-            [25.5598, -109.1259], // 10. Boca de la Barra de Topolobampo
-            [25.5474, -109.1420]  // 11. Pluma Exterior Boya de Recalada
+            [25.6140, -109.0070], // 0. Inicio Zig-Zag TOPO-N1 (Motor 4T OFF)
+            [25.6120, -109.0195], // 1. Vértice Zig-Zag TOPO-N1 #2
+            [25.6075, -109.0080], // 2. Vértice Zig-Zag TOPO-N1 #3
+            [25.6045, -109.0205], // 3. Vértice Zig-Zag TOPO-N1 #4
+            [25.6010, -109.0120], // 4. Fin Zig-Zag TOPO-N1 #5
+            [25.6040, -109.0220], // 5. Salida a Canal Las Copas (Tránsito)
+            [25.5969, -109.0365], // 6. Entrada Estrecho Topolobampo
+            [25.5945, -109.0475], // 7. Curva Norte Cerro Partido
+            [25.5920, -109.0544], // 8. Estrecho Frente a Muelle API
+            [25.5858, -109.0544], // 9. Paso profundo entre Islas
+            [25.5765, -109.0558], // 10. Salida Sur del Estrecho
+            [25.5735, -109.0785], // 11. Inicio Zig-Zag TOPO-N2 (Motor 4T OFF)
+            [25.5670, -109.0820], // 12. Vértice Zig-Zag TOPO-N2 #2
+            [25.5735, -109.0885], // 13. Vértice Zig-Zag TOPO-N2 #3
+            [25.5670, -109.0930], // 14. Vértice Zig-Zag TOPO-N2 #4
+            [25.5720, -109.0965], // 15. Fin Zig-Zag TOPO-N2 #5
+            [25.5647, -109.1052], // 16. Garganta Interior de la Barra (Tránsito)
+            [25.5598, -109.1259], // 17. Boca de la Barra de Topolobampo
+            [25.5500, -109.1350], // 18. Inicio Zig-Zag TOPO-N3 (Motor 4T OFF)
+            [25.5470, -109.1475], // 19. Vértice Zig-Zag TOPO-N3 #2
+            [25.5425, -109.1355], // 20. Vértice Zig-Zag TOPO-N3 #3
+            [25.5390, -109.1475]  // 21. Fin Zig-Zag TOPO-N3 #4
+          ],
+          zigzagSweeps: [
+            {
+              zona: "TOPO-N1",
+              startIdx: 0,
+              endIdx: 4,
+              sensorLabel: "CHIRP 200 kHz + CTD 26.1°C + Hidrófono 0% Roca",
+              coords: [
+                [25.6140, -109.0070],
+                [25.6120, -109.0195],
+                [25.6075, -109.0080],
+                [25.6045, -109.0205],
+                [25.6010, -109.0120]
+              ]
+            },
+            {
+              zona: "TOPO-N2",
+              startIdx: 11,
+              endIdx: 15,
+              sensorLabel: "CHIRP 200 kHz + CTD 25.7°C + Reflujo 2.8 kt",
+              coords: [
+                [25.5735, -109.0785],
+                [25.5670, -109.0820],
+                [25.5735, -109.0885],
+                [25.5670, -109.0930],
+                [25.5720, -109.0965]
+              ]
+            },
+            {
+              zona: "TOPO-N3",
+              startIdx: 18,
+              endIdx: 21,
+              sensorLabel: "CHIRP 200 kHz + CTD 25.1°C + Fondo Arena-Lodo",
+              coords: [
+                [25.5500, -109.1350],
+                [25.5470, -109.1475],
+                [25.5425, -109.1355],
+                [25.5390, -109.1475]
+              ]
+            }
           ],
           telemetry: {
-            badge: "SIGILO ELÉCTRICO 3.0 KT",
-            mission: "Barrido Silencioso Camarón (CHIRP 200 kHz)",
-            gen: "APAGADO (0 dB Ruido Submarino)",
+            badge: "ZIG-ZAG SIGILO 3.0 KT",
+            mission: "Barrido Zig-Zag Captura Camarón (CHIRP 200 kHz)",
+            gen: "🔇 APAGADO EN ZIG-ZAG (0 dB Ruido)",
             heading: "242.5° (Dual RTK F9P 0.1° Yaw)",
             volts: "52.4 V (86% SoC)",
             soc: 86,
@@ -1481,7 +1552,7 @@
               brazas: "3.0 - 6.5 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "ZONA #1 CONFIRMADA: Borde exacto de pluma turbia a 3m (PlanetScope) + 26.1°C en fondo. El USV barrió en modo eléctrico silencioso a las 03:15 AM confirmando mancha densa pegada al lodo.",
+              tactica: "ZONA #1 CONFIRMADA: El USV apagó su motor térmico 4T al entrar al polígono y realizó 5 pasadas en Zig-Zag a 3.0 kt confirmando mancha densa pegada al lodo.",
               coords: [[25.616, -109.022], [25.616, -109.004], [25.598, -109.006], [25.598, -109.024]]
             },
             {
@@ -1497,7 +1568,7 @@
               brazas: "4.5 - 9.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Reflujo de marea de 2.8 nudos sobre el canal principal sacando camarón hacia la barra. Calar entre 04:30 AM y 07:00 AM.",
+              tactica: "Barrido en Zig-Zag de 5 vértices con motor 4T apagado sobre el canal de vaciante. Calar entre 04:30 AM y 07:00 AM.",
               coords: [[25.575, -109.098], [25.575, -109.076], [25.565, -109.078], [25.565, -109.100]]
             },
             {
@@ -1513,7 +1584,7 @@
               brazas: "7.0 - 12.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Fondo de arena lodosa firme en la desembocadura exterior de la barra, ideal para red Magdalena o chinchorro de línea.",
+              tactica: "Muestreo en Zig-Zag de 4 vértices en la desembocadura exterior de la barra, ideal para red Magdalena o chinchorro de línea.",
               coords: [[25.552, -109.150], [25.552, -109.132], [25.536, -109.132], [25.536, -109.150]]
             },
             {
@@ -1535,22 +1606,56 @@
           ]
         },
         DIURNO_SARDINA: {
-          usvPos: [25.5350, -109.1750],
+          usvPos: [25.5520, -109.1710],
           usvTrack: [
-            [25.5920, -109.0544], // 1. Salida Muelle Topolobampo
-            [25.5858, -109.0544], // 2. Paso entre Islas
-            [25.5765, -109.0558], // 3. Salida Sur del Estrecho
-            [25.5722, -109.0812], // 4. Canal Central
-            [25.5647, -109.1052], // 5. Garganta Interior Barra
-            [25.5598, -109.1259], // 6. Boca de la Barra
-            [25.5474, -109.1420], // 7. Boya de Recalada
-            [25.5350, -109.1750], // 8. Mar Abierto Exterior
-            [25.5250, -109.2050]  // 9. Talud Exterior Farallón (Sardina 50 kHz)
+            [25.5920, -109.0544], // 0. Salida Muelle Topolobampo
+            [25.5858, -109.0544], // 1. Paso entre Islas
+            [25.5765, -109.0558], // 2. Salida Sur del Estrecho
+            [25.5722, -109.0812], // 3. Canal Central
+            [25.5647, -109.1052], // 4. Garganta Interior Barra
+            [25.5598, -109.1259], // 5. Boca de la Barra
+            [25.5474, -109.1420], // 6. Boya de Recalada
+            [25.5520, -109.1710], // 7. Inicio Zig-Zag TOPO-D2 (Motor 4T OFF)
+            [25.5380, -109.1760], // 8. Vértice Zig-Zag TOPO-D2 #2
+            [25.5510, -109.1850], // 9. Vértice Zig-Zag TOPO-D2 #3
+            [25.5380, -109.1910], // 10. Fin Zig-Zag TOPO-D2 #4
+            [25.5390, -109.1900], // 11. Inicio Zig-Zag TOPO-D1 Sardina (Motor 4T OFF)
+            [25.5160, -109.1950], // 12. Vértice Zig-Zag TOPO-D1 #2
+            [25.5390, -109.2060], // 13. Vértice Zig-Zag TOPO-D1 #3
+            [25.5160, -109.2140], // 14. Vértice Zig-Zag TOPO-D1 #4
+            [25.5350, -109.2190]  // 15. Fin Zig-Zag TOPO-D1 #5
+          ],
+          zigzagSweeps: [
+            {
+              zona: "TOPO-D2",
+              startIdx: 7,
+              endIdx: 10,
+              sensorLabel: "Hidrófono 450 Hz (Coro Curvina) + CTD 21.4°C",
+              coords: [
+                [25.5520, -109.1710],
+                [25.5380, -109.1760],
+                [25.5510, -109.1850],
+                [25.5380, -109.1910]
+              ]
+            },
+            {
+              zona: "TOPO-D1",
+              startIdx: 11,
+              endIdx: 15,
+              sensorLabel: "Sonar CHIRP 50 kHz (Cardumen 40m) + Sonda Turner 5.12 mg/m³ Chl-a",
+              coords: [
+                [25.5390, -109.1900],
+                [25.5160, -109.1950],
+                [25.5390, -109.2060],
+                [25.5160, -109.2140],
+                [25.5350, -109.2190]
+              ]
+            }
           ],
           telemetry: {
-            badge: "PROSPECCIÓN DIURNA 8.4 KT",
+            badge: "ZIG-ZAG DIURNO SARDINA",
             mission: "Renta Flota Sardinera / Escama (50 kHz + Clorofila)",
-            gen: "ENCENDIDO (Híbrido Auto-Carga)",
+            gen: "🔇 APAGADO EN ZIG-ZAG CAPTURA",
             heading: "238.6° (Dual RTK F9P 0.1° Yaw)",
             volts: "53.6 V (94% SoC)",
             soc: 94,
@@ -1574,7 +1679,7 @@
               brazas: "22.0 - 65.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "RENTA DIURNA: La sonda Turner Cyclops-7F midió un pico de 5.12 mg/m³ de Clorofila-a y el sonar en 50 kHz cubicó un cardumen denso de 40m de espesor a 28 brazas.",
+              tactica: "RENTA DIURNA: Barrido Zig-Zag de 5 vértices con motor 4T apagado; la sonda Turner Cyclops-7F midió 5.12 mg/m³ de Clorofila-a y el sonar en 50 kHz cubicó cardumen de 40m de espesor.",
               coords: [[25.542, -109.222], [25.542, -109.185], [25.512, -109.185], [25.512, -109.222]]
             },
             {
@@ -1590,7 +1695,7 @@
               brazas: "9.0 - 20.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "El hidrófono H3d-Ethernet captó coro de agregación de curvina (420–680 Hz) en el choque térmico frente a la barra.",
+              tactica: "En el barrido Zig-Zag con motor térmico apagado, el hidrófono H3d-Ethernet captó coro de agregación de curvina (420–680 Hz).",
               coords: [[25.555, -109.195], [25.555, -109.168], [25.535, -109.168], [25.535, -109.195]]
             }
           ]
@@ -1601,18 +1706,50 @@
         zoom: 12,
         bannerTitle: "Bahía de Kino – Isla Alcatraz – Canal del Infiernillo Sur (Sonora)",
         NOCTURNO_CAMARON: {
-          usvPos: [28.802, -111.964],
+          usvPos: [28.7830, -111.9410],
           usvTrack: [
-            [28.778, -111.938], // 1. Frente a Boca Estero La Cruz (Agua)
-            [28.786, -111.954], // 2. Canal Sur Bahía de Kino
-            [28.802, -111.964], // 3. Paso Sur de Isla Alcatraz (Agua limpia)
-            [28.814, -111.988], // 4. rodeo Oeste de Isla Alcatraz
-            [28.828, -111.985]  // 5. Canal Norte Isla Alcatraz
+            [28.7830, -111.9410], // 0. Inicio Zig-Zag KINO-N1 (Motor 4T OFF)
+            [28.7745, -111.9445], // 1. Vértice Zig-Zag KINO-N1 #2
+            [28.7830, -111.9505], // 2. Vértice Zig-Zag KINO-N1 #3
+            [28.7745, -111.9555], // 3. Fin Zig-Zag KINO-N1 #4
+            [28.7860, -111.9540], // 4. Tránsito Canal Sur Bahía de Kino
+            [28.8020, -111.9640], // 5. Paso Profundo Oeste de Roca Alcatraz
+            [28.8140, -111.9880], // 6. Rodeo Oeste Isla Alcatraz
+            [28.8200, -111.9930], // 7. Inicio Zig-Zag KINO-N2 (Motor 4T OFF)
+            [28.8300, -111.9895], // 8. Vértice Zig-Zag KINO-N2 #2
+            [28.8200, -111.9835], // 9. Vértice Zig-Zag KINO-N2 #3
+            [28.8300, -111.9790]  // 10. Fin Zig-Zag KINO-N2 #4
+          ],
+          zigzagSweeps: [
+            {
+              zona: "KINO-N1",
+              startIdx: 0,
+              endIdx: 3,
+              sensorLabel: "CHIRP 200 kHz + CTD 26.1°C + Lodo Limpio Estero La Cruz",
+              coords: [
+                [28.7830, -111.9410],
+                [28.7745, -111.9445],
+                [28.7830, -111.9505],
+                [28.7745, -111.9555]
+              ]
+            },
+            {
+              zona: "KINO-N2",
+              startIdx: 7,
+              endIdx: 10,
+              sensorLabel: "CHIRP 200 kHz + CTD 25.4°C + Pluma Norte Alcatraz",
+              coords: [
+                [28.8200, -111.9930],
+                [28.8300, -111.9895],
+                [28.8200, -111.9835],
+                [28.8300, -111.9790]
+              ]
+            }
           ],
           telemetry: {
-            badge: "SIGILO ELÉCTRICO 3.0 KT",
-            mission: "Barrido Silencioso Camarón (CHIRP 200 kHz)",
-            gen: "APAGADO (0 dB Ruido Submarino)",
+            badge: "ZIG-ZAG SIGILO 3.0 KT",
+            mission: "Barrido Zig-Zag Camarón (CHIRP 200 kHz)",
+            gen: "🔇 APAGADO EN ZIG-ZAG (0 dB Ruido)",
             heading: "312.0° (Dual RTK F9P 0.1° Yaw)",
             volts: "52.1 V (84% SoC)",
             soc: 84,
@@ -1636,7 +1773,7 @@
               brazas: "3.5 - 7.5 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Mancha densa confirmada a las 03:40 AM por el USV Trimarán 48V. Fondo de lodo orgánico limpio sin roca.",
+              tactica: "Mancha densa confirmada mediante barrido en Zig-Zag de 4 vértices con motor 4T apagado a las 03:40 AM. Fondo de lodo orgánico sin roca.",
               coords: [[28.785, -111.958], [28.785, -111.938], [28.772, -111.938], [28.772, -111.958]]
             },
             {
@@ -1652,7 +1789,7 @@
               brazas: "5.0 - 10.5 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Borde de turbidez de 3m PlanetScope bien definido en 8 brazas al norte de Isla Alcatraz.",
+              tactica: "Borde de turbidez de 3m PlanetScope barrido en Zig-Zag silencioso en 8 brazas al norte de Isla Alcatraz.",
               coords: [[28.832, -111.996], [28.832, -111.976], [28.818, -111.976], [28.818, -111.996]]
             },
             {
@@ -1674,17 +1811,49 @@
           ]
         },
         DIURNO_SARDINA: {
-          usvPos: [28.805, -112.025],
+          usvPos: [28.8090, -112.0180],
           usvTrack: [
-            [28.786, -111.954], // 1. Salida Bahía de Kino
-            [28.796, -111.988], // 2. Canal Suroeste Isla Alcatraz
-            [28.805, -112.025], // 3. Fosa Exterior Sur Infiernillo
-            [28.838, -112.035]  // 4. Frente Exterior Noroeste
+            [28.7860, -111.9540], // 0. Salida Bahía de Kino
+            [28.7960, -111.9880], // 1. Canal Suroeste Isla Alcatraz
+            [28.8090, -112.0180], // 2. Inicio Zig-Zag KINO-D1 Sardina (Motor 4T OFF)
+            [28.7850, -112.0240], // 3. Vértice Zig-Zag KINO-D1 #2
+            [28.8090, -112.0330], // 4. Vértice Zig-Zag KINO-D1 #3
+            [28.7850, -112.0410], // 5. Fin Zig-Zag KINO-D1 #4
+            [28.8350, -112.0330], // 6. Inicio Zig-Zag KINO-D2 Aguamala (Motor 4T OFF)
+            [28.8520, -112.0380], // 7. Vértice Zig-Zag KINO-D2 #2
+            [28.8350, -112.0460], // 8. Vértice Zig-Zag KINO-D2 #3
+            [28.8520, -112.0520]  // 9. Fin Zig-Zag KINO-D2 #4
+          ],
+          zigzagSweeps: [
+            {
+              zona: "KINO-D1",
+              startIdx: 2,
+              endIdx: 5,
+              sensorLabel: "Sonar CHIRP 50 kHz + Sonda Turner 4.85 mg/m³ Chl-a",
+              coords: [
+                [28.8090, -112.0180],
+                [28.7850, -112.0240],
+                [28.8090, -112.0330],
+                [28.7850, -112.0410]
+              ]
+            },
+            {
+              zona: "KINO-D2",
+              startIdx: 6,
+              endIdx: 9,
+              sensorLabel: "PlanetScope RedEdge + Sonar Biomasa Aguamala",
+              coords: [
+                [28.8350, -112.0330],
+                [28.8520, -112.0380],
+                [28.8350, -112.0460],
+                [28.8520, -112.0520]
+              ]
+            }
           ],
           telemetry: {
-            badge: "PROSPECCIÓN DIURNA 8.8 KT",
+            badge: "ZIG-ZAG DIURNO SARDINA",
             mission: "Sardina + Aguamala (50 kHz + Clorofila)",
-            gen: "ENCENDIDO (Híbrido Auto-Carga)",
+            gen: "🔇 APAGADO EN ZIG-ZAG CAPTURA",
             heading: "285.4° (Dual RTK F9P 0.1° Yaw)",
             volts: "53.5 V (93% SoC)",
             soc: 93,
@@ -1708,7 +1877,7 @@
               brazas: "18.0 - 45.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Frente intenso de Clorofila-a (4.85 mg/m³ en sonda Turner) y cardumen compacto entre 18 y 32 brazas en sonar de 50 kHz.",
+              tactica: "Barrido en Zig-Zag de 4 vértices con motor 4T apagado sobre el frente de Clorofila-a (4.85 mg/m³ en sonda Turner) y cardumen compacto en 50 kHz.",
               coords: [[28.812, -112.045], [28.812, -112.015], [28.782, -112.015], [28.782, -112.045]]
             },
             {
@@ -1724,7 +1893,7 @@
               brazas: "6.5 - 14.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Franja de convergencia en aguas abiertas detectada a 3m en PlanetScope RedEdge y validada por el USV a su regreso a mediodía.",
+              tactica: "Franja de convergencia en aguas abiertas detectada a 3m en PlanetScope RedEdge y cubicada en Zig-Zag por el USV.",
               coords: [[28.855, -112.055], [28.855, -112.030], [28.832, -112.030], [28.832, -112.055]]
             }
           ]
@@ -1764,6 +1933,114 @@
     const usvTrackLayerGroup = L.layerGroup().addTo(map);
     let usvAnimInterval = null;
 
+    // Estado de control de motores del USV 48V
+    let usvTotalMotorStop = false;      // Paro total de propulsión (0.0 kt)
+    let usvForceSilent4TOff = false;    // Forzar apagado manual del generador 4T incluso en tránsito
+    let currentUsvMarker = null;
+
+    function isSegmentInZigZag(segIdx, zigzagSweeps) {
+      if (!zigzagSweeps) return null;
+      for (const z of zigzagSweeps) {
+        if (segIdx >= z.startIdx && segIdx < z.endIdx) {
+          return z;
+        }
+      }
+      return null;
+    }
+
+    function updateUsvMotorUiState(activeZigZag, shiftData) {
+      const badgeEl = document.getElementById('usvModeBadge');
+      const missionEl = document.getElementById('usvMissionState');
+      const propEl = document.getElementById('usvPropState');
+      const genEl = document.getElementById('usvGenState');
+      const stopBtn = document.getElementById('btnToggleTotalMotorStop');
+      const genBtn = document.getElementById('btnToggleGenSilence');
+
+      if (usvTotalMotorStop) {
+        badgeEl.textContent = '🛑 MOTORES APAGADOS';
+        badgeEl.className = 'badge badge-purple';
+        missionEl.style.color = '#f43f5e';
+        missionEl.textContent = 'PARO TOTAL DE MOTORES (0.0 kt • En Posición)';
+        propEl.style.color = '#f43f5e';
+        propEl.textContent = 'APAGADA (0 W • Corte Dual VESC 48V)';
+        genEl.style.color = '#f43f5e';
+        genEl.textContent = '🛑 APAGADO (Corte Solenoide Combustible)';
+        stopBtn.innerHTML = '▶️ ENCENDER MOTORES Y REANUDAR ZIG-ZAG';
+        stopBtn.style.background = 'rgba(16,185,129,0.25)';
+        stopBtn.style.borderColor = '#10b981';
+        stopBtn.style.color = '#a7f3d0';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#f43f5e; color:#fff; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 14px #f43f5e; white-space:nowrap;">🛑 USV 48V [MOTORES APAGADOS • 0.0 KT]</div>`,
+            iconSize: [210, 26],
+            iconAnchor: [105, 13]
+          }));
+        }
+        return;
+      }
+
+      stopBtn.innerHTML = '🛑 APAGAR MOTORES (Paro Total Propulsión 0.0 kt)';
+      stopBtn.style.background = 'rgba(244,63,94,0.2)';
+      stopBtn.style.borderColor = '#f43f5e';
+      stopBtn.style.color = '#fecdd3';
+
+      propEl.style.color = '#34d399';
+      propEl.textContent = 'ACTIVA • 2x Flipsky 3.0 kW (48V)';
+
+      if (activeZigZag) {
+        // Dentro de un polígono ejecutando Zig-Zag de captura de datos -> Motor 4T se apaga automáticamente
+        badgeEl.textContent = `ZIG-ZAG [${activeZigZag.zona}] 3.0 KT`;
+        badgeEl.className = 'badge badge-green';
+        missionEl.style.color = '#facc15';
+        missionEl.textContent = `🌀 Captura Zig-Zag en ${activeZigZag.zona} (3.0 kt)`;
+        genEl.style.color = '#facc15';
+        genEl.textContent = '🔇 APAGADO AUTOMÁTICO EN ZIG-ZAG (0 dB)';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#facc15; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 14px #facc15; white-space:nowrap;">🌀 USV 48V [ZIG-ZAG ${activeZigZag.zona} • MOTOR 4T OFF 🔇]</div>`,
+            iconSize: [240, 26],
+            iconAnchor: [120, 13]
+          }));
+        }
+      } else if (usvForceSilent4TOff) {
+        badgeEl.textContent = 'TRÁNSITO ELÉCTRICO 4.5 KT';
+        badgeEl.className = 'badge badge-green';
+        missionEl.style.color = '#34d399';
+        missionEl.textContent = 'Tránsito Canal 100% Batería LiFePO4';
+        genEl.style.color = '#34d399';
+        genEl.textContent = '🔇 APAGADO MANUAL (Modo Silencioso Forzado)';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#10b981; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 12px #10b981; white-space:nowrap;">🚤 USV 48V [TRÁNSITO SILENCIOSO • 4T OFF 🔇]</div>`,
+            iconSize: [225, 26],
+            iconAnchor: [112, 13]
+          }));
+        }
+      } else {
+        badgeEl.textContent = 'TRÁNSITO CANAL 7.8 KT';
+        badgeEl.className = 'badge badge-amber';
+        missionEl.style.color = '#38bdf8';
+        missionEl.textContent = 'Tránsito por Canal Dragado hacia Polígono';
+        genEl.style.color = '#38bdf8';
+        genEl.textContent = '⚡ ENCENDIDO EN TRÁNSITO (Se apaga en Zig-Zag)';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#06b6d4; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 12px #06b6d4; white-space:nowrap;">🚤 USV 48V [TRÁNSITO CANAL • HÍBRIDO 7.8 KT]</div>`,
+            iconSize: [225, 26],
+            iconAnchor: [112, 13]
+          }));
+        }
+      }
+
+      genBtn.textContent = usvForceSilent4TOff
+        ? '🔄 Modo Híbrido Auto (4T)'
+        : '🔇 Forzar Apagado Motor 4T';
+    }
+
     function renderCapturesFeed() {
       const container = document.getElementById('capturesFeed');
       container.innerHTML = CAPTURES_FEED_DATA.map((c) => `
@@ -1788,6 +2065,7 @@
       const turno = document.getElementById('turnoSelect').value;
       const token = document.getElementById('tokenSelect').value;
       const showUsv = document.getElementById('chkShowUsvTrack').checked;
+      const showZigZag = document.getElementById('chkShowZigZag').checked;
       const showRocks = document.getElementById('chkShowRockHazards').checked;
 
       const lockBanner = document.getElementById('tokenLockBanner');
@@ -1840,7 +2118,7 @@
           color: color,
           weight: 2.5,
           fillColor: color,
-          fillOpacity: p.riesgoRoca ? 0.38 : 0.28,
+          fillOpacity: p.riesgoRoca ? 0.38 : 0.24,
           dashArray: p.riesgoRoca ? '6, 6' : null
         }).addTo(polygonsLayerGroup);
 
@@ -1905,51 +2183,98 @@
         });
       });
 
+      // Dibujar los barridos en Zig-Zag de captura de datos dentro de cada polígono
+      let totalSampleNodes = 0;
+      if (showZigZag && shiftData.zigzagSweeps) {
+        shiftData.zigzagSweeps.forEach((zz) => {
+          L.polyline(zz.coords, {
+            color: '#facc15',
+            weight: 4.0,
+            opacity: 0.95
+          }).bindTooltip(
+            `🌀 Barrido Zig-Zag [${zz.zona}] • 🔇 Motor 4T APAGADO (3.0 kt Sigilo) • ${zz.sensorLabel}`,
+            { sticky: true }
+          ).addTo(usvTrackLayerGroup);
+
+          zz.coords.forEach((pt, i) => {
+            totalSampleNodes++;
+            L.circleMarker(pt, {
+              radius: 5.5,
+              color: '#04130d',
+              fillColor: '#facc15',
+              fillOpacity: 1,
+              weight: 2
+            }).bindPopup(`
+              <div style="font-family:sans-serif; color:#0f172a; min-width:220px;">
+                <strong>🎯 Punto de Captura Zig-Zag #${i + 1} [${zz.zona}]</strong>
+                <hr style="margin:0.3rem 0;"/>
+                <div><b>Estado Motor 4T:</b> <span style="color:#047857; font-weight:700;">🔇 APAGADO (0 dB Ruido Submarino)</span></div>
+                <div><b>Propulsión:</b> Eléctrica Silenciosa 48V a 3.0 nudos</div>
+                <div><b>Sensores Activos:</b> ${zz.sensorLabel}</div>
+                <div><b>Coordenada Agua:</b> ${pt[0].toFixed(4)}° N, ${pt[1].toFixed(4)}° W</div>
+              </div>
+            `).bindTooltip(`🎯 Muestra #${i + 1} (${zz.zona} • Motor 4T OFF)`, { direction: 'top' }).addTo(usvTrackLayerGroup);
+          });
+        });
+      }
+      const samplesEl = document.getElementById('usvSamplesCount');
+      if (samplesEl) {
+        samplesEl.textContent = `${totalSampleNodes || 14} Puntos Zig-Zag (Sonar + CTD + Chl-a)`;
+      }
+
       if (showUsv) {
         L.polyline(shiftData.usvTrack, {
           color: '#38bdf8',
-          weight: 3.5,
-          dashArray: '8, 6'
+          weight: 3.0,
+          dashArray: '8, 6',
+          opacity: 0.85
         }).addTo(usvTrackLayerGroup);
 
-        // Draw waypoint nodes along the deep water channel
+        // Draw transit waypoint nodes along the deep water channel
         shiftData.usvTrack.forEach((pt, idx) => {
+          const inZz = isSegmentInZigZag(idx, shiftData.zigzagSweeps) || isSegmentInZigZag(idx - 1, shiftData.zigzagSweeps);
+          if (inZz && showZigZag) return; // Ya dibujado como nodo amarillo de captura Zig-Zag
           L.circleMarker(pt, {
             radius: 4,
             color: '#06b6d4',
             fillColor: '#fff',
             fillOpacity: 1,
             weight: 2
-          }).bindTooltip(`WP-${idx + 1} (Canal Navegable)`, { direction: 'top' }).addTo(usvTrackLayerGroup);
+          }).bindTooltip(`WP-${idx + 1} (Tránsito Canal Seguro)`, { direction: 'top' }).addTo(usvTrackLayerGroup);
         });
 
         const usvIcon = L.divIcon({
           className: 'usv-custom-icon',
-          html: `<div style="background:#06b6d4; color:#04130d; font-weight:800; font-size:11px; padding:3px 7px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 12px #06b6d4; white-space:nowrap;">🚤 USV 48V STEALTH</div>`,
-          iconSize: [130, 26],
-          iconAnchor: [65, 13]
+          html: `<div style="background:#facc15; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 14px #facc15; white-space:nowrap;">🌀 USV 48V [ZIG-ZAG • MOTOR 4T OFF 🔇]</div>`,
+          iconSize: [240, 26],
+          iconAnchor: [120, 13]
         });
 
-        const usvMarker = L.marker(shiftData.usvPos, { icon: usvIcon }).addTo(usvTrackLayerGroup);
-        usvMarker.bindPopup(`
-          <div style="font-family:sans-serif; color:#0f172a; min-width:230px;">
+        currentUsvMarker = L.marker(shiftData.usvPos, { icon: usvIcon }).addTo(usvTrackLayerGroup);
+        currentUsvMarker.bindPopup(`
+          <div style="font-family:sans-serif; color:#0f172a; min-width:240px;">
             <strong>🚤 USV Trimarán Híbrido 48V "Stealth"</strong>
             <hr style="margin:0.3rem 0;"/>
             <div><b>Misión:</b> ${t.mission}</div>
+            <div><b>Modo Captura Zig-Zag:</b> Apaga automáticamente el generador 4T al entrar al polígono para barrer a 3.0 nudos sin ruido acústico.</div>
             <div><b>Propulsión:</b> 2x 3.0 kW Flipsky 65161 + Dual VESC</div>
             <div><b>Batería LiFePO4:</b> 10.24 kWh (${t.volts}) — 25 MN Limp-Home</div>
-            <div><b>Rumbo Dual F9P RTK:</b> ${t.heading}</div>
             <div><b>Sonar Activo:</b> ${t.sonarBadge} (${t.depth})</div>
             <div><b>Hidrófono:</b> ${t.hydro}</div>
             <div><b>Sonda Turner:</b> Clorofila ${t.chl} | CTD ${t.ctd}</div>
           </div>
         `);
 
-        // Animate USV smoothly along the water channel waypoints
+        // Animate USV smoothly along the water channel + Zig-Zag capture waypoints
         let segIdx = 0;
         let step = 0;
-        const stepsPerSeg = 40;
+        const stepsPerSeg = 32;
+        updateUsvMotorUiState(isSegmentInZigZag(0, shiftData.zigzagSweeps), shiftData);
+
         usvAnimInterval = setInterval(() => {
+          if (usvTotalMotorStop) {
+            return; // Paro total de motores activo: el USV mantiene posición con motores apagados
+          }
           const pts = shiftData.usvTrack;
           if (!pts || pts.length < 2) return;
           const p1 = pts[segIdx];
@@ -1957,13 +2282,19 @@
           const frac = step / stepsPerSeg;
           const lat = p1[0] + (p2[0] - p1[0]) * frac;
           const lon = p1[1] + (p2[1] - p1[1]) * frac;
-          usvMarker.setLatLng([lat, lon]);
+          currentUsvMarker.setLatLng([lat, lon]);
+
+          if (step === 0) {
+            const activeZz = isSegmentInZigZag(segIdx, shiftData.zigzagSweeps);
+            updateUsvMotorUiState(activeZz, shiftData);
+          }
+
           step++;
           if (step > stepsPerSeg) {
             step = 0;
             segIdx = (segIdx + 1) % (pts.length - 1);
           }
-        }, 180);
+        }, 160);
       }
     }
 
@@ -2167,9 +2498,46 @@ ${tracksXml}
     // =========================================================================
     function appendUsvLog(msg) {
       const logEl = document.getElementById('usvConsoleLog');
+      if (!logEl) return;
       const ts = new Date().toLocaleTimeString();
       logEl.innerHTML = `[${ts}] ${msg}<br/>` + logEl.innerHTML;
     }
+
+    // Controles directos de Apagado de Motor y enfoque Zig-Zag en la Vista Principal (Mapa GIS)
+    document.getElementById('btnToggleTotalMotorStop').addEventListener('click', () => {
+      usvTotalMotorStop = !usvTotalMotorStop;
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+      updateUsvMotorUiState(isSegmentInZigZag(0, shiftData.zigzagSweeps), shiftData);
+      appendUsvLog(
+        usvTotalMotorStop
+          ? '<strong style="color:#f43f5e;">[PARO TOTAL DE MOTORES]</strong> Operador ejecutó corte de emergencia: Propulsores 48V Flipsky (0 W) y Generador 4T APAGADOS (0.0 kt).'
+          : '<strong style="color:#34d399;">[REANUDACIÓN DE MOTORES]</strong> Propulsión 48V reactivada. Reanudando navegación en Zig-Zag de captura de datos.'
+      );
+    });
+
+    document.getElementById('btnToggleGenSilence').addEventListener('click', () => {
+      usvForceSilent4TOff = !usvForceSilent4TOff;
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+      updateUsvMotorUiState(null, shiftData);
+      appendUsvLog(
+        usvForceSilent4TOff
+          ? '<strong style="color:#facc15;">[APAGADO MOTOR 4T FORZADO]</strong> Generador de combustión 4T apagado manualmente. Navegando 100% con banco LiFePO4 10.24 kWh (0 dB).'
+          : '<strong style="color:#38bdf8;">[MODO HÍBRIDO AUTOMÁTICO]</strong> El generador 4T opera en tránsito y se apaga automáticamente al entrar a cada polígono Zig-Zag.'
+      );
+    });
+
+    document.getElementById('btnZoomZigZag').addEventListener('click', () => {
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+      if (shiftData.zigzagSweeps && shiftData.zigzagSweeps.length > 0) {
+        map.fitBounds(shiftData.zigzagSweeps[0].coords, { padding: [45, 45] });
+      }
+    });
 
     document.getElementById('btnSimLimpHome').addEventListener('click', () => {
       appendUsvLog(
@@ -2192,8 +2560,12 @@ ${tracksXml}
     document.getElementById('btnSimAdaptiveLawnmower').addEventListener('click', () => {
       appendUsvLog(
         '<strong style="color:#34d399;">[EDGE AI JETSON ORIN NANO]</strong> Pico confirmado: Sonar Garmin GSD 25 (CHIRP 1 kW) + Sonda Turner Cyclops-7F (Clorofila 5.12 mg/m³). ' +
-        'Generando grilla <strong>Lawnmower Zig-Zag de 400x400 m</strong> sobre el canal y enviando actualización a las pangas.'
+        'Apagando motor 4T y ejecutando grilla <strong>Lawnmower Zig-Zag</strong> sobre el polígono.'
       );
+      activateTab('gis');
+      setTimeout(() => {
+        document.getElementById('btnZoomZigZag').click();
+      }, 200);
     });
 
     document.getElementById('btnSimBilgeBlower').addEventListener('click', () => {
@@ -2223,7 +2595,7 @@ ${tracksXml}
       document.getElementById('catchDialog').close();
     });
 
-    ['zonaSelect', 'turnoSelect', 'tokenSelect', 'chkShowUsvTrack', 'chkShowRockHazards'].forEach((id) => {
+    ['zonaSelect', 'turnoSelect', 'tokenSelect', 'chkShowUsvTrack', 'chkShowZigZag', 'chkShowRockHazards'].forEach((id) => {
       document.getElementById(id).addEventListener('change', () => {
         updateLunarTideInfo();
         renderDashboard();
