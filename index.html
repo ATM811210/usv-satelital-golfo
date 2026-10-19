@@ -1259,24 +1259,29 @@
     // =========================================================================
     const LOCAL_DATASETS = {
       "Topolobampo-Ohuira": {
-        center: [25.582, -109.085],
+        center: [25.578, -109.082],
         zoom: 12,
-        bannerTitle: "Sistema Lagunar Topolobampo – Ohuira – Santa María (Sinaloa)",
+        bannerTitle: "Sistema Lagunar Topolobampo – Ohuira – Canal de la Barra (Sinaloa)",
         NOCTURNO_CAMARON: {
-          usvPos: [25.604, -109.028],
+          usvPos: [25.5969, -109.0365],
           usvTrack: [
-            [25.582, -109.055],
-            [25.596, -109.038],
-            [25.601, -109.022],
-            [25.608, -109.034],
-            [25.604, -109.028],
-            [25.598, -109.122]
+            [25.6168, -109.0098], // 1. Interior Bahía de Ohuira (Agua limpia)
+            [25.6040, -109.0220], // 2. Canal Las Copas (Ohuira)
+            [25.5969, -109.0365], // 3. Entrada Estrecho Topolobampo
+            [25.5945, -109.0475], // 4. Curva Norte Cerro Partido (Canal dragado)
+            [25.5920, -109.0544], // 5. Estrecho Frente a Muelle API Topolobampo
+            [25.5858, -109.0544], // 6. Paso profundo entre Islas Topolobampo
+            [25.5765, -109.0558], // 7. Salida Sur del Estrecho
+            [25.5722, -109.0812], // 8. Canal Central Sur El Maviri
+            [25.5647, -109.1052], // 9. Garganta Interior de la Barra
+            [25.5598, -109.1259], // 10. Boca de la Barra de Topolobampo
+            [25.5474, -109.1420]  // 11. Pluma Exterior Boya de Recalada
           ],
           telemetry: {
             badge: "SIGILO ELÉCTRICO 3.0 KT",
             mission: "Barrido Silencioso Camarón (CHIRP 200 kHz)",
             gen: "APAGADO (0 dB Ruido Submarino)",
-            heading: "294.2° (Dual RTK F9P 0.1° Yaw)",
+            heading: "242.5° (Dual RTK F9P 0.1° Yaw)",
             volts: "52.4 V (86% SoC)",
             soc: 86,
             sonarBadge: "CHIRP 200 kHz",
@@ -1300,11 +1305,11 @@
               confirmadoUsv: true,
               riesgoRoca: false,
               tactica: "ZONA #1 CONFIRMADA: Borde exacto de pluma turbia a 3m (PlanetScope) + 26.1°C en fondo. El USV barrió en modo eléctrico silencioso a las 03:15 AM confirmando mancha densa pegada al lodo.",
-              coords: [[25.612, -109.042], [25.615, -109.018], [25.596, -109.014], [25.593, -109.038]]
+              coords: [[25.616, -109.022], [25.616, -109.004], [25.598, -109.006], [25.598, -109.024]]
             },
             {
               codigo: "TOPO-N2",
-              nombre: "Garganta Boca de Santa María – El Maviri Oeste",
+              nombre: "Canal Central de Vaciante – Sur Isla El Maviri",
               especie: "Camarón Azul y Café Mixto",
               prioridad: 1,
               hsi: 91.4,
@@ -1315,8 +1320,8 @@
               brazas: "4.5 - 9.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Reflujo de marea de 2.8 nudos sacando camarón del estero hacia la barra. Calar entre 04:30 AM y 07:00 AM.",
-              coords: [[25.608, -109.138], [25.610, -109.112], [25.588, -109.108], [25.586, -109.134]]
+              tactica: "Reflujo de marea de 2.8 nudos sobre el canal principal sacando camarón hacia la barra. Calar entre 04:30 AM y 07:00 AM.",
+              coords: [[25.575, -109.098], [25.575, -109.076], [25.565, -109.078], [25.565, -109.100]]
             },
             {
               codigo: "TOPO-N3",
@@ -1331,12 +1336,12 @@
               brazas: "7.0 - 12.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Fondo de arena lodosa firme ideal para red Magdalena o chinchorro de línea.",
-              coords: [[25.552, -109.168], [25.554, -109.140], [25.532, -109.138], [25.530, -109.166]]
+              tactica: "Fondo de arena lodosa firme en la desembocadura exterior de la barra, ideal para red Magdalena o chinchorro de línea.",
+              coords: [[25.552, -109.150], [25.552, -109.132], [25.536, -109.132], [25.536, -109.150]]
             },
             {
               codigo: "TOPO-ROCA",
-              nombre: "Escollera Sur / Bajo Piedra Punta Prieta (EXCLUSIÓN)",
+              nombre: "Bajo Rocoso Interior de la Barra (ZONA EXCLUSIÓN)",
               especie: "ALERTA ROMPE-REDES (Hidrófono >2.5 kHz)",
               prioridad: 3,
               hsi: 22.0,
@@ -1347,24 +1352,29 @@
               brazas: "3.5 - 6.0 bz",
               confirmadoUsv: true,
               riesgoRoca: true,
-              tactica: "¡NO CALAR CHINCHORRO! El Hidrófono Digital Aquarian H3d-Ethernet detectó firma acústica de laja/piedra viva (>2.5 kHz).",
-              coords: [[25.562, -109.092], [25.562, -109.076], [25.550, -109.076], [25.550, -109.092]]
+              tactica: "¡NO CALAR CHINCHORRO! El Hidrófono Digital Aquarian H3d-Ethernet detectó firma acústica de laja/piedra viva (>2.5 kHz) en el borde del canal.",
+              coords: [[25.565, -109.124], [25.565, -109.108], [25.557, -109.108], [25.557, -109.124]]
             }
           ]
         },
         DIURNO_SARDINA: {
-          usvPos: [25.528, -109.205],
+          usvPos: [25.5350, -109.1750],
           usvTrack: [
-            [25.582, -109.055],
-            [25.552, -109.145],
-            [25.576, -109.172],
-            [25.528, -109.205]
+            [25.5920, -109.0544], // 1. Salida Muelle Topolobampo
+            [25.5858, -109.0544], // 2. Paso entre Islas
+            [25.5765, -109.0558], // 3. Salida Sur del Estrecho
+            [25.5722, -109.0812], // 4. Canal Central
+            [25.5647, -109.1052], // 5. Garganta Interior Barra
+            [25.5598, -109.1259], // 6. Boca de la Barra
+            [25.5474, -109.1420], // 7. Boya de Recalada
+            [25.5350, -109.1750], // 8. Mar Abierto Exterior
+            [25.5250, -109.2050]  // 9. Talud Exterior Farallón (Sardina 50 kHz)
           ],
           telemetry: {
             badge: "PROSPECCIÓN DIURNA 8.4 KT",
             mission: "Renta Flota Sardinera / Escama (50 kHz + Clorofila)",
             gen: "ENCENDIDO (Híbrido Auto-Carga)",
-            heading: "218.6° (Dual RTK F9P 0.1° Yaw)",
+            heading: "238.6° (Dual RTK F9P 0.1° Yaw)",
             volts: "53.6 V (94% SoC)",
             soc: 94,
             sonarBadge: "CHIRP 50 kHz (250m)",
@@ -1388,11 +1398,11 @@
               confirmadoUsv: true,
               riesgoRoca: false,
               tactica: "RENTA DIURNA: La sonda Turner Cyclops-7F midió un pico de 5.12 mg/m³ de Clorofila-a y el sonar en 50 kHz cubicó un cardumen denso de 40m de espesor a 28 brazas.",
-              coords: [[25.545, -109.225], [25.548, -109.188], [25.512, -109.184], [25.510, -109.221]]
+              coords: [[25.542, -109.222], [25.542, -109.185], [25.512, -109.185], [25.512, -109.222]]
             },
             {
               codigo: "TOPO-D2",
-              nombre: "Boca Exterior Santa María – Frente Salino de Curvina",
+              nombre: "Aguas Exteriores de la Barra – Frente Salino de Curvina",
               especie: "Curvina Golfina y Pargo (Hidrófono 450 Hz)",
               prioridad: 2,
               hsi: 87.9,
@@ -1403,24 +1413,24 @@
               brazas: "9.0 - 20.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "El hidrófono H3d-Ethernet captó coro de agregación de curvina (420–680 Hz) en el choque térmico exterior.",
-              coords: [[25.588, -109.190], [25.590, -109.158], [25.565, -109.155], [25.563, -109.187]]
+              tactica: "El hidrófono H3d-Ethernet captó coro de agregación de curvina (420–680 Hz) en el choque térmico frente a la barra.",
+              coords: [[25.555, -109.195], [25.555, -109.168], [25.535, -109.168], [25.535, -109.195]]
             }
           ]
         }
       },
       "Bahia de Kino": {
-        center: [28.805, -111.975],
+        center: [28.805, -111.988],
         zoom: 12,
         bannerTitle: "Bahía de Kino – Isla Alcatraz – Canal del Infiernillo Sur (Sonora)",
         NOCTURNO_CAMARON: {
-          usvPos: [28.774, -111.946],
+          usvPos: [28.802, -111.964],
           usvTrack: [
-            [28.758, -111.930],
-            [28.768, -111.942],
-            [28.772, -111.952],
-            [28.774, -111.946],
-            [28.818, -111.978]
+            [28.778, -111.938], // 1. Frente a Boca Estero La Cruz (Agua)
+            [28.786, -111.954], // 2. Canal Sur Bahía de Kino
+            [28.802, -111.964], // 3. Paso Sur de Isla Alcatraz (Agua limpia)
+            [28.814, -111.988], // 4. rodeo Oeste de Isla Alcatraz
+            [28.828, -111.985]  // 5. Canal Norte Isla Alcatraz
           ],
           telemetry: {
             badge: "SIGILO ELÉCTRICO 3.0 KT",
@@ -1438,7 +1448,7 @@
           polygons: [
             {
               codigo: "KINO-N1",
-              nombre: "Canal Boca Estero La Cruz – Punta Baja",
+              nombre: "Canal Exterior Boca Estero La Cruz – Punta Baja",
               especie: "Camarón Azul (L. stylirostris)",
               prioridad: 1,
               hsi: 94.8,
@@ -1450,7 +1460,7 @@
               confirmadoUsv: true,
               riesgoRoca: false,
               tactica: "Mancha densa confirmada a las 03:40 AM por el USV Trimarán 48V. Fondo de lodo orgánico limpio sin roca.",
-              coords: [[28.782, -111.958], [28.782, -111.938], [28.768, -111.935], [28.766, -111.955]]
+              coords: [[28.785, -111.958], [28.785, -111.938], [28.772, -111.938], [28.772, -111.958]]
             },
             {
               codigo: "KINO-N2",
@@ -1465,8 +1475,8 @@
               brazas: "5.0 - 10.5 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Borde de turbidez de 3m PlanetScope bien definido en 8 brazas.",
-              coords: [[28.828, -111.992], [28.830, -111.972], [28.814, -111.970], [28.812, -111.990]]
+              tactica: "Borde de turbidez de 3m PlanetScope bien definido en 8 brazas al norte de Isla Alcatraz.",
+              coords: [[28.832, -111.996], [28.832, -111.976], [28.818, -111.976], [28.818, -111.996]]
             },
             {
               codigo: "KINO-ROCA",
@@ -1481,17 +1491,18 @@
               brazas: "4.0 - 6.5 bz",
               confirmadoUsv: true,
               riesgoRoca: true,
-              tactica: "¡PELIGRO DE ENGANCHE! Hidrófono H3d-Ethernet detectó crepitar intenso de arrecife rocoso.",
-              coords: [[28.805, -111.982], [28.805, -111.968], [28.795, -111.968], [28.795, -111.982]]
+              tactica: "¡PELIGRO DE ENGANCHE! Hidrófono H3d-Ethernet detectó crepitar intenso de arrecife sumergido al sur de la isla.",
+              coords: [[28.806, -111.978], [28.806, -111.962], [28.796, -111.962], [28.796, -111.978]]
             }
           ]
         },
         DIURNO_SARDINA: {
-          usvPos: [28.796, -112.028],
+          usvPos: [28.805, -112.025],
           usvTrack: [
-            [28.758, -111.930],
-            [28.782, -111.985],
-            [28.796, -112.028]
+            [28.786, -111.954], // 1. Salida Bahía de Kino
+            [28.796, -111.988], // 2. Canal Suroeste Isla Alcatraz
+            [28.805, -112.025], // 3. Fosa Exterior Sur Infiernillo
+            [28.838, -112.035]  // 4. Frente Exterior Noroeste
           ],
           telemetry: {
             badge: "PROSPECCIÓN DIURNA 8.8 KT",
@@ -1509,7 +1520,7 @@
           polygons: [
             {
               codigo: "KINO-D1",
-              nombre: "Frente de Surgencia Canal del Infiernillo Sur",
+              nombre: "Frente de Surgencia Exterior Sur Infiernillo",
               especie: "Sardina Monterrey + Curvina Golfina",
               prioridad: 1,
               hsi: 95.6,
@@ -1521,11 +1532,11 @@
               confirmadoUsv: true,
               riesgoRoca: false,
               tactica: "Frente intenso de Clorofila-a (4.85 mg/m³ en sonda Turner) y cardumen compacto entre 18 y 32 brazas en sonar de 50 kHz.",
-              coords: [[28.810, -112.045], [28.812, -112.015], [28.782, -112.012], [28.780, -112.042]]
+              coords: [[28.812, -112.045], [28.812, -112.015], [28.782, -112.015], [28.782, -112.045]]
             },
             {
               codigo: "KINO-D2",
-              nombre: "Franja Costera Norte — Mancha Aguamala (Medusa Bola de Cañón)",
+              nombre: "Corredor Marítimo Noroeste — Mancha Aguamala (Medusa Bola de Cañón)",
               especie: "Aguamala (Stomolophus meleagris)",
               prioridad: 2,
               hsi: 88.4,
@@ -1533,11 +1544,11 @@
               salinidad: 34.9,
               ndti: 0.112,
               clorofila: 3.40,
-              brazas: "4.5 - 11.0 bz",
+              brazas: "6.5 - 14.0 bz",
               confirmadoUsv: true,
               riesgoRoca: false,
-              tactica: "Franja de convergencia detectada a 3m en PlanetScope RedEdge y validada por el USV a su regreso a mediodía.",
-              coords: [[28.868, -112.018], [28.868, -111.992], [28.846, -111.990], [28.846, -112.016]]
+              tactica: "Franja de convergencia en aguas abiertas detectada a 3m en PlanetScope RedEdge y validada por el USV a su regreso a mediodía.",
+              coords: [[28.855, -112.055], [28.855, -112.030], [28.832, -112.030], [28.832, -112.055]]
             }
           ]
         }
@@ -1562,7 +1573,7 @@
     ];
 
     const map = L.map('map', {
-      center: [25.582, -109.085],
+      center: [25.578, -109.082],
       zoom: 12,
       zoomControl: true
     });
@@ -1574,6 +1585,7 @@
 
     const polygonsLayerGroup = L.layerGroup().addTo(map);
     const usvTrackLayerGroup = L.layerGroup().addTo(map);
+    let usvAnimInterval = null;
 
     function renderCapturesFeed() {
       const container = document.getElementById('capturesFeed');
@@ -1591,6 +1603,10 @@
     }
 
     function renderDashboard() {
+      if (usvAnimInterval) {
+        clearInterval(usvAnimInterval);
+        usvAnimInterval = null;
+      }
       const zona = document.getElementById('zonaSelect').value;
       const turno = document.getElementById('turnoSelect').value;
       const token = document.getElementById('tokenSelect').value;
@@ -1715,9 +1731,20 @@
       if (showUsv) {
         L.polyline(shiftData.usvTrack, {
           color: '#38bdf8',
-          weight: 3,
+          weight: 3.5,
           dashArray: '8, 6'
         }).addTo(usvTrackLayerGroup);
+
+        // Draw waypoint nodes along the deep water channel
+        shiftData.usvTrack.forEach((pt, idx) => {
+          L.circleMarker(pt, {
+            radius: 4,
+            color: '#06b6d4',
+            fillColor: '#fff',
+            fillOpacity: 1,
+            weight: 2
+          }).bindTooltip(`WP-${idx + 1} (Canal Navegable)`, { direction: 'top' }).addTo(usvTrackLayerGroup);
+        });
 
         const usvIcon = L.divIcon({
           className: 'usv-custom-icon',
@@ -1740,6 +1767,26 @@
             <div><b>Sonda Turner:</b> Clorofila ${t.chl} | CTD ${t.ctd}</div>
           </div>
         `);
+
+        // Animate USV smoothly along the water channel waypoints
+        let segIdx = 0;
+        let step = 0;
+        const stepsPerSeg = 40;
+        usvAnimInterval = setInterval(() => {
+          const pts = shiftData.usvTrack;
+          if (!pts || pts.length < 2) return;
+          const p1 = pts[segIdx];
+          const p2 = pts[(segIdx + 1) % pts.length];
+          const frac = step / stepsPerSeg;
+          const lat = p1[0] + (p2[0] - p1[0]) * frac;
+          const lon = p1[1] + (p2[1] - p1[1]) * frac;
+          usvMarker.setLatLng([lat, lon]);
+          step++;
+          if (step > stepsPerSeg) {
+            step = 0;
+            segIdx = (segIdx + 1) % (pts.length - 1);
+          }
+        }, 180);
       }
     }
 
