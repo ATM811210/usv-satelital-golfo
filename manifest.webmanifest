@@ -1,0 +1,18 @@
+{
+  "name": "USV 48V Stealth & Satélite 3m PlanetScope — Golfo de California",
+  "short_name": "USV Pesca 3m",
+  "description": "Plataforma Web GIS Satelital 3m (PlanetScope) + Telemetría USV Trimarán Híbrido 48V y App Offline para Capitanes de Panga y Barcos Sardineros.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060d18",
+  "theme_color": "#10b981",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='24' fill='%23060d18'/%3E%3Cpath d='M20 84 L64 28 L108 84 L64 70 Z' fill='%2310b981'/%3E%3Ccircle cx='64' cy='96' r='10' fill='%2306b6d4'/%3E%3C/svg%3E",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

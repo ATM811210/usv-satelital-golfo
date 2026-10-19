@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10b981" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <title>Portal Ejecutivo y Demo GIS: Satélite 3m (PlanetScope) + USV Trimarán 48V "Stealth"</title>
   <!-- Leaflet CSS & JS for Interactive Marine GIS Map -->
   <link
@@ -608,6 +610,67 @@
       gap: 0.3rem;
       font-size: 0.8rem;
     }
+
+    /* ======================================================================
+       TAB 3: APP CAPITÁN OFFLINE (PWA) + SIMULADOR FAILSAFE USV 48V
+       ====================================================================== */
+    #captainPwaView {
+      display: none;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+      width: 100%;
+    }
+
+    .gauge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.9rem;
+      margin-top: 0.85rem;
+    }
+
+    .gauge-box {
+      background: #050b14;
+      border: 2px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .gauge-box .gauge-label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .gauge-box .gauge-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #34d399;
+      display: block;
+      margin: 0.25rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gauge-box .gauge-sub {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+    }
+
+    .console-log {
+      background: #03070e;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.76rem;
+      color: #67e8f9;
+      max-height: 230px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -626,13 +689,16 @@
       </div>
     </div>
 
-    <!-- Pestañas Principales: Demo Mapa vs Propuesta Ejecutiva Completa -->
+    <!-- Pestañas Principales: Demo Mapa vs Propuesta Ejecutiva vs App Capitán Offline + Simulador USV -->
     <div class="mode-tabs" role="tablist">
       <button type="button" class="tab-btn active" id="tabBtnGis" role="tab" aria-selected="true">
-        📡 1. Demo Plataforma Web GIS (En Vivo)
+        📡 1. Mapa Satelital 3m + USV (En Vivo)
       </button>
       <button type="button" class="tab-btn" id="tabBtnProposal" role="tab" aria-selected="false">
-        📑 2. Propuesta Ejecutiva, 4 Cascos y Compras USA (3 Bolsas)
+        📑 2. Propuesta Ejecutiva, 4 Cascos y BOM USA
+      </button>
+      <button type="button" class="tab-btn" id="tabBtnCaptainPwa" role="tab" aria-selected="false">
+        📱 3. App Capitán Offline + Simulador Failsafe USV 48V
       </button>
     </div>
 
@@ -654,7 +720,8 @@
         <option value="EXPIRED-TOKEN">🚫 Simular Cooperativa con Pago Vencido</option>
       </select>
 
-      <button type="button" class="btn-primary" id="btnExportKml">⬇ Descargar .KML (Garmin/Simrad)</button>
+      <button type="button" class="btn-primary" id="btnExportGpx" title="Descargar Waypoints, Ruta Segura y Polígonos para Garmin, Simrad, Lowrance, Raymarine y Furuno">⬇ .GPX (Plotters)</button>
+      <button type="button" class="btn-cyan" id="btnExportKml" title="Descargar Polígonos para Google Earth y Navionics">⬇ .KML (Earth/Navionics)</button>
       <button type="button" class="btn-cyan" id="btnOpenCatchModal">📝 Reportar Captura</button>
     </div>
   </header>
@@ -681,6 +748,10 @@
         <div class="kv-row">
           <span>Fusión Termohalina:</span>
           <strong>VIIRS Nocturno + CMEMS Fondo</strong>
+        </div>
+        <div class="kv-row">
+          <span>Fase Lunar / Marea Hoy:</span>
+          <strong id="lunarTideLabel" style="color:#34d399;">Marea Viva • Reflujo 3.2 kt</strong>
         </div>
         <div class="kv-row">
           <span>Despacho Automático n8n:</span>
@@ -1143,6 +1214,110 @@
     </div>
   </section>
 
+  <!-- ========================================================================
+       VISTA 3: APP CAPITÁN OFFLINE (PWA) + SIMULADOR FAILSAFE USV 48V (ETAPAS 4, 5 y 6)
+       ======================================================================== -->
+  <section id="captainPwaView">
+    <div class="hero-box">
+      <h2>📱 Etapa 4, 5 y 6: App Móvil Offline para Capitanes de Panga + Simulador de Seguridad USV 48V</h2>
+      <p>
+        Esta vista opera <strong>100% sin internet (Service Worker Offline-First)</strong> cuando la panga o el barco sardinero se aleja a <strong>15–25 millas náuticas de la costa</strong>.
+        Calcula en tiempo real el <strong>Rumbo (BRG)</strong>, <strong>Distancia (MN)</strong> y <strong>Tiempo Estimado (ETA)</strong> directo al polígono confirmado, dispara una <strong>Alerta Sonora/Visual Anti-Roca (&gt;2.4 kHz)</strong> antes de que el capitán cale sobre piedra, y permite probar los sistemas de emergencia del <strong>USV Trimarán Híbrido 48V</strong>.
+      </p>
+    </div>
+
+    <div class="grid-2col">
+      <!-- PANEL A: INSTRUMENTOS TÁCTICOS DE NAVEGACIÓN OFFLINE DE LA PANGA -->
+      <div class="section-block">
+        <h3>🧭 1. Instrumentos de Navegación en Panga (Modo Alto Contraste Sol/Noche)</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:0.65rem; margin-bottom:0.85rem;">
+          <div style="flex:1; min-width:210px;">
+            <label for="pangaPosSelect" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.25rem;">
+              Posición Simulada de la Panga (o GPS del Celular):
+            </label>
+            <select id="pangaPosSelect" style="width:100%;">
+              <option value="25.5920,-109.0544">⚓ Muelle Cooperativa Topolobampo (Salida)</option>
+              <option value="25.5722,-109.0812">🚤 En Tránsito por Canal El Maviri</option>
+              <option value="25.5615,-109.1155">⚠️ ¡Peligro! Panga acercándose a Bajo Rocoso (&lt;250m)</option>
+              <option value="28.7860,-111.9540">⚓ Salida Muelle Bahía de Kino (Sonora)</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:210px;">
+            <label for="pangaTargetSelect" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.25rem;">
+              Polígono Destino Seleccionado:
+            </label>
+            <select id="pangaTargetSelect" style="width:100%;">
+              <option value="25.6070,-109.0140|TOPO-N1 (Camarón Azul 96.2%)">🎯 TOPO-N1: Canal Las Copas (HSI 96.2%)</option>
+              <option value="25.5700,-109.0880|TOPO-N2 (Camarón Canal Maviri 91.4%)">🎯 TOPO-N2: Sur Isla El Maviri (HSI 91.4%)</option>
+              <option value="25.5270,-109.2035|TOPO-D1 (Sardina Talud Exterior 95.4%)">🎯 TOPO-D1: Frente Clorofila Sardina (HSI 95.4%)</option>
+              <option value="28.7785,-111.9480|KINO-N1 (Camarón Estero La Cruz 94.8%)">🎯 KINO-N1: Boca Estero La Cruz (HSI 94.8%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+          <button type="button" class="btn-cyan" id="btnUseDeviceGps">📍 Usar GPS Real del Celular / Tablet</button>
+          <span id="pwaOfflineBadge" class="badge badge-green" style="display:inline-flex; align-items:center;">
+            ✅ Caché Satelital Offline Listo (Service Worker Activo)
+          </span>
+        </div>
+
+        <div class="gauge-grid">
+          <div class="gauge-box">
+            <span class="gauge-label">Rumbo a Polígono (BRG)</span>
+            <strong class="gauge-value" id="gaugeBrg">052° NE</strong>
+            <span class="gauge-sub" id="gaugeTargetName">Hacia TOPO-N1</span>
+          </div>
+          <div class="gauge-box">
+            <span class="gauge-label">Distancia Directa</span>
+            <strong class="gauge-value" id="gaugeDistNm">2.41 MN</strong>
+            <span class="gauge-sub" id="gaugeDistKm">4.46 km por canal seguro</span>
+          </div>
+          <div class="gauge-box">
+            <span class="gauge-label">Tiempo Arribo (ETA 12 kt)</span>
+            <strong class="gauge-value" id="gaugeEta">12 min</strong>
+            <span class="gauge-sub">Ahorro: ~35 L gasolina</span>
+          </div>
+          <div class="gauge-box" id="gaugeRockBox">
+            <span class="gauge-label">Hidrófono Anti-Roca</span>
+            <strong class="gauge-value" id="gaugeRockStatus" style="color:#34d399;">FONDO LIMPIO</strong>
+            <span class="gauge-sub" id="gaugeRockSub">Lodo suave (Seguro calar red)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL B: SIMULADOR INTERACTIVO DE FAILSAFES DEL USV TRIMARÁN 48V (ETAPAS 5 y 6) -->
+      <div class="section-block">
+        <h3>🛡️ 2. Simulador de Inteligencia Embarcada (Jetson Orin Nano) y Seguro Anti-Deriva 25 MN</h3>
+        <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:0.75rem;">
+          Prueba aquí el comportamiento real del controlador <code>usv_mission_controller.py</code> ante emergencias en mar abierto a 20 millas náuticas de la costa:
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.85rem;">
+          <button type="button" class="btn-primary" id="btnSimLimpHome" style="text-align:left;">
+            ⚡ 1. Simular Falla de Generador 4T a 20 MN → Activar Seguro "Limp-Home" 25 MN (Banco LiFePO4 10.24 kWh)
+          </button>
+          <button type="button" class="btn-cyan" id="btnSimRadioFailover" style="text-align:left;">
+            📡 2. Simular Corte de Satélite Starlink Mini → Conmutar a Radio RFD900x (915 MHz, 40 km MAVLink)
+          </button>
+          <button type="button" class="btn-cyan" id="btnSimAdaptiveLawnmower" style="text-align:left;">
+            🌀 3. Simular Pico de Biomasa en Sonar CHIRP 1 kW → Trazar Muestreo Adaptativo Zig-Zag en Mapa GIS
+          </button>
+          <button type="button" class="btn-cyan" id="btnSimBilgeBlower" style="text-align:left;">
+            🔥 4. Simular Arranque Automático Generador (SoC &lt; 30%) → Purga Sentina ISO 8846 (90 seg)
+          </button>
+        </div>
+
+        <div class="console-log" id="usvConsoleLog">
+          [JETSON ORIN NANO • MAVLINK 48V] Sistema nominal iniciado.<br/>
+          • Rumbo Dual RTK (2x u-blox ZED-F9P Moving Baseline 2.5m): 242.5° True Yaw (0.08° error, 0 magnetómetro).<br/>
+          • Banco LiFePO4 48V 200Ah (10.24 kWh): 52.4V (86% SoC) → Autonomía Limp-Home disponible: 24.4 MN a 4.2 kt.<br/>
+          • Sonar Garmin GSD 25 + Airmar B265LH + Hidrófono Aquarian H3d-Ethernet + Sonda Turner Cyclops-7F: EN LÍNEA.
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- MODAL: Reportar Captura del Capitán (Light-Dismiss Dialog) -->
   <dialog id="catchDialog" closedby="any" aria-labelledby="catchDialogTitle">
     <div class="dialog-header">
@@ -1216,29 +1391,31 @@
       document.getElementById('catchDialog').showModal();
     });
 
-    // Switch between Tab 1 (Live Web GIS Map) and Tab 2 (Executive Proposal & BOM)
+    // Switch between Tab 1 (Live Web GIS Map), Tab 2 (Executive Proposal & BOM), and Tab 3 (Captain Offline PWA)
     const tabBtnGis = document.getElementById('tabBtnGis');
     const tabBtnProposal = document.getElementById('tabBtnProposal');
+    const tabBtnCaptainPwa = document.getElementById('tabBtnCaptainPwa');
     const gisView = document.getElementById('gisView');
     const proposalView = document.getElementById('proposalView');
+    const captainPwaView = document.getElementById('captainPwaView');
     const gisControlsBar = document.getElementById('gisControlsBar');
 
-    tabBtnGis.addEventListener('click', () => {
-      tabBtnGis.classList.add('active');
-      tabBtnProposal.classList.remove('active');
-      gisView.style.display = 'grid';
-      gisControlsBar.style.display = 'flex';
-      proposalView.style.display = 'none';
-      setTimeout(() => map.invalidateSize(), 100);
-    });
+    function activateTab(tabName) {
+      tabBtnGis.classList.toggle('active', tabName === 'gis');
+      tabBtnProposal.classList.toggle('active', tabName === 'proposal');
+      tabBtnCaptainPwa.classList.toggle('active', tabName === 'pwa');
+      gisView.style.display = tabName === 'gis' ? 'grid' : 'none';
+      gisControlsBar.style.display = tabName === 'gis' ? 'flex' : 'none';
+      proposalView.style.display = tabName === 'proposal' ? 'block' : 'none';
+      captainPwaView.style.display = tabName === 'pwa' ? 'block' : 'none';
+      if (tabName === 'gis') {
+        setTimeout(() => map.invalidateSize(), 100);
+      }
+    }
 
-    tabBtnProposal.addEventListener('click', () => {
-      tabBtnProposal.classList.add('active');
-      tabBtnGis.classList.remove('active');
-      gisView.style.display = 'none';
-      gisControlsBar.style.display = 'none';
-      proposalView.style.display = 'block';
-    });
+    tabBtnGis.addEventListener('click', () => activateTab('gis'));
+    tabBtnProposal.addEventListener('click', () => activateTab('proposal'));
+    tabBtnCaptainPwa.addEventListener('click', () => activateTab('pwa'));
 
     // Hull Option Switcher in Proposal View
     document.querySelectorAll('input[name="hullOptionProp"]').forEach((radio) => {
@@ -1826,23 +2003,242 @@
       URL.revokeObjectURL(url);
     });
 
+    // =========================================================================
+    // ETAPA 3: EXPORTADOR .GPX 1.1 UNIVERSAL (GARMIN, SIMRAD, LOWRANCE, FURUNO)
+    // =========================================================================
+    document.getElementById('btnExportGpx').addEventListener('click', () => {
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+
+      const waypointsXml = shiftData.polygons.map((p) => {
+        const lats = p.coords.map((c) => c[0]);
+        const lons = p.coords.map((c) => c[1]);
+        const cLat = (lats.reduce((a, b) => a + b, 0) / lats.length).toFixed(6);
+        const cLon = (lons.reduce((a, b) => a + b, 0) / lons.length).toFixed(6);
+        const sym = p.riesgoRoca ? 'Skull and Crossbones' : 'Fishing Hot Spot Facility';
+        return `  <wpt lat="${cLat}" lon="${cLon}">
+    <name>${p.codigo} (${p.riesgoRoca ? 'PELIGRO ROCA' : 'HSI ' + p.hsi + '%'})</name>
+    <desc>${p.especie} | ${p.brazas} | Temp: ${p.tempFondo}C | ${p.tactica}</desc>
+    <sym>${sym}</sym>
+  </wpt>`;
+      }).join('\n');
+
+      const routePointsXml = shiftData.usvTrack.map((pt, idx) =>
+        `    <rtept lat="${pt[0].toFixed(6)}" lon="${pt[1].toFixed(6)}"><name>CANAL-WP-${idx + 1}</name></rtept>`
+      ).join('\n');
+
+      const tracksXml = shiftData.polygons.map((p) => {
+        const ring = [...p.coords, p.coords[0]];
+        const pts = ring.map((pt) => `      <trkpt lat="${pt[0].toFixed(6)}" lon="${pt[1].toFixed(6)}"></trkpt>`).join('\n');
+        return `  <trk>
+    <name>POLIGONO ${p.codigo} - ${p.nombre}</name>
+    <trkseg>
+${pts}
+    </trkseg>
+  </trk>`;
+      }).join('\n');
+
+      const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="USV-48V-Stealth-PlanetScope-3m" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Boletin Plotter Marino (${zona} - ${turno})</name>
+    <desc>Waypoints de pesca, ruta de canal dragado y poligonos confirmados por USV 48V</desc>
+  </metadata>
+${waypointsXml}
+  <rte>
+    <name>Ruta Canal Navegable Seguro (${zona})</name>
+${routePointsXml}
+  </rte>
+${tracksXml}
+</gpx>`;
+
+      const blob = new Blob([gpx], { type: 'application/gpx+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `plotter_${zona.toLowerCase().replace(/\s+/g, '_')}_${turno.toLowerCase()}.gpx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // =========================================================================
+    // ETAPA 1: CÁLCULO ASTRONÓMICO DE FASE LUNAR Y REFLUJO DE MAREA
+    // =========================================================================
+    function updateLunarTideInfo() {
+      const zona = document.getElementById('zonaSelect').value;
+      const now = new Date();
+      const synodicMonth = 29.53058867 * 86400 * 1000;
+      const refNewMoon = Date.UTC(2025, 0, 29, 12, 36, 0);
+      const phase = (((now.getTime() - refNewMoon) % synodicMonth) + synodicMonth) % synodicMonth / synodicMonth;
+      const springIdx = Math.pow(Math.cos(2 * Math.PI * phase), 2);
+      const peakKnots = zona.includes('Topolobampo') ? 4.2 : 3.6;
+      const currentKnots = (1.4 + (peakKnots - 1.4) * (0.45 + 0.55 * springIdx)).toFixed(1);
+      const tideType = springIdx >= 0.65 ? 'Marea Viva' : 'Marea Media';
+      const el = document.getElementById('lunarTideLabel');
+      if (el) {
+        el.textContent = `${tideType} • Reflujo ${currentKnots} kt`;
+      }
+    }
+
+    // =========================================================================
+    // ETAPA 4: RELOJES DE NAVEGACIÓN OFFLINE CAPITÁN DE PANGA (BRG, MN, ETA, ROCA)
+    // =========================================================================
+    function haversineNmAndBearing(lat1, lon1, lat2, lon2) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const toDeg = (r) => (r * 180) / Math.PI;
+      const R_km = 6371.0;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distKm = R_km * c;
+      const distNm = distKm / 1.852;
+
+      const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+      const x =
+        Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+        Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+      const brg = (toDeg(Math.atan2(y, x)) + 360) % 360;
+      const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+      const cardinal = dirs[Math.round(brg / 45) % 8];
+      return { distKm, distNm, brg, cardinal };
+    }
+
+    function updateCaptainGauges(customLat, customLon) {
+      const posVal = document.getElementById('pangaPosSelect').value.split(',');
+      const pLat = customLat !== undefined ? customLat : parseFloat(posVal[0]);
+      const pLon = customLon !== undefined ? customLon : parseFloat(posVal[1]);
+
+      const targetRaw = document.getElementById('pangaTargetSelect').value.split('|');
+      const tCoords = targetRaw[0].split(',');
+      const tLat = parseFloat(tCoords[0]);
+      const tLon = parseFloat(tCoords[1]);
+      const tName = targetRaw[1] || 'Polígono #1';
+
+      const nav = haversineNmAndBearing(pLat, pLon, tLat, tLon);
+      const etaMin = Math.max(1, Math.round((nav.distNm / 12.0) * 60));
+
+      document.getElementById('gaugeBrg').textContent = `${String(Math.round(nav.brg)).padStart(3, '0')}° ${nav.cardinal}`;
+      document.getElementById('gaugeTargetName').textContent = `Hacia ${tName}`;
+      document.getElementById('gaugeDistNm').textContent = `${nav.distNm.toFixed(2)} MN`;
+      document.getElementById('gaugeDistKm').textContent = `${nav.distKm.toFixed(2)} km por canal`;
+      document.getElementById('gaugeEta').textContent = `${etaMin} min`;
+
+      // Check proximity to acoustic rock hazard polygons (TOPO-ROCA: 25.5610, -109.1160 | KINO-ROCA: 28.8010, -111.9700)
+      const dTopoRock = haversineNmAndBearing(pLat, pLon, 25.5610, -109.1160).distKm * 1000;
+      const dKinoRock = haversineNmAndBearing(pLat, pLon, 28.8010, -111.9700).distKm * 1000;
+      const minRockDistM = Math.min(dTopoRock, dKinoRock);
+
+      const rockBox = document.getElementById('gaugeRockBox');
+      const rockStatus = document.getElementById('gaugeRockStatus');
+      const rockSub = document.getElementById('gaugeRockSub');
+
+      if (minRockDistM < 350) {
+        rockBox.style.borderColor = '#f43f5e';
+        rockBox.style.background = 'rgba(244, 63, 94, 0.18)';
+        rockStatus.style.color = '#f43f5e';
+        rockStatus.textContent = '¡ALERTA ROCA!';
+        rockSub.textContent = `Piedra a ${Math.round(minRockDistM)}m (>2.4 kHz) ¡NO CALAR!`;
+      } else {
+        rockBox.style.borderColor = 'var(--border-subtle)';
+        rockBox.style.background = '#050b14';
+        rockStatus.style.color = '#34d399';
+        rockStatus.textContent = 'FONDO LIMPIO';
+        rockSub.textContent = 'Lodo suave (Seguro calar red)';
+      }
+    }
+
+    document.getElementById('pangaPosSelect').addEventListener('change', () => updateCaptainGauges());
+    document.getElementById('pangaTargetSelect').addEventListener('change', () => updateCaptainGauges());
+    document.getElementById('btnUseDeviceGps').addEventListener('click', () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => updateCaptainGauges(pos.coords.latitude, pos.coords.longitude),
+          () => updateCaptainGauges()
+        );
+      }
+    });
+
+    // =========================================================================
+    // ETAPAS 5 Y 6: SIMULADOR INTERACTIVO DE FAILSAFES USV 48V Y EDGE AI
+    // =========================================================================
+    function appendUsvLog(msg) {
+      const logEl = document.getElementById('usvConsoleLog');
+      const ts = new Date().toLocaleTimeString();
+      logEl.innerHTML = `[${ts}] ${msg}<br/>` + logEl.innerHTML;
+    }
+
+    document.getElementById('btnSimLimpHome').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#f43f5e;">[FAILSAFE CRÍTICO 48V]</strong> Falla mecánica detectada en Generador 4T a 20.0 MN de la costa. ' +
+        'Activando modo <strong>LIMP_HOME_25NM_BATTERY</strong> con el banco masivo <strong>LiFePO4 10.24 kWh (48V 200Ah)</strong>. ' +
+        'Potencia crucero económico: 650 W (4.2 nudos) → <strong>Autonomía asegurada: 25.0 Millas Náuticas</strong> hasta el muelle sin quedar a la deriva.'
+      );
+      document.getElementById('usvModeBadge').textContent = 'LIMP-HOME 25 MN ACTIVO';
+      document.getElementById('usvMissionState').textContent = 'Retorno Autónomo LiFePO4 (4.2 kt)';
+      document.getElementById('usvGenState').textContent = 'FALLA SIMULADA → Respaldo 10.24 kWh';
+    });
+
+    document.getElementById('btnSimRadioFailover').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#f59e0b;">[FAILOVER TELEMETRÍA]</strong> Pérdida de paquete en Starlink Mini (latencia >5s). ' +
+        'Conmutando sin interrupción al módem sub-GHz <strong>RFDesign RFD900x (915 MHz, 1W, alcance 40 km)</strong> enviando tramas MAVLink HIGH_LATENCY2.'
+      );
+    });
+
+    document.getElementById('btnSimAdaptiveLawnmower').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#34d399;">[EDGE AI JETSON ORIN NANO]</strong> Pico confirmado: Sonar Garmin GSD 25 (CHIRP 1 kW) + Sonda Turner Cyclops-7F (Clorofila 5.12 mg/m³). ' +
+        'Generando grilla <strong>Lawnmower Zig-Zag de 400x400 m</strong> sobre el canal y enviando actualización a las pangas.'
+      );
+    });
+
+    document.getElementById('btnSimBilgeBlower').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#38bdf8;">[SEGURIDAD ISO 8846]</strong> SoC del banco LiFePO4 llegó a 30%. ' +
+        'Iniciando secuencia obligatoria de <strong>90 segundos del Extractor de Vapores (Bilge Blower Ignition Protected)</strong> antes de accionar el solenoide de arranque del generador.'
+      );
+    });
+
     document.getElementById('catchForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      CAPTURES_FEED_DATA.unshift({
+      const newCatch = {
         embarcacion: document.getElementById('inputEmbarcacion').value,
         zona: document.getElementById('inputPoligono').value,
         especie: document.getElementById('inputEspecie').value,
         kilos: parseFloat(document.getElementById('inputKilos').value) || 85,
-        gasolina: parseFloat(document.getElementById('inputGasolina').value) || 35
-      });
+        gasolina: parseFloat(document.getElementById('inputGasolina').value) || 35,
+        ts: new Date().toISOString()
+      };
+      CAPTURES_FEED_DATA.unshift(newCatch);
+      try {
+        const offlineQueue = JSON.parse(localStorage.getItem('usv_offline_captures') || '[]');
+        offlineQueue.unshift(newCatch);
+        localStorage.setItem('usv_offline_captures', JSON.stringify(offlineQueue));
+      } catch (_) {}
       renderCapturesFeed();
       document.getElementById('catchDialog').close();
     });
 
     ['zonaSelect', 'turnoSelect', 'tokenSelect', 'chkShowUsvTrack', 'chkShowRockHazards'].forEach((id) => {
-      document.getElementById(id).addEventListener('change', renderDashboard);
+      document.getElementById(id).addEventListener('change', () => {
+        updateLunarTideInfo();
+        renderDashboard();
+      });
     });
 
+    // Register Offline-First Service Worker (Stage 4)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    updateLunarTideInfo();
+    updateCaptainGauges();
     renderCapturesFeed();
     renderDashboard();
   </script>
