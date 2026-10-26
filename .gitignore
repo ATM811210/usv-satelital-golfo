@@ -1,0 +1,30 @@
+# SO & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Credenciales y variables de entorno críticas
+.env
+.env.local
+*.pem
+*.key
+
+# Python / Jetson Edge
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Node / Frontend PWA
+node_modules/
+dist/
+build/
+
+# Datos crudos masivos de campo (NMEA, Sonar, Bagfiles)
+*.bag
+*.pcap
+*.bin
+investigacion_transcripcion_completa.txt
