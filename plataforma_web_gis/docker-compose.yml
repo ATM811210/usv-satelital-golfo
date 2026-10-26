@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: catamaran_postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-usv_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-usv_stealth_48v_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-pesca_satelital_gis}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init_postgis.sql:/docker-entrypoint-initdb.d/init_postgis.sql:ro
+      - postgis_data:/var/lib/postgresql/data
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: catamaran_n8n
+    restart: unless-stopped
+    environment:
+      - GENERIC_TIMEZONE=America/Mazatlan
+      - TZ=America/Mazatlan
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n_workflows:/workflows:ro
+
+volumes:
+  postgis_data:
+  n8n_data:

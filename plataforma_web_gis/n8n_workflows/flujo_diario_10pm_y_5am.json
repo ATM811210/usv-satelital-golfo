@@ -1,0 +1,85 @@
+{
+  "name": "Pipeline Satelital Diario 3m PlanetScope + USV 48V (10:00 PM Camaron y 05:00 AM Sardina)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 21 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-nocturno-camaron",
+      "name": "Cron 21:30 PM (Turno Noche Camaron)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 180]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-diurno-sardina",
+      "name": "Cron 05:00 AM (Turno Dia Sardina y Clorofila)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 380]
+    },
+    {
+      "parameters": {
+        "url": "http://backend_gis:8000/api/v1/polygons?zona=Topolobampo-Ohuira&turno=NOCTURNO_CAMARON&token=TOPO-2026-VIP-TOKEN",
+        "options": {}
+      },
+      "id": "fetch-planetscope-3m",
+      "name": "Ingesta PlanetScope 3m + GEE + CMEMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [520, 260]
+    },
+    {
+      "parameters": {
+        "url": "http://backend_gis:8000/api/v1/usv-telemetry?zona=Topolobampo-Ohuira&turno=NOCTURNO_CAMARON",
+        "options": {}
+      },
+      "id": "fetch-usv-starlink",
+      "name": "Fusión Acústica USV 48V (CHIRP 50/200kHz + Hidrófono + CTD)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 260]
+    },
+    {
+      "parameters": {
+        "message": "=🦐 BOLETÍN SATELITAL 3M + USV 48V STEALTH (22:00 HRS)\n📍 Zona: Topolobampo - Ohuira - Santa María\n✅ Polígono #1 Confirmado: Canal Las Copas (HSI: 96.2% | 3.0 a 6.5 brazas | Temp Fondo: 26.1°C | Lodo Limpio 0% Roca).\n📲 Abrir Mapa Offline y Descargar KML para Garmin/Simrad: https://pesca-satelital.mx/?token=TOPO-2026-VIP-TOKEN"
+      },
+      "id": "alerta-cooperativas",
+      "name": "Despacho Automático 10:00 PM a Capitanes (WhatsApp/Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1100, 260]
+    }
+  ],
+  "connections": {
+    "Cron 21:30 PM (Turno Noche Camaron)": {
+      "main": [[{ "node": "Ingesta PlanetScope 3m + GEE + CMEMS", "type": "main", "index": 0 }]]
+    },
+    "Cron 05:00 AM (Turno Dia Sardina y Clorofila)": {
+      "main": [[{ "node": "Ingesta PlanetScope 3m + GEE + CMEMS", "type": "main", "index": 0 }]]
+    },
+    "Ingesta PlanetScope 3m + GEE + CMEMS": {
+      "main": [[{ "node": "Fusión Acústica USV 48V (CHIRP 50/200kHz + Hidrófono + CTD)", "type": "main", "index": 0 }]]
+    },
+    "Fusión Acústica USV 48V (CHIRP 50/200kHz + Hidrófono + CTD)": {
+      "main": [[{ "node": "Despacho Automático 10:00 PM a Capitanes (WhatsApp/Telegram)", "type": "main", "index": 0 }]]
+    }
+  }
+}

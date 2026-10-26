@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10b981" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Portal Ejecutivo y Demo GIS: Satélite 3m (PlanetScope) + USV Trimarán 48V "Stealth"</title>
+  <!-- Leaflet CSS & JS for Interactive Marine GIS Map -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --brand-color: #10b981;
+      --brand-cyan: #06b6d4;
+      --bg-deep: #060d18;
+      --bg-panel: #0d1829;
+      --bg-card: #132238;
+      --border-subtle: rgba(56, 189, 248, 0.22);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --danger: #f43f5e;
+      --warning: #f59e0b;
+      --purple-rock: #d946ef;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      accent-color: var(--brand-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Modern Web Guidance: brand-consistent-forms fallback for browsers without accent-color */
+    @supports not (accent-color: var(--brand-color)) {
+      form input[type="checkbox"].visually-hidden {
+        position: absolute !important;
+        clip-path: inset(50%) !important;
+        overflow: hidden !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        white-space: nowrap !important;
+      }
+
+      label.checkbox-fallback-label {
+        position: relative;
+        padding-left: 2rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      input[type="checkbox"] + span::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.2rem;
+        height: 1.2rem;
+        border: 2px solid #94a3b8;
+        background: #0d1829;
+        border-radius: 4px;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+      }
+
+      input[type="checkbox"]:focus-visible + span::before {
+        outline: 2px solid var(--brand-cyan);
+        outline-offset: 2px;
+      }
+
+      input[type="checkbox"]:checked + span::before {
+        background-color: var(--brand-color, #10b981);
+        border-color: var(--brand-color, #10b981);
+      }
+
+      input[type="checkbox"]:checked + span::after {
+        content: "✓";
+        position: absolute;
+        left: 0.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #060d18;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      progress {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border: none;
+        background: #1e293b;
+        height: 10px;
+        border-radius: 6px;
+      }
+
+      progress::-webkit-progress-bar {
+        background-color: #1e293b;
+        border-radius: 6px;
+      }
+
+      progress::-webkit-progress-value {
+        background-color: var(--brand-color, #10b981);
+        border-radius: 6px;
+      }
+
+      progress::-moz-progress-bar {
+        background-color: var(--brand-color, #10b981);
+        border-radius: 6px;
+      }
+    }
+
+    /* Top Navigation Header */
+    header.topbar {
+      background: linear-gradient(90deg, #071120 0%, #0f233c 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      z-index: 1000;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--brand-color);
+      box-shadow: 0 0 12px var(--brand-color);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.25); opacity: 0.7; }
+    }
+
+    .brand-title h1 {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: #fff;
+    }
+
+    .brand-title p {
+      font-size: 0.74rem;
+      color: var(--brand-cyan);
+    }
+
+    /* Main Mode Switcher Tabs */
+    .mode-tabs {
+      display: flex;
+      gap: 0.45rem;
+      background: rgba(6, 13, 24, 0.75);
+      padding: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 0.5rem 0.95rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--brand-color);
+      color: #04130d;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+    }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    select, button, input[type="text"], input[type="number"] {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 0.46rem 0.72rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.btn-primary {
+      background: var(--brand-color);
+      color: #04130d;
+      border-color: var(--brand-color);
+      font-weight: 700;
+    }
+
+    button.btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    button.btn-cyan {
+      background: rgba(6, 182, 212, 0.16);
+      color: #67e8f9;
+      border-color: rgba(6, 182, 212, 0.45);
+    }
+
+    /* Main Workspace Grid (Tab 1: GIS) */
+    .workspace {
+      display: grid;
+      grid-template-columns: 360px 1fr 370px;
+      flex: 1;
+      min-height: calc(100vh - 68px);
+    }
+
+    @media (max-width: 1200px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      #map {
+        height: 520px;
+      }
+    }
+
+    .sidebar {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      border-left: 1px solid var(--border-subtle);
+      padding: 1rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 68px);
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    @media (max-width: 1200px) {
+      .sidebar {
+        max-height: none;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 0.9rem;
+    }
+
+    .panel-card h2 {
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--brand-cyan);
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .badge-green { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-purple { background: rgba(217, 70, 239, 0.2); color: #f0abfc; border: 1px solid rgba(217, 70, 239, 0.45); }
+
+    /* Polygon Cards List */
+    .polygon-item {
+      background: rgba(6, 13, 24, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.65rem;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .polygon-item:hover {
+      border-color: var(--brand-cyan);
+      transform: translateY(-1px);
+    }
+
+    .polygon-item.rock-hazard {
+      border-color: var(--purple-rock);
+      background: rgba(88, 28, 135, 0.22);
+    }
+
+    .polygon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .polygon-title {
+      font-weight: 700;
+      font-size: 0.86rem;
+      color: #fff;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.4rem;
+      margin: 0.5rem 0;
+      font-size: 0.75rem;
+    }
+
+    .metric-box {
+      background: rgba(15, 23, 42, 0.75);
+      padding: 0.35rem 0.5rem;
+      border-radius: 5px;
+      border-left: 3px solid var(--brand-cyan);
+    }
+
+    .metric-box span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.67rem;
+    }
+
+    .metric-box strong {
+      color: #f8fafc;
+      font-size: 0.8rem;
+    }
+
+    /* Map Container */
+    .map-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    #map {
+      flex: 1;
+      width: 100%;
+      min-height: 540px;
+      background: #040b14;
+    }
+
+    .map-overlay-banner {
+      position: absolute;
+      top: 12px;
+      left: 52px;
+      right: 12px;
+      z-index: 500;
+      background: rgba(6, 13, 24, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.6rem 0.95rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      font-size: 0.74rem;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    /* Telemetry KV Rows */
+    .kv-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.77rem;
+      padding: 0.32rem 0;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.14);
+    }
+
+    .kv-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    .kv-row strong {
+      color: #e2e8f0;
+      text-align: right;
+    }
+
+    progress {
+      width: 100%;
+      height: 10px;
+      margin-top: 0.35rem;
+    }
+
+    .token-lock-banner {
+      display: none;
+      background: rgba(244, 63, 94, 0.18);
+      border: 1px solid var(--danger);
+      color: #fecdd3;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    /* ======================================================================
+       TAB 2: ENTREGABLE EJECUTIVO PARA SOCIOS EN PUERTO RICO / COOPERATIVAS
+       ====================================================================== */
+    #proposalView {
+      display: none;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem 4rem;
+      width: 100%;
+    }
+
+    .hero-box {
+      background: linear-gradient(135deg, #0d223a 0%, #091526 100%);
+      border: 1px solid var(--brand-cyan);
+      border-radius: 14px;
+      padding: 1.6rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero-box h2 {
+      font-size: 1.45rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-box p {
+      color: #cbd5e1;
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .kpi-card {
+      background: rgba(6, 13, 24, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--brand-color);
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+    }
+
+    .kpi-card span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .kpi-card strong {
+      font-size: 1.25rem;
+      color: #34d399;
+      display: block;
+      margin-top: 0.2rem;
+    }
+
+    .section-block {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-block h3 {
+      font-size: 1.12rem;
+      color: #67e8f9;
+      margin-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.5rem;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    .table-bom {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .table-bom th, .table-bom td {
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table-bom th {
+      background: rgba(6, 182, 212, 0.16);
+      color: #67e8f9;
+      font-weight: 700;
+    }
+
+    .table-bom a {
+      color: #38bdf8;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    /* Modern Web Guidance: <dialog closedby="any"> modal styling */
+    dialog {
+      margin: auto;
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--brand-cyan);
+      border-radius: 12px;
+      padding: 1.4rem;
+      max-width: 720px;
+      width: 92%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+    }
+
+    dialog::backdrop {
+      background-color: rgba(2, 6, 23, 0.75);
+      backdrop-filter: blur(4px);
+    }
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      font-size: 0.8rem;
+    }
+
+    /* ======================================================================
+       TAB 3: APP CAPITÁN OFFLINE (PWA) + SIMULADOR FAILSAFE USV 48V
+       ====================================================================== */
+    #captainPwaView {
+      display: none;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+      width: 100%;
+    }
+
+    .gauge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.9rem;
+      margin-top: 0.85rem;
+    }
+
+    .gauge-box {
+      background: #050b14;
+      border: 2px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .gauge-box .gauge-label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .gauge-box .gauge-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #34d399;
+      display: block;
+      margin: 0.25rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gauge-box .gauge-sub {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+    }
+
+    .console-log {
+      background: #03070e;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.76rem;
+      color: #67e8f9;
+      max-height: 230px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="tokenLockBanner" class="token-lock-banner">
+    🔒 ACCESO BLOQUEADO: La suscripción mensual de esta cooperativa está vencida. Los polígonos diarios de 3m PlanetScope y la telemetría del USV han sido suspendidos hasta confirmar pago.
+  </div>
+
+  <!-- Barra Superior de Control -->
+  <header class="topbar">
+    <div class="brand-title">
+      <div class="status-dot" title="Sistema Satelital 3m + Starlink Mini USV En Línea"></div>
+      <div>
+        <h1>PLATAFORMA SATELITAL 3M (PLANETSCOPE) + USV TRIMARÁN 48V "STEALTH"</h1>
+        <p>Golfo de California (Topolobampo • Bahía de Kino) — Doble Turno 24h: Camarón (Noche) + Sardina/Curvina (Día)</p>
+      </div>
+    </div>
+
+    <!-- Pestañas Principales: Demo Mapa vs Propuesta Ejecutiva vs App Capitán Offline + Simulador USV -->
+    <div class="mode-tabs" role="tablist">
+      <button type="button" class="tab-btn active" id="tabBtnGis" role="tab" aria-selected="true">
+        📡 1. Mapa Satelital 3m + USV (En Vivo)
+      </button>
+      <button type="button" class="tab-btn" id="tabBtnProposal" role="tab" aria-selected="false">
+        📑 2. Propuesta Ejecutiva, 4 Cascos y BOM USA
+      </button>
+      <button type="button" class="tab-btn" id="tabBtnCaptainPwa" role="tab" aria-selected="false">
+        📱 3. App Capitán Offline + Simulador Failsafe USV 48V
+      </button>
+    </div>
+
+    <div class="controls-bar" id="gisControlsBar">
+      <select id="zonaSelect" aria-label="Seleccionar Zona Operativa">
+        <option value="Topolobampo-Ohuira">📍 Sinaloa: Topolobampo – Ohuira – Sta. María</option>
+        <option value="Bahia de Kino">📍 Sonora: Bahía de Kino – Infiernillo</option>
+      </select>
+
+      <select id="turnoSelect" aria-label="Seleccionar Turno Operativo">
+        <option value="NOCTURNO_CAMARON">🌙 Turno Noche (22:00 - 05:15): Camarón (200 kHz)</option>
+        <option value="DIURNO_SARDINA">☀️ Turno Día (05:30 - 12:00): Sardina / Clorofila-a (50 kHz)</option>
+      </select>
+
+      <select id="tokenSelect" aria-label="Token de Suscripción de Cooperativa">
+        <option value="TOPO-2026-VIP-TOKEN">🔑 Token Activo: Alianza Coop. Topolobampo</option>
+        <option value="SARDINA-2026-DAY-TOKEN">🔑 Token Activo: Flota Sardinera (Renta Diurna)</option>
+        <option value="KINO-2026-VIP-TOKEN">🔑 Token Activo: Coop. Bahía de Kino</option>
+        <option value="EXPIRED-TOKEN">🚫 Simular Cooperativa con Pago Vencido</option>
+      </select>
+
+      <button type="button" class="btn-primary" id="btnExportGpx" title="Descargar Waypoints, Ruta Segura y Polígonos para Garmin, Simrad, Lowrance, Raymarine y Furuno">⬇ .GPX (Plotters)</button>
+      <button type="button" class="btn-cyan" id="btnExportKml" title="Descargar Polígonos para Google Earth y Navionics">⬇ .KML (Earth/Navionics)</button>
+      <button type="button" class="btn-cyan" id="btnOpenCatchModal">📝 Reportar Captura</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       VISTA 1: PLATAFORMA WEB GIS EN VIVO (MAPA SATELITAL 3M + USV 48V)
+       ======================================================================== -->
+  <main class="workspace" id="gisView">
+    <!-- Columna Izquierda: Polígonos Satelitales de 3m y Capas -->
+    <aside class="sidebar">
+      <div class="panel-card">
+        <h2>
+          <span>📡 Motor Satelital Comercial</span>
+          <span class="badge badge-green">3.0 m Diario</span>
+        </h2>
+        <div class="kv-row">
+          <span>Constelación Óptica:</span>
+          <strong>PlanetScope 8-Band (3.0 m/px)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Suscripción Semestral:</span>
+          <strong>$600 USD/mes ($3,600 / 6 meses)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Fusión Termohalina:</span>
+          <strong>VIIRS Nocturno + CMEMS Fondo</strong>
+        </div>
+        <div class="kv-row">
+          <span>Fase Lunar / Marea Hoy:</span>
+          <strong id="lunarTideLabel" style="color:#34d399;">Marea Viva • Reflujo 3.2 kt</strong>
+        </div>
+        <div class="kv-row">
+          <span>Despacho Automático n8n:</span>
+          <strong id="horarioCorteLabel">21:30 PM → Envío 22:00 PM</strong>
+        </div>
+
+        <form style="margin-top: 0.65rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.78rem;">
+          <label for="chkShowUsvTrack" class="checkbox-fallback-label">
+            <input type="checkbox" id="chkShowUsvTrack" class="visually-hidden" checked />
+            <span>Mostrar Ruta y Navegación del USV 48V</span>
+          </label>
+          <label for="chkShowZigZag" class="checkbox-fallback-label">
+            <input type="checkbox" id="chkShowZigZag" class="visually-hidden" checked />
+            <span>Mostrar Barrido en Zig-Zag de Captura de Datos</span>
+          </label>
+          <label for="chkShowRockHazards" class="checkbox-fallback-label">
+            <input type="checkbox" id="chkShowRockHazards" class="visually-hidden" checked />
+            <span>Mostrar Zonas de Exclusión por Roca (Hidrófono)</span>
+          </label>
+        </form>
+      </div>
+
+      <div class="panel-card" style="flex: 1;">
+        <h2>
+          <span id="polygonsHeaderTitle">🦐 Polígonos Confirmados</span>
+          <span class="badge badge-amber" id="polygonsCountBadge">4 Zonas</span>
+        </h2>
+        <div id="polygonsListContainer"></div>
+      </div>
+    </aside>
+
+    <!-- Columna Central: Mapa Satelital Interactivo -->
+    <section class="map-wrapper">
+      <div class="map-overlay-banner">
+        <div>
+          <strong id="bannerZoneTitle" style="font-size: 0.88rem; color: #fff;">
+            Sistema Lagunar Topolobampo – Ohuira – Santa María (Brazas: 2 a 12 bz)
+          </strong>
+          <div style="font-size: 0.73rem; color: #94a3b8;">
+            El USV navega por el canal seguro (línea cian) y al entrar a cada polígono <strong>apaga el motor térmico 4T</strong> y barre en <strong>Zig-Zag (línea amarilla)</strong> para capturar datos sin espantar la biomasa.
+          </div>
+        </div>
+        <div class="legend-bar">
+          <span class="legend-item"><i class="swatch" style="background:#10b981;"></i> Prioridad 1 (HSI &gt;90%)</span>
+          <span class="legend-item"><i class="swatch" style="background:#facc15;"></i> Zig-Zag Captura (Motor 4T OFF 🔇)</span>
+          <span class="legend-item"><i class="swatch" style="background:#38bdf8;"></i> Tránsito Canal Dragado</span>
+          <span class="legend-item"><i class="swatch" style="background:#d946ef;"></i> Exclusión Roca (&gt;2.4 kHz)</span>
+        </div>
+      </div>
+      <div id="map"></div>
+    </section>
+
+    <!-- Columna Derecha: Telemetría en Vivo del USV Trimarán 48V "Stealth" -->
+    <aside class="sidebar">
+      <div class="panel-card">
+        <h2>
+          <span>🚤 USV Trimarán 48V "Stealth"</span>
+          <span class="badge badge-green" id="usvModeBadge">MODO SILENCIOSO</span>
+        </h2>
+        <div class="kv-row">
+          <span>Estado de Misión:</span>
+          <strong id="usvMissionState" style="color:#34d399;">Barrido Zig-Zag 3.0 kt</strong>
+        </div>
+        <div class="kv-row">
+          <span>Propulsión Eléctrica 48V:</span>
+          <strong id="usvPropState" style="color:#34d399;">ACTIVA • 2x Flipsky 3.0 kW</strong>
+        </div>
+        <div class="kv-row">
+          <span>ESC Enfriado por Agua:</span>
+          <strong>Dual FSESC75200 Pro (200A)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Motor Generador 4T:</span>
+          <strong id="usvGenState" style="color:#facc15;">🔇 APAGADO EN ZIG-ZAG (0 dB)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Rumbo Dual RTK (2x F9P):</span>
+          <strong id="usvHeading">294.2° (Precisión 0.1° True Yaw)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Muestras Capturadas Hoy:</span>
+          <strong id="usvSamplesCount" style="color:#67e8f9;">18 Puntos (Sonar + CTD + Chl-a)</strong>
+        </div>
+
+        <!-- CONTROLES DIRECTOS DE APAGADO DE MOTOR Y BARRIDO ZIG-ZAG -->
+        <div style="margin-top:0.65rem; padding-top:0.65rem; border-top:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:0.45rem;">
+          <div style="font-size:0.72rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em;">
+            🎛️ Control Directo de Motores y Captura Zig-Zag:
+          </div>
+          <button type="button" id="btnToggleTotalMotorStop" style="background:rgba(244,63,94,0.2); color:#fecdd3; border:1px solid #f43f5e; font-weight:700; width:100%; text-align:center;">
+            🛑 APAGAR MOTORES (Paro Total Propulsión 0.0 kt)
+          </button>
+          <div style="display:flex; gap:0.4rem;">
+            <button type="button" id="btnToggleGenSilence" class="btn-cyan" style="flex:1; font-size:0.73rem; padding:0.4rem;">
+              🔇 Forzar Apagado Motor 4T
+            </button>
+            <button type="button" id="btnZoomZigZag" class="btn-primary" style="flex:1; font-size:0.73rem; padding:0.4rem;">
+              🌀 Enfocar Zig-Zag Captura
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seguro Anti-Deriva: Banco LiFePO4 10.24 kWh -->
+      <div class="panel-card">
+        <h2>
+          <span>🔋 Banco LiFePO4 Doble Respaldo</span>
+          <span class="badge badge-green">10.24 kWh (48V 200Ah)</span>
+        </h2>
+        <div class="kv-row">
+          <span>Voltaje Bus DC / SoC:</span>
+          <strong id="usvBatteryVolts">52.4 V (86% Carga)</strong>
+        </div>
+        <label for="batteryProgress" style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:0.25rem;">
+          Capacidad de Regreso de Emergencia ("Limp-Home" si falla generador a 20 MN): <strong style="color:#34d399;">25.0 Millas Náuticas</strong>
+        </label>
+        <progress id="batteryProgress" max="100" value="86">86%</progress>
+      </div>
+
+      <!-- Paquete Submarino Multi-Especie -->
+      <div class="panel-card">
+        <h2>
+          <span>🌊 Sensores Submarinos In-Situ</span>
+          <span class="badge badge-amber" id="sonarFreqBadge">CHIRP 200 kHz</span>
+        </h2>
+        <div class="kv-row">
+          <span>Módulo Sonar 1 kW:</span>
+          <strong>Garmin GSD 25 + Airmar B265LH</strong>
+        </div>
+        <div class="kv-row">
+          <span>Profundidad Actual:</span>
+          <strong id="usvDepthBrazas">4.8 Brazas (8.8 m)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Hidrófono Digital Ethernet:</span>
+          <strong id="usvHydrophoneState" style="color:#34d399;">Lodo Limpio (0% Roca)</strong>
+        </div>
+        <div class="kv-row">
+          <span>Clorofila-a (Turner Cyclops-7F):</span>
+          <strong id="usvChlorophyll">2.65 mg/m³</strong>
+        </div>
+        <div class="kv-row">
+          <span>CTD Fondo (Temp / Salinidad):</span>
+          <strong id="usvCtdState">26.1 °C | 33.8 PSU</strong>
+        </div>
+      </div>
+
+      <!-- Bitácora de Capturas Verificadas -->
+      <div class="panel-card">
+        <h2>
+          <span>📋 Retorno Flota (Últimas Capturas)</span>
+          <span class="badge badge-green">ROI Verificado</span>
+        </h2>
+        <div id="capturesFeed" style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.75rem;"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ========================================================================
+       VISTA 2: ENTREGABLE EJECUTIVO COMPLETO PARA SOCIOS (PUERTO RICO / MX)
+       ======================================================================== -->
+  <section id="proposalView">
+    <div class="hero-box">
+      <h2>Propuesta Ejecutiva Integral: Plataforma Satelital Diaria (3 m) + USV Trimarán Híbrido 48V "Stealth"</h2>
+      <p>
+        Diseñado para eliminar la prospección a ciegas en el Golfo de California (Topolobampo–Ohuira–Santa María y Bahía de Kino).
+        En el <strong>Día 21 (Semana 3)</strong> entra en operación el despacho diario de coordenadas satelitales comerciales a <strong>3.0 metros de resolución (PlanetScope)</strong> para mandar a las pangas desde el primer mes.
+        En la <strong>Semana 8</strong> entra al agua el <strong>Trimarán Autónomo Híbrido de 48V</strong> operando en <strong>Doble Turno 24h</strong>: prospecta camarón en silencio eléctrico de noche (23:00–05:00 h) y se renta de día (05:30–12:00 h) a la flota sardinera y escamera con su sensor de Clorofila-a y sonar de 50 kHz.
+      </p>
+
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <span>Ahorro Diario en Gasolina (50 Pangas)</span>
+          <strong>$35,000 MXN / día</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Captura Adicional Estimada (+18 kg/panga)</span>
+          <strong>+$346,500 MXN / día</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Recuperación Total de la Inversión (ROI)</span>
+          <strong>3 a 6 Noches de Zafra</strong>
+        </div>
+        <div class="kpi-card">
+          <span>Ahorro Aduanal Comprando en EE. UU. / PR</span>
+          <strong>$5,641 USD Ahorrados</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1: SELECTOR INTERACTIVO DE PRESUPUESTO EN 3 BOLSAS -->
+    <div class="section-block">
+      <h3>1. Estructura Financiera en "3 Bolsas" y Selector de Casco (Cero Impuestos Inflados)</h3>
+      <p style="font-size:0.84rem; color:#cbd5e1; margin-bottom:0.85rem;">
+        Al encontrarse los socios en <strong>Puerto Rico / EE. UU.</strong>, la <strong>Bolsa 1 (Electrónica y Sensores)</strong> se adquiere directamente con tarjeta estadounidense en los enlaces oficiales de abajo, evitando el 22% de sobrecosto aduanal y evitando triangular dinero por cuentas mexicanas (+30% ISR). Selecciona la opción de casco para ver el total exacto:
+      </p>
+
+      <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; background:rgba(6,13,24,0.65); padding:0.85rem; border-radius:8px; border:1px solid var(--border-subtle);">
+        <label for="radioHullScratchProp" style="font-size:0.85rem; font-weight:700; cursor:pointer;">
+          <input type="radio" id="radioHullScratchProp" name="hullOptionProp" value="scratch" checked />
+          Opción 1: Trimarán Aluminio Naval 5083 Fabricado desde Cero ($5,600 USD) — Total Proyecto: <span style="color:#34d399;">$48,679 USD</span>
+        </label>
+        <label for="radioHullPontoonProp" style="font-size:0.85rem; font-weight:700; cursor:pointer;">
+          <input type="radio" id="radioHullPontoonProp" name="hullOptionProp" value="pontoon" />
+          Opción 2: Pontón Recreativo ($45,000 MXN base + $43,500 MXN en 5 Modificaciones = $4,425 USD con Tanque 90-150L Integrado) — Total Proyecto: <span style="color:#34d399;">$47,504 USD</span>
+        </label>
+      </div>
+
+      <div class="table-scroll">
+        <table class="table-bom">
+          <thead>
+            <tr>
+              <th>Bolsa Financiera</th>
+              <th>Cómo se Paga</th>
+              <th>Descripción de Componentes Incluidos</th>
+              <th>Monto (USD)</th>
+              <th>Equivalente (MXN)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Bolsa 1A (EE. UU.)</strong><br/><span class="badge badge-green">Tarjeta Socio USA/PR</span></td>
+              <td>Compra directa online en EE. UU. + reembolso de <strong>$780 USD</strong> al consultor por sus 2x F9P en stock inmediato</td>
+              <td>Propulsión 48V 6kW Flipsky + Dual VESC Water Cooled + Herrajes/Toberas Blue Robotics + Cube Orange+ + <strong>2x RTK u-blox ZED-F9P</strong> + Jetson Orin Nano 8GB + 1TB NVMe + Cámara Térmica FLIR Boson 320 + Radar 24GHz Ainstein + Starlink Mini + AIS Clase B SEMAR + Luces COLREG + RFD900x 915MHz + Penetradores WetLink IP68 + Cajas IP68 y Cableado Marino UL1426 AWG 2/0 + <strong>Suscripción PlanetScope 3m Diario (6 Meses)</strong></td>
+              <td><strong>$14,729 USD</strong></td>
+              <td>$294,580 MXN</td>
+            </tr>
+            <tr>
+              <td><strong>Bolsa 1B (EE. UU.)</strong><br/><span class="badge badge-green">Tarjeta Socio USA/PR</span></td>
+              <td>Compra directa online en EE. UU.</td>
+              <td><strong>Paquete Submarino Multi-Especie Doble Turno:</strong> Módulo Sonar CHIRP 1kW Garmin GSD 25 + Transductor Bronce Airmar B265LH (50/200 kHz) ($2,600) + Hidrófono Digital Aquarian H3d-Ethernet ($1,900) + Sonda Clorofila-a / Turbidez / Micro-CTD Turner Designs Cyclops-7F ($3,200)</td>
+              <td><strong>$7,700 USD</strong></td>
+              <td>$154,000 MXN</td>
+            </tr>
+            <tr>
+              <td><strong>Bolsa 2 (México)</strong><br/><span class="badge badge-amber">Proveedores Locales MX</span></td>
+              <td>Pago directo en México a taller naval y distribuidor de baterías LiFePO4</td>
+              <td id="propBolsa2Desc"><strong>Opción 1 (Trimarán desde Cero):</strong> Casco Aluminio 5083 CNC + Flotadores PAD con espuma + Tanque 60L XLPE con snorkel anti-explosión ($5,600 USD) + <strong>Banco Masivo LiFePO4 10.24 kWh (48V 200Ah, ~85 kg) para 25 MN Limp-Home ($2,650 USD)</strong> + Generador Híbrido 4T Automatizado ($1,600 USD)</td>
+              <td><strong id="propBolsa2Usd">$9,850 USD</strong></td>
+              <td id="propBolsa2Mxn">$197,000 MXN</td>
+            </tr>
+            <tr>
+              <td><strong>Bolsa 3 (Ingeniería)</strong><br/><span class="badge badge-green">4 Hitos al Consultor</span></td>
+              <td>Transferencia directa al Director de Ingeniería contra entregables (Semanas 1–8)</td>
+              <td><strong>Hito 1 (Día 21):</strong> Plataforma Web Satelital 3m en vivo ($4,800 USD)<br/><strong>Hito 2 (Sem 4):</strong> Diseño Naval CAD y Supervisión de Casco ($2,800 USD)<br/><strong>Hito 3 (Sem 6):</strong> Integración Mecatrónica 48V, IA y Expediente SEMAR ($5,600 USD)<br/><strong>Hito 4 (Sem 8):</strong> App Móvil Offline y Pruebas de Mar Doble Turno ($3,200 USD)</td>
+              <td><strong>$16,400 USD</strong></td>
+              <td>$328,000 MXN</td>
+            </tr>
+            <tr style="background:rgba(16, 185, 129, 0.16); font-size:0.9rem;">
+              <td colspan="3"><strong>INVERSIÓN TOTAL LLAVE EN MANO (Comprando Bolsa 1 en EE. UU. / Puerto Rico)</strong></td>
+              <td><strong id="propTotalUsd" style="color:#34d399;">$48,679 USD</strong></td>
+              <td><strong id="propTotalMxn" style="color:#34d399;">$973,580 MXN</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: COMPARATIVA DE LAS 4 OPCIONES DE CASCO + DESGLOSE DEL PONTÓN DE $45,000 MXN -->
+    <div class="section-block">
+      <h3>2. Comparativa Técnica y Financiera de las 4 Opciones de Plataforma Naval (Casco)</h3>
+      <div class="table-scroll">
+        <table class="table-bom">
+          <thead>
+            <tr>
+              <th>Criterio</th>
+              <th>Opción 1: Trimarán Híbrido "Stealth" Fabricado desde Cero</th>
+              <th>Opción 2: Pontón Recreativo ($45,000 MXN) Modificado a Trimarán</th>
+              <th>Opción 3: Comercial Extranjero 1 (OceanAlpha M40P / SL40)</th>
+              <th>Opción 4: Comercial Extranjero 2 (Maritime Robotics Otter Pro)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Precio Plataforma</strong></td>
+              <td><strong>$5,600 USD</strong> (~$112,000 MXN)</td>
+              <td><strong>$4,425 USD</strong> ($88,500 MXN totales: $45,000 MXN base + $43,500 MXN en 5 modificaciones)</td>
+              <td><strong>&gt;$75,000 a $94,194 USD</strong> (importado en México)</td>
+              <td><strong>&gt;$85,000 a $110,000 USD</strong> (importado en México)</td>
+            </tr>
+            <tr>
+              <td><strong>Tanque de Combustible y Autonomía</strong></td>
+              <td>Tanque nuevo de 60 L XLPE con cuello de ganso anti-explosión (<strong>36–48 h continuas</strong>).</td>
+              <td><strong>Ya incluye tanque marino integrado de fábrica de 90 a 150 Litros</strong> (<strong>60–72+ h de autonomía</strong> sin fabricar tanque).</td>
+              <td><strong>0 Litros (Solo batería):</strong> 4 a 6 horas reales; no aguanta ni medio turno contra corriente.</td>
+              <td><strong>0 Litros (Solo batería):</strong> Se descarga en 90 min contra reflujo de 4 nudos.</td>
+            </tr>
+            <tr>
+              <td><strong>Respaldo Batería Anti-Deriva</strong></td>
+              <td><strong>10.24 kWh LiFePO4 (48V 200Ah)</strong> = 25 millas náuticas de regreso de emergencia si falla el generador.</td>
+              <td><strong>10.24 kWh LiFePO4 (48V 200Ah)</strong> = 25 millas náuticas de regreso de emergencia + gran flotabilidad extra.</td>
+              <td>Batería cerrada pequeña (2–4 kWh); riesgo total de deriva en mar abierto.</td>
+              <td>Baterías propietarias selladas con restricción aduanal Hazmat.</td>
+            </tr>
+            <tr>
+              <td><strong>Ventajas / Desventajas</strong></td>
+              <td>✅ Hidrodinámica perfecta para cabrestante de barco nodriza.<br/>✅ Cero paneles solares (Stealth anti-robo).</td>
+              <td>✅ <strong>Ahorra $1,175 USD y 1.5 semanas de soldadura.</strong><br/>✅ <strong>Tanque de 90–150L ya resuelto.</strong><br/>⚠️ Mayor manga (requiere remolque ancho).</td>
+              <td>❌ Caja negra cerrada.<br/>❌ Casco de fibra de vidrio frágil ante golpe con pangas.</td>
+              <td>❌ 16–24 semanas de espera (llega cuando ya acabó la zafra).<br/>❌ Hélices expuestas a chinchorros.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:1rem; background:rgba(6,182,212,0.08); border:1px solid var(--border-subtle); border-radius:8px; padding:1rem; font-size:0.82rem;">
+        <strong style="color:#67e8f9; display:block; margin-bottom:0.4rem;">
+          🔧 Desglose Exacto de las 5 Modificaciones al Pontón Recreativo de $45,000 MXN ($2,250 USD base + $2,175 USD modificaciones = $4,425 USD):
+        </strong>
+        <ol style="margin-left:1.2rem; display:flex; flex-direction:column; gap:0.3rem; color:#e2e8f0;">
+          <li><strong>3er Pontón Central en V de Aluminio 5083 ($18,000 MXN / $900 USD):</strong> Quilla central soldada a los travesaños con pozo húmedo/seco (<em>Moonpool</em>) para el transductor CHIRP de 1 kW, hidrófono y sonda de Clorofila/CTD, más bahía estanca para los 85 kg de baterías LiFePO4 y el generador.</li>
+          <li><strong>Disipador de Olas en Proa (<em>Wave Deflector</em> a 45°) ($8,000 MXN / $400 USD):</strong> Coraza deflectora en aluminio de 4 mm para romper el oleaje corto de 1.5 m en las bocas de Topolobampo y Kino.</li>
+          <li><strong>Adecuación del Tanque Integrado de 90–150L y Seguridad ISO 8846 ($4,500 MXN / $225 USD):</strong> Limpieza química, filtro separador agua/gasolina Racor, válvula solenoide, cuello de ganso anti-entrada de agua y extractor de vapores <em>Ignition Protected</em>.</li>
+          <li><strong>Espejo de Popa Reforzado y Toberas Corta-Cabos Inox 316 ($6,000 MXN / $300 USD):</strong> Soportes sumergidos con rejillas protectoras para los 2 propulsores de 3.0 kW contra cabos y redes.</li>
+          <li><strong>Cubierta Plana "Stealth" Anti-Robo y Mamparos IP68 ($7,000 MXN / $350 USD):</strong> Cierre superior gris mate sin paneles solares, escotillas con empaque EPDM y candados internos.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: LISTA MAESTRA DE COMPRAS EN EE. UU. CON LINKS DIRECTOS -->
+    <div class="section-block">
+      <h3>3. Lista Maestra de Compras en EE. UU. (Bolsa 1A y 1B — Con Enlaces Directos para Tarjeta Americana)</h3>
+      <div class="table-scroll">
+        <table class="table-bom">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Subsistema / Modelo Exacto</th>
+              <th>Cant.</th>
+              <th>Total (USD)</th>
+              <th>Enlace Directo de Compra en EE. UU.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><strong>Motores Brushless 48V 3.0 kW:</strong> Flipsky 65161 Waterproof Inrunner Motor (100KV/120KV, IP68, eje roscado con hélice metálica CNC)</td>
+              <td>2</td>
+              <td><strong>$960</strong></td>
+              <td><a href="https://flipsky.net/collections/waterproof-motor" target="_blank" rel="noopener">flipsky.net — 65161 Motor</a></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><strong>Controlador Dual VESC Enfriado por Agua:</strong> Flipsky Dual FSESC75200 Pro (84V, 200A continuos por canal, base refrigerada por agua)</td>
+              <td>1</td>
+              <td><strong>$520</strong></td>
+              <td><a href="https://flipsky.net/collections/electronic-products" target="_blank" rel="noopener">flipsky.net — Dual FSESC75200</a></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><strong>Herrajes Marinos, Sellos y Toberas Cortacabos:</strong> Blue Robotics Thruster Spares &amp; Hardware Kit (Inox 316 + ánodos de zinc)</td>
+              <td>1</td>
+              <td><strong>$1,320</strong></td>
+              <td><a href="https://bluerobotics.com/store/thrusters/t200-t500-spares-imports/" target="_blank" rel="noopener">bluerobotics.com — Hardware</a></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><strong>Autopiloto Industrial Triple IMU:</strong> CubePilot Cube Orange+ Standard Set (con Carrier Board ADS-B)</td>
+              <td>1</td>
+              <td><strong>$420</strong></td>
+              <td><a href="https://www.getfpv.com" target="_blank" rel="noopener">getfpv.com</a> / <a href="https://www.robotshop.com" target="_blank" rel="noopener">robotshop.com</a></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><strong>Geoposicionamiento Dual RTK (0.1° True Yaw):</strong> 2x Receptores Multi-Banda u-blox ZED-F9P + Antenas L1/L2 (Inmune a interferencia magnética)</td>
+              <td>2</td>
+              <td><strong>$780</strong></td>
+              <td><strong>Stock Inmediato del Consultor</strong> (Se liquida en Hito 1; ref: <a href="https://www.sparkfun.com" target="_blank" rel="noopener">sparkfun.com</a>)</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><strong>Computadora Edge AI + SSD 1TB:</strong> NVIDIA Jetson Orin Nano 8GB Dev Kit ($499) + Samsung 990 PRO 1TB NVMe ($110)</td>
+              <td>1 kit</td>
+              <td><strong>$609</strong></td>
+              <td><a href="https://www.seeedstudio.com" target="_blank" rel="noopener">seeedstudio.com</a> / <a href="https://www.amazon.com" target="_blank" rel="noopener">amazon.com</a></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><strong>Cámara Térmica Nocturna LWIR:</strong> Teledyne FLIR Boson 320 (Lente 34° HFOV, detecta pangas sin luces y boyas de noche)</td>
+              <td>1</td>
+              <td><strong>$2,450</strong></td>
+              <td><a href="https://groupgets.com" target="_blank" rel="noopener">groupgets.com</a> / <a href="https://www.digikey.com" target="_blank" rel="noopener">digikey.com</a></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><strong>Radar Marino Anticolisión 24 GHz:</strong> Ainstein US-D1 Standard Marine Radar (alcance 100 m en niebla/lluvia)</td>
+              <td>1</td>
+              <td><strong>$1,100</strong></td>
+              <td><a href="https://ainstein.ai" target="_blank" rel="noopener">ainstein.ai</a> / <a href="https://www.sparkfun.com" target="_blank" rel="noopener">sparkfun.com</a></td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><strong>Telemetría Satelital y Radio 40km:</strong> Starlink Mini Kit Roam DC ($599) + RFDesign RFD900x 915MHz Modem Kit ($250)</td>
+              <td>1 kit</td>
+              <td><strong>$849</strong></td>
+              <td><a href="https://www.starlink.com/roam" target="_blank" rel="noopener">starlink.com</a> / <a href="https://www.getfpv.com" target="_blank" rel="noopener">getfpv.com</a></td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><strong>Seguridad Legal SEMAR y Luces COLREG:</strong> Transponder AIS Clase B Em-Trak B921 ($650) + Luces Hella Marine NaviLED ($220)</td>
+              <td>1 kit</td>
+              <td><strong>$870</strong></td>
+              <td><a href="https://www.defender.com" target="_blank" rel="noopener">defender.com</a> / <a href="https://www.westmarine.com" target="_blank" rel="noopener">westmarine.com</a></td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><strong>Prensaestopas Sumergibles, Cajas IP68 y Cableado Marino:</strong> Kit Blue Robotics WetLink Penetrators IP68 ($450) + Gabinetes Aluminio IP68 Polycase + Cable Cobre Estañado Ancor UL1426 AWG 2/0 y AWG 4 + Fusibles ANL 200A + Contactores Blue Sea + Victron SmartShunt 500A + DC-DC Orion-Tr ($850)</td>
+              <td>1 lote</td>
+              <td><strong>$1,300</strong></td>
+              <td><a href="https://bluerobotics.com/store/cables-connectors/penetrators/" target="_blank" rel="noopener">bluerobotics.com</a> / <a href="https://www.bluesea.com" target="_blank" rel="noopener">bluesea.com</a> / <a href="https://www.polycase.com" target="_blank" rel="noopener">polycase.com</a></td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td><strong>Suscripción Satelital Comercial 3.0m Diaria (6 Meses):</strong> PlanetScope Daily Monitoring (Polígono costero 500–800 km² + Trial Evaluación inmediato)</td>
+              <td>6 meses</td>
+              <td><strong>$3,600</strong></td>
+              <td><a href="https://www.planet.com" target="_blank" rel="noopener">planet.com ($600 USD/mes)</a></td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td><strong>Sonar CHIRP 1 kW Doble Frecuencia (Camarón/Sardina):</strong> Módulo Garmin GSD 25 + Transductor Bronce Airmar B265LH (50/200 kHz Ethernet)</td>
+              <td>1</td>
+              <td><strong>$2,600</strong></td>
+              <td><a href="https://www.westmarine.com" target="_blank" rel="noopener">westmarine.com</a> / <a href="https://www.gpscity.com" target="_blank" rel="noopener">gpscity.com</a></td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td><strong>Hidrófono Digital Submarino Anti-Roca:</strong> Aquarian Audio H3d-Ethernet (10 Hz – 100 kHz, descarta piedra rompe-redes y escucha curvina)</td>
+              <td>1</td>
+              <td><strong>$1,900</strong></td>
+              <td><a href="https://www.aquarianaudio.com" target="_blank" rel="noopener">aquarianaudio.com</a></td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td><strong>Sonda de Clorofila-a + Turbidez + Micro-CTD:</strong> Turner Designs Cyclops-7F Submersible Sensor + Interfaz Digital C-FIN (Renta diurna sardina)</td>
+              <td>1</td>
+              <td><strong>$3,200</strong></td>
+              <td><a href="https://www.turnerdesigns.com" target="_blank" rel="noopener">turnerdesigns.com</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: CRONOGRAMA DE 8 SEMANAS Y ANEXO DE DESCARTES -->
+    <div class="grid-2col">
+      <div class="section-block">
+        <h3>4. Plan de Trabajo y Calendario de Pagos (4 Hitos — 8 Semanas)</h3>
+        <div style="display:flex; flex-direction:column; gap:0.65rem; font-size:0.82rem;">
+          <div style="background:rgba(16,185,129,0.1); border-left:4px solid #10b981; padding:0.65rem; border-radius:6px;">
+            <strong>Hito 1 (Semanas 1 a 3 — Entrega Día 21): $4,800 USD (+ $780 USD de los 2x F9P)</strong>
+            <p style="color:#cbd5e1; margin-top:0.2rem;">Activación de PlanetScope 3m diario (iniciando con cuenta Trial/Evaluación en Semana 1), motor PostGIS + n8n y envío diario 10:00 PM a los celulares de las pangas.</p>
+          </div>
+          <div style="background:rgba(6,182,212,0.1); border-left:4px solid #06b6d4; padding:0.65rem; border-radius:6px;">
+            <strong>Hito 2 (Semanas 1 a 4 — En Paralelo): $2,800 USD</strong>
+            <p style="color:#cbd5e1; margin-top:0.2rem;">Planos navales 3D CAD, corte CNC / modificación del pontón recreativo con su tanque integrado, Wave Deflector a 45°, cubierta Stealth y pruebas de estanqueidad.</p>
+          </div>
+          <div style="background:rgba(245,158,11,0.1); border-left:4px solid #f59e0b; padding:0.65rem; border-radius:6px;">
+            <strong>Hito 3 (Semanas 5 a 6): $5,600 USD</strong>
+            <p style="color:#cbd5e1; margin-top:0.2rem;">Integración mecatrónica de 48V, Pods de 3kW, banco LiFePO4 de 10.24 kWh, generador automático, cajas IP68, sensores submarinos y expediente legal ante Capitanía de Puerto (SEMAR).</p>
+          </div>
+          <div style="background:rgba(217,70,239,0.1); border-left:4px solid #d946ef; padding:0.65rem; border-radius:6px;">
+            <strong>Hito 4 (Semanas 7 a 8): $3,200 USD</strong>
+            <p style="color:#cbd5e1; margin-top:0.2rem;">App móvil offline y pruebas de mar reales en Topolobampo / Bahía de Kino validando el Turno Nocturno (Camarón) y el Turno Diurno (Sardina/Escama).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <h3>5. Justificación de Ingeniería: Equipos Descartados</h3>
+        <ul style="margin-left:1.1rem; display:flex; flex-direction:column; gap:0.55rem; font-size:0.81rem; color:#cbd5e1; line-height:1.45;">
+          <li><strong>❌ Paneles Solares en Cubierta (Descartados):</strong> Aportan menos del 10% de la energía requerida por los motores de 48V, se fracturan con el golpe de ola y su brillo espejo atrae robo/vandalismo. Se sustituyeron por cubierta plana "Stealth" gris mate.</li>
+          <li><strong>❌ Propulsores Pequeños de 12V/24V tipo T200/T500 (Descartados):</strong> Incapaces de vencer reflujos de marea de 4.5 nudos en las bocas de Topolobampo y Kino. Se fijaron <strong>2x Motores Industriales de 48V y 3.0 kW c/u (6.0 kW totales)</strong>.</li>
+          <li><strong>❌ Batería Pequeña Estándar (Descartada):</strong> Si el generador falla de noche a 20 millas de la costa, una batería chica dejaría $25,000 USD de electrónica a la deriva. Se fijó el <strong>banco masivo de 10.24 kWh LiFePO4 (25 millas de regreso autónomo)</strong>.</li>
+          <li><strong>❌ Brújula Magnética (Magnetómetro) (Descartada):</strong> Los 125 Amperios de corriente DC en los cables de 48V desvían cualquier compás magnético hasta 35°. Se sustituyó por los <strong>2x receptores RTK u-blox ZED-F9P en Moving Baseline (0.1° de precisión)</strong>.</li>
+          <li><strong>❌ Cámaras Submarinas Ópticas RGB (Descartadas):</strong> Visibilidad menor a 15 cm de noche en el lodo estuarino donde vive el camarón. Se sustituyeron por <strong>Sonar CHIRP 50/200 kHz + Hidrófono Digital Ethernet</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       VISTA 3: APP CAPITÁN OFFLINE (PWA) + SIMULADOR FAILSAFE USV 48V (ETAPAS 4, 5 y 6)
+       ======================================================================== -->
+  <section id="captainPwaView">
+    <div class="hero-box">
+      <h2>📱 Etapa 4, 5 y 6: App Móvil Offline para Capitanes de Panga + Simulador de Seguridad USV 48V</h2>
+      <p>
+        Esta vista opera <strong>100% sin internet (Service Worker Offline-First)</strong> cuando la panga o el barco sardinero se aleja a <strong>15–25 millas náuticas de la costa</strong>.
+        Calcula en tiempo real el <strong>Rumbo (BRG)</strong>, <strong>Distancia (MN)</strong> y <strong>Tiempo Estimado (ETA)</strong> directo al polígono confirmado, dispara una <strong>Alerta Sonora/Visual Anti-Roca (&gt;2.4 kHz)</strong> antes de que el capitán cale sobre piedra, y permite probar los sistemas de emergencia del <strong>USV Trimarán Híbrido 48V</strong>.
+      </p>
+    </div>
+
+    <div class="grid-2col">
+      <!-- PANEL A: INSTRUMENTOS TÁCTICOS DE NAVEGACIÓN OFFLINE DE LA PANGA -->
+      <div class="section-block">
+        <h3>🧭 1. Instrumentos de Navegación en Panga (Modo Alto Contraste Sol/Noche)</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:0.65rem; margin-bottom:0.85rem;">
+          <div style="flex:1; min-width:210px;">
+            <label for="pangaPosSelect" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.25rem;">
+              Posición Simulada de la Panga (o GPS del Celular):
+            </label>
+            <select id="pangaPosSelect" style="width:100%;">
+              <option value="25.5920,-109.0544">⚓ Muelle Cooperativa Topolobampo (Salida)</option>
+              <option value="25.5722,-109.0812">🚤 En Tránsito por Canal El Maviri</option>
+              <option value="25.5615,-109.1155">⚠️ ¡Peligro! Panga acercándose a Bajo Rocoso (&lt;250m)</option>
+              <option value="28.7860,-111.9540">⚓ Salida Muelle Bahía de Kino (Sonora)</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:210px;">
+            <label for="pangaTargetSelect" style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.25rem;">
+              Polígono Destino Seleccionado:
+            </label>
+            <select id="pangaTargetSelect" style="width:100%;">
+              <option value="25.6070,-109.0140|TOPO-N1 (Camarón Azul 96.2%)">🎯 TOPO-N1: Canal Las Copas (HSI 96.2%)</option>
+              <option value="25.5700,-109.0880|TOPO-N2 (Camarón Canal Maviri 91.4%)">🎯 TOPO-N2: Sur Isla El Maviri (HSI 91.4%)</option>
+              <option value="25.5270,-109.2035|TOPO-D1 (Sardina Talud Exterior 95.4%)">🎯 TOPO-D1: Frente Clorofila Sardina (HSI 95.4%)</option>
+              <option value="28.7785,-111.9480|KINO-N1 (Camarón Estero La Cruz 94.8%)">🎯 KINO-N1: Boca Estero La Cruz (HSI 94.8%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+          <button type="button" class="btn-cyan" id="btnUseDeviceGps">📍 Usar GPS Real del Celular / Tablet</button>
+          <span id="pwaOfflineBadge" class="badge badge-green" style="display:inline-flex; align-items:center;">
+            ✅ Caché Satelital Offline Listo (Service Worker Activo)
+          </span>
+        </div>
+
+        <div class="gauge-grid">
+          <div class="gauge-box">
+            <span class="gauge-label">Rumbo a Polígono (BRG)</span>
+            <strong class="gauge-value" id="gaugeBrg">052° NE</strong>
+            <span class="gauge-sub" id="gaugeTargetName">Hacia TOPO-N1</span>
+          </div>
+          <div class="gauge-box">
+            <span class="gauge-label">Distancia Directa</span>
+            <strong class="gauge-value" id="gaugeDistNm">2.41 MN</strong>
+            <span class="gauge-sub" id="gaugeDistKm">4.46 km por canal seguro</span>
+          </div>
+          <div class="gauge-box">
+            <span class="gauge-label">Tiempo Arribo (ETA 12 kt)</span>
+            <strong class="gauge-value" id="gaugeEta">12 min</strong>
+            <span class="gauge-sub">Ahorro: ~35 L gasolina</span>
+          </div>
+          <div class="gauge-box" id="gaugeRockBox">
+            <span class="gauge-label">Hidrófono Anti-Roca</span>
+            <strong class="gauge-value" id="gaugeRockStatus" style="color:#34d399;">FONDO LIMPIO</strong>
+            <span class="gauge-sub" id="gaugeRockSub">Lodo suave (Seguro calar red)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL B: SIMULADOR INTERACTIVO DE FAILSAFES DEL USV TRIMARÁN 48V (ETAPAS 5 y 6) -->
+      <div class="section-block">
+        <h3>🛡️ 2. Simulador de Inteligencia Embarcada (Jetson Orin Nano) y Seguro Anti-Deriva 25 MN</h3>
+        <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:0.75rem;">
+          Prueba aquí el comportamiento real del controlador <code>usv_mission_controller.py</code> ante emergencias en mar abierto a 20 millas náuticas de la costa:
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:0.85rem;">
+          <button type="button" class="btn-primary" id="btnSimLimpHome" style="text-align:left;">
+            ⚡ 1. Simular Falla de Generador 4T a 20 MN → Activar Seguro "Limp-Home" 25 MN (Banco LiFePO4 10.24 kWh)
+          </button>
+          <button type="button" class="btn-cyan" id="btnSimRadioFailover" style="text-align:left;">
+            📡 2. Simular Corte de Satélite Starlink Mini → Conmutar a Radio RFD900x (915 MHz, 40 km MAVLink)
+          </button>
+          <button type="button" class="btn-cyan" id="btnSimAdaptiveLawnmower" style="text-align:left;">
+            🌀 3. Simular Pico de Biomasa en Sonar CHIRP 1 kW → Trazar Muestreo Adaptativo Zig-Zag en Mapa GIS
+          </button>
+          <button type="button" class="btn-cyan" id="btnSimBilgeBlower" style="text-align:left;">
+            🔥 4. Simular Arranque Automático Generador (SoC &lt; 30%) → Purga Sentina ISO 8846 (90 seg)
+          </button>
+        </div>
+
+        <div class="console-log" id="usvConsoleLog">
+          [JETSON ORIN NANO • MAVLINK 48V] Sistema nominal iniciado.<br/>
+          • Rumbo Dual RTK (2x u-blox ZED-F9P Moving Baseline 2.5m): 242.5° True Yaw (0.08° error, 0 magnetómetro).<br/>
+          • Banco LiFePO4 48V 200Ah (10.24 kWh): 52.4V (86% SoC) → Autonomía Limp-Home disponible: 24.4 MN a 4.2 kt.<br/>
+          • Sonar Garmin GSD 25 + Airmar B265LH + Hidrófono Aquarian H3d-Ethernet + Sonda Turner Cyclops-7F: EN LÍNEA.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL: Reportar Captura del Capitán (Light-Dismiss Dialog) -->
+  <dialog id="catchDialog" closedby="any" aria-labelledby="catchDialogTitle">
+    <div class="dialog-header">
+      <h3 id="catchDialogTitle" style="color:var(--brand-cyan);">📝 Bitácora de Validación en Campo (Retroalimentación IA)</h3>
+      <button type="button" onclick="document.getElementById('catchDialog').close()">✕ Cerrar</button>
+    </div>
+    <form id="catchForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="inputEmbarcacion">Nombre de Panga / Barco Sardinero:</label>
+          <input type="text" id="inputEmbarcacion" value="Panga Cooperativa El Maviri VII" required />
+        </div>
+        <div class="form-group">
+          <label for="inputPoligono">Polígono Visitado:</label>
+          <input type="text" id="inputPoligono" value="TOPO-N1 (Canal Las Copas)" required />
+        </div>
+        <div class="form-group">
+          <label for="inputEspecie">Especie Capturada:</label>
+          <input type="text" id="inputEspecie" value="Camarón Azul Exportación (U15)" required />
+        </div>
+        <div class="form-group">
+          <label for="inputKilos">Kilos Capturados en el Lance (kg):</label>
+          <input type="number" id="inputKilos" value="110" min="1" step="0.5" required />
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label for="inputGasolina">Litros de Gasolina Ahorrados al ir directo al Polígono (<span id="gasValueLabel">35</span> L):</label>
+        <input type="range" id="inputGasolina" min="5" max="120" value="35" />
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+        <button type="button" onclick="document.getElementById('catchDialog').close()">Cancelar</button>
+        <button type="submit" class="btn-primary">Guardar Captura y Entrenar Modelo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // =========================================================================
+    // Modern Web Guidance Compliance:
+    // 1. light-dismiss-a-dialog fallback for browsers without <dialog closedby>
+    // 2. brand-consistent-forms dynamic range slider progress fallback
+    // =========================================================================
+    document.querySelectorAll('dialog').forEach((dialog) => {
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        dialog.addEventListener('click', (event) => {
+          if (event.target !== dialog) return;
+          const rect = dialog.getBoundingClientRect();
+          const isDialogContent = (
+            rect.top <= event.clientY &&
+            event.clientY <= rect.top + rect.height &&
+            rect.left <= event.clientX &&
+            event.clientX <= rect.left + rect.width
+          );
+          if (isDialogContent) return;
+          dialog.close();
+        });
+      }
+    });
+
+    const gasRange = document.getElementById('inputGasolina');
+    const gasLabel = document.getElementById('gasValueLabel');
+    gasRange.addEventListener('input', (e) => {
+      gasLabel.textContent = e.target.value;
+      if (!CSS.supports('accent-color', '#10b981')) {
+        const pct = ((e.target.value - e.target.min) / (e.target.max - e.target.min)) * 100;
+        e.target.style.setProperty('--progress', `${pct}%`);
+      }
+    });
+
+    document.getElementById('btnOpenCatchModal').addEventListener('click', () => {
+      document.getElementById('catchDialog').showModal();
+    });
+
+    // Switch between Tab 1 (Live Web GIS Map), Tab 2 (Executive Proposal & BOM), and Tab 3 (Captain Offline PWA)
+    const tabBtnGis = document.getElementById('tabBtnGis');
+    const tabBtnProposal = document.getElementById('tabBtnProposal');
+    const tabBtnCaptainPwa = document.getElementById('tabBtnCaptainPwa');
+    const gisView = document.getElementById('gisView');
+    const proposalView = document.getElementById('proposalView');
+    const captainPwaView = document.getElementById('captainPwaView');
+    const gisControlsBar = document.getElementById('gisControlsBar');
+
+    function activateTab(tabName) {
+      tabBtnGis.classList.toggle('active', tabName === 'gis');
+      tabBtnProposal.classList.toggle('active', tabName === 'proposal');
+      tabBtnCaptainPwa.classList.toggle('active', tabName === 'pwa');
+      gisView.style.display = tabName === 'gis' ? 'grid' : 'none';
+      gisControlsBar.style.display = tabName === 'gis' ? 'flex' : 'none';
+      proposalView.style.display = tabName === 'proposal' ? 'block' : 'none';
+      captainPwaView.style.display = tabName === 'pwa' ? 'block' : 'none';
+      if (tabName === 'gis') {
+        setTimeout(() => map.invalidateSize(), 100);
+      }
+    }
+
+    tabBtnGis.addEventListener('click', () => activateTab('gis'));
+    tabBtnProposal.addEventListener('click', () => activateTab('proposal'));
+    tabBtnCaptainPwa.addEventListener('click', () => activateTab('pwa'));
+
+    // Hull Option Switcher in Proposal View
+    document.querySelectorAll('input[name="hullOptionProp"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const isPontoon = e.target.value === 'pontoon';
+        document.getElementById('propBolsa2Desc').innerHTML = isPontoon
+          ? '<strong>Opción 2 (Pontón Recreativo Modificado — $4,425 USD):</strong> Pontón base con tanque integrado 90–150L ($45,000 MXN) + 5 Modificaciones a Trimarán ($43,500 MXN) + <strong>Banco Masivo LiFePO4 10.24 kWh para 25 MN Limp-Home ($2,650 USD)</strong> + Generador Híbrido 4T ($1,600 USD)'
+          : '<strong>Opción 1 (Trimarán desde Cero — $5,600 USD):</strong> Casco Aluminio 5083 CNC + Flotadores PAD con espuma + Tanque 60L XLPE con snorkel anti-explosión ($5,600 USD) + <strong>Banco Masivo LiFePO4 10.24 kWh para 25 MN Limp-Home ($2,650 USD)</strong> + Generador Híbrido 4T ($1,600 USD)';
+        document.getElementById('propBolsa2Usd').textContent = isPontoon ? '$8,675 USD' : '$9,850 USD';
+        document.getElementById('propBolsa2Mxn').textContent = isPontoon ? '$173,500 MXN' : '$197,000 MXN';
+        document.getElementById('propTotalUsd').textContent = isPontoon ? '$47,504 USD' : '$48,679 USD';
+        document.getElementById('propTotalMxn').textContent = isPontoon ? '$950,080 MXN' : '$973,580 MXN';
+      });
+    });
+
+    // =========================================================================
+    // DATASETS LOCALES DE ALTA PRECISIÓN (TOPOLOBAMPO Y BAHÍA DE KINO)
+    // =========================================================================
+    const LOCAL_DATASETS = {
+      "Topolobampo-Ohuira": {
+        center: [25.578, -109.082],
+        zoom: 12,
+        bannerTitle: "Sistema Lagunar Topolobampo – Ohuira – Canal de la Barra (Sinaloa)",
+        NOCTURNO_CAMARON: {
+          usvPos: [25.6140, -109.0070],
+          // Ruta completa por agua: incluye Zig-Zag en TOPO-N1 -> Tránsito Canal -> Zig-Zag en TOPO-N2 -> Tránsito Barra -> Zig-Zag en TOPO-N3
+          usvTrack: [
+            [25.6140, -109.0070], // 0. Inicio Zig-Zag TOPO-N1 (Motor 4T OFF)
+            [25.6120, -109.0195], // 1. Vértice Zig-Zag TOPO-N1 #2
+            [25.6075, -109.0080], // 2. Vértice Zig-Zag TOPO-N1 #3
+            [25.6045, -109.0205], // 3. Vértice Zig-Zag TOPO-N1 #4
+            [25.6010, -109.0120], // 4. Fin Zig-Zag TOPO-N1 #5
+            [25.6040, -109.0220], // 5. Salida a Canal Las Copas (Tránsito)
+            [25.5969, -109.0365], // 6. Entrada Estrecho Topolobampo
+            [25.5945, -109.0475], // 7. Curva Norte Cerro Partido
+            [25.5920, -109.0544], // 8. Estrecho Frente a Muelle API
+            [25.5858, -109.0544], // 9. Paso profundo entre Islas
+            [25.5765, -109.0558], // 10. Salida Sur del Estrecho
+            [25.5735, -109.0785], // 11. Inicio Zig-Zag TOPO-N2 (Motor 4T OFF)
+            [25.5670, -109.0820], // 12. Vértice Zig-Zag TOPO-N2 #2
+            [25.5735, -109.0885], // 13. Vértice Zig-Zag TOPO-N2 #3
+            [25.5670, -109.0930], // 14. Vértice Zig-Zag TOPO-N2 #4
+            [25.5720, -109.0965], // 15. Fin Zig-Zag TOPO-N2 #5
+            [25.5647, -109.1052], // 16. Garganta Interior de la Barra (Tránsito)
+            [25.5598, -109.1259], // 17. Boca de la Barra de Topolobampo
+            [25.5500, -109.1350], // 18. Inicio Zig-Zag TOPO-N3 (Motor 4T OFF)
+            [25.5470, -109.1475], // 19. Vértice Zig-Zag TOPO-N3 #2
+            [25.5425, -109.1355], // 20. Vértice Zig-Zag TOPO-N3 #3
+            [25.5390, -109.1475]  // 21. Fin Zig-Zag TOPO-N3 #4
+          ],
+          zigzagSweeps: [
+            {
+              zona: "TOPO-N1",
+              startIdx: 0,
+              endIdx: 4,
+              sensorLabel: "CHIRP 200 kHz + CTD 26.1°C + Hidrófono 0% Roca",
+              coords: [
+                [25.6140, -109.0070],
+                [25.6120, -109.0195],
+                [25.6075, -109.0080],
+                [25.6045, -109.0205],
+                [25.6010, -109.0120]
+              ]
+            },
+            {
+              zona: "TOPO-N2",
+              startIdx: 11,
+              endIdx: 15,
+              sensorLabel: "CHIRP 200 kHz + CTD 25.7°C + Reflujo 2.8 kt",
+              coords: [
+                [25.5735, -109.0785],
+                [25.5670, -109.0820],
+                [25.5735, -109.0885],
+                [25.5670, -109.0930],
+                [25.5720, -109.0965]
+              ]
+            },
+            {
+              zona: "TOPO-N3",
+              startIdx: 18,
+              endIdx: 21,
+              sensorLabel: "CHIRP 200 kHz + CTD 25.1°C + Fondo Arena-Lodo",
+              coords: [
+                [25.5500, -109.1350],
+                [25.5470, -109.1475],
+                [25.5425, -109.1355],
+                [25.5390, -109.1475]
+              ]
+            }
+          ],
+          telemetry: {
+            badge: "ZIG-ZAG SIGILO 3.0 KT",
+            mission: "Barrido Zig-Zag Captura Camarón (CHIRP 200 kHz)",
+            gen: "🔇 APAGADO EN ZIG-ZAG (0 dB Ruido)",
+            heading: "242.5° (Dual RTK F9P 0.1° Yaw)",
+            volts: "52.4 V (86% SoC)",
+            soc: 86,
+            sonarBadge: "CHIRP 200 kHz",
+            depth: "4.8 Brazas (8.8 m)",
+            hydro: "Lodo Orgánico Limpio (0% Roca)",
+            chl: "2.65 mg/m³",
+            ctd: "26.1 °C | 33.8 PSU"
+          },
+          polygons: [
+            {
+              codigo: "TOPO-N1",
+              nombre: "Canal Principal Las Copas – Entrada Bahía de Ohuira",
+              especie: "Camarón Azul Exportación (L. stylirostris)",
+              prioridad: 1,
+              hsi: 96.2,
+              tempFondo: 26.1,
+              salinidad: 33.8,
+              ndti: 0.158,
+              clorofila: 2.65,
+              brazas: "3.0 - 6.5 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "ZONA #1 CONFIRMADA: El USV apagó su motor térmico 4T al entrar al polígono y realizó 5 pasadas en Zig-Zag a 3.0 kt confirmando mancha densa pegada al lodo.",
+              coords: [[25.616, -109.022], [25.616, -109.004], [25.598, -109.006], [25.598, -109.024]]
+            },
+            {
+              codigo: "TOPO-N2",
+              nombre: "Canal Central de Vaciante – Sur Isla El Maviri",
+              especie: "Camarón Azul y Café Mixto",
+              prioridad: 1,
+              hsi: 91.4,
+              tempFondo: 25.7,
+              salinidad: 34.2,
+              ndti: 0.142,
+              clorofila: 2.30,
+              brazas: "4.5 - 9.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Barrido en Zig-Zag de 5 vértices con motor 4T apagado sobre el canal de vaciante. Calar entre 04:30 AM y 07:00 AM.",
+              coords: [[25.575, -109.098], [25.575, -109.076], [25.565, -109.078], [25.565, -109.100]]
+            },
+            {
+              codigo: "TOPO-N3",
+              nombre: "Pluma Exterior Barra de Topolobampo – Boya Recalada",
+              especie: "Camarón Café (F. californiensis)",
+              prioridad: 2,
+              hsi: 82.5,
+              tempFondo: 25.1,
+              salinidad: 34.6,
+              ndti: 0.118,
+              clorofila: 1.85,
+              brazas: "7.0 - 12.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Muestreo en Zig-Zag de 4 vértices en la desembocadura exterior de la barra, ideal para red Magdalena o chinchorro de línea.",
+              coords: [[25.552, -109.150], [25.552, -109.132], [25.536, -109.132], [25.536, -109.150]]
+            },
+            {
+              codigo: "TOPO-ROCA",
+              nombre: "Bajo Rocoso Interior de la Barra (ZONA EXCLUSIÓN)",
+              especie: "ALERTA ROMPE-REDES (Hidrófono >2.5 kHz)",
+              prioridad: 3,
+              hsi: 22.0,
+              tempFondo: 25.8,
+              salinidad: 34.4,
+              ndti: 0.151,
+              clorofila: 2.10,
+              brazas: "3.5 - 6.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: true,
+              tactica: "¡NO CALAR CHINCHORRO! El Hidrófono Digital Aquarian H3d-Ethernet detectó firma acústica de laja/piedra viva (>2.5 kHz) en el borde del canal.",
+              coords: [[25.565, -109.124], [25.565, -109.108], [25.557, -109.108], [25.557, -109.124]]
+            }
+          ]
+        },
+        DIURNO_SARDINA: {
+          usvPos: [25.5520, -109.1710],
+          usvTrack: [
+            [25.5920, -109.0544], // 0. Salida Muelle Topolobampo
+            [25.5858, -109.0544], // 1. Paso entre Islas
+            [25.5765, -109.0558], // 2. Salida Sur del Estrecho
+            [25.5722, -109.0812], // 3. Canal Central
+            [25.5647, -109.1052], // 4. Garganta Interior Barra
+            [25.5598, -109.1259], // 5. Boca de la Barra
+            [25.5474, -109.1420], // 6. Boya de Recalada
+            [25.5520, -109.1710], // 7. Inicio Zig-Zag TOPO-D2 (Motor 4T OFF)
+            [25.5380, -109.1760], // 8. Vértice Zig-Zag TOPO-D2 #2
+            [25.5510, -109.1850], // 9. Vértice Zig-Zag TOPO-D2 #3
+            [25.5380, -109.1910], // 10. Fin Zig-Zag TOPO-D2 #4
+            [25.5390, -109.1900], // 11. Inicio Zig-Zag TOPO-D1 Sardina (Motor 4T OFF)
+            [25.5160, -109.1950], // 12. Vértice Zig-Zag TOPO-D1 #2
+            [25.5390, -109.2060], // 13. Vértice Zig-Zag TOPO-D1 #3
+            [25.5160, -109.2140], // 14. Vértice Zig-Zag TOPO-D1 #4
+            [25.5350, -109.2190]  // 15. Fin Zig-Zag TOPO-D1 #5
+          ],
+          zigzagSweeps: [
+            {
+              zona: "TOPO-D2",
+              startIdx: 7,
+              endIdx: 10,
+              sensorLabel: "Hidrófono 450 Hz (Coro Curvina) + CTD 21.4°C",
+              coords: [
+                [25.5520, -109.1710],
+                [25.5380, -109.1760],
+                [25.5510, -109.1850],
+                [25.5380, -109.1910]
+              ]
+            },
+            {
+              zona: "TOPO-D1",
+              startIdx: 11,
+              endIdx: 15,
+              sensorLabel: "Sonar CHIRP 50 kHz (Cardumen 40m) + Sonda Turner 5.12 mg/m³ Chl-a",
+              coords: [
+                [25.5390, -109.1900],
+                [25.5160, -109.1950],
+                [25.5390, -109.2060],
+                [25.5160, -109.2140],
+                [25.5350, -109.2190]
+              ]
+            }
+          ],
+          telemetry: {
+            badge: "ZIG-ZAG DIURNO SARDINA",
+            mission: "Renta Flota Sardinera / Escama (50 kHz + Clorofila)",
+            gen: "🔇 APAGADO EN ZIG-ZAG CAPTURA",
+            heading: "238.6° (Dual RTK F9P 0.1° Yaw)",
+            volts: "53.6 V (94% SoC)",
+            soc: 94,
+            sonarBadge: "CHIRP 50 kHz (250m)",
+            depth: "31.5 Brazas (57.6 m)",
+            hydro: "Coro Curvina Detectado (460 Hz)",
+            chl: "5.12 mg/m³ (Frente Activo)",
+            ctd: "18.6 °C | 35.0 PSU"
+          },
+          polygons: [
+            {
+              codigo: "TOPO-D1",
+              nombre: "Frente de Clorofila-a Talud Exterior Farallón San Ignacio",
+              especie: "Sardina Monterrey + Macarela (Flota Sardinera)",
+              prioridad: 1,
+              hsi: 95.4,
+              tempFondo: 18.6,
+              salinidad: 35.0,
+              ndti: 0.072,
+              clorofila: 5.12,
+              brazas: "22.0 - 65.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "RENTA DIURNA: Barrido Zig-Zag de 5 vértices con motor 4T apagado; la sonda Turner Cyclops-7F midió 5.12 mg/m³ de Clorofila-a y el sonar en 50 kHz cubicó cardumen de 40m de espesor.",
+              coords: [[25.542, -109.222], [25.542, -109.185], [25.512, -109.185], [25.512, -109.222]]
+            },
+            {
+              codigo: "TOPO-D2",
+              nombre: "Aguas Exteriores de la Barra – Frente Salino de Curvina",
+              especie: "Curvina Golfina y Pargo (Hidrófono 450 Hz)",
+              prioridad: 2,
+              hsi: 87.9,
+              tempFondo: 21.4,
+              salinidad: 34.7,
+              ndti: 0.110,
+              clorofila: 3.45,
+              brazas: "9.0 - 20.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "En el barrido Zig-Zag con motor térmico apagado, el hidrófono H3d-Ethernet captó coro de agregación de curvina (420–680 Hz).",
+              coords: [[25.555, -109.195], [25.555, -109.168], [25.535, -109.168], [25.535, -109.195]]
+            }
+          ]
+        }
+      },
+      "Bahia de Kino": {
+        center: [28.805, -111.988],
+        zoom: 12,
+        bannerTitle: "Bahía de Kino – Isla Alcatraz – Canal del Infiernillo Sur (Sonora)",
+        NOCTURNO_CAMARON: {
+          usvPos: [28.7830, -111.9410],
+          usvTrack: [
+            [28.7830, -111.9410], // 0. Inicio Zig-Zag KINO-N1 (Motor 4T OFF)
+            [28.7745, -111.9445], // 1. Vértice Zig-Zag KINO-N1 #2
+            [28.7830, -111.9505], // 2. Vértice Zig-Zag KINO-N1 #3
+            [28.7745, -111.9555], // 3. Fin Zig-Zag KINO-N1 #4
+            [28.7860, -111.9540], // 4. Tránsito Canal Sur Bahía de Kino
+            [28.8020, -111.9640], // 5. Paso Profundo Oeste de Roca Alcatraz
+            [28.8140, -111.9880], // 6. Rodeo Oeste Isla Alcatraz
+            [28.8200, -111.9930], // 7. Inicio Zig-Zag KINO-N2 (Motor 4T OFF)
+            [28.8300, -111.9895], // 8. Vértice Zig-Zag KINO-N2 #2
+            [28.8200, -111.9835], // 9. Vértice Zig-Zag KINO-N2 #3
+            [28.8300, -111.9790]  // 10. Fin Zig-Zag KINO-N2 #4
+          ],
+          zigzagSweeps: [
+            {
+              zona: "KINO-N1",
+              startIdx: 0,
+              endIdx: 3,
+              sensorLabel: "CHIRP 200 kHz + CTD 26.1°C + Lodo Limpio Estero La Cruz",
+              coords: [
+                [28.7830, -111.9410],
+                [28.7745, -111.9445],
+                [28.7830, -111.9505],
+                [28.7745, -111.9555]
+              ]
+            },
+            {
+              zona: "KINO-N2",
+              startIdx: 7,
+              endIdx: 10,
+              sensorLabel: "CHIRP 200 kHz + CTD 25.4°C + Pluma Norte Alcatraz",
+              coords: [
+                [28.8200, -111.9930],
+                [28.8300, -111.9895],
+                [28.8200, -111.9835],
+                [28.8300, -111.9790]
+              ]
+            }
+          ],
+          telemetry: {
+            badge: "ZIG-ZAG SIGILO 3.0 KT",
+            mission: "Barrido Zig-Zag Camarón (CHIRP 200 kHz)",
+            gen: "🔇 APAGADO EN ZIG-ZAG (0 dB Ruido)",
+            heading: "312.0° (Dual RTK F9P 0.1° Yaw)",
+            volts: "52.1 V (84% SoC)",
+            soc: 84,
+            sonarBadge: "CHIRP 200 kHz",
+            depth: "5.2 Brazas (9.5 m)",
+            hydro: "Lodo Orgánico Limpio (0% Roca)",
+            chl: "2.40 mg/m³",
+            ctd: "26.1 °C | 34.4 PSU"
+          },
+          polygons: [
+            {
+              codigo: "KINO-N1",
+              nombre: "Canal Exterior Boca Estero La Cruz – Punta Baja",
+              especie: "Camarón Azul (L. stylirostris)",
+              prioridad: 1,
+              hsi: 94.8,
+              tempFondo: 26.1,
+              salinidad: 34.4,
+              ndti: 0.162,
+              clorofila: 2.40,
+              brazas: "3.5 - 7.5 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Mancha densa confirmada mediante barrido en Zig-Zag de 4 vértices con motor 4T apagado a las 03:40 AM. Fondo de lodo orgánico sin roca.",
+              coords: [[28.785, -111.958], [28.785, -111.938], [28.772, -111.938], [28.772, -111.958]]
+            },
+            {
+              codigo: "KINO-N2",
+              nombre: "Pluma Norte Isla Alcatraz – Canal Somero",
+              especie: "Camarón Café (F. californiensis)",
+              prioridad: 2,
+              hsi: 83.2,
+              tempFondo: 25.4,
+              salinidad: 34.8,
+              ndti: 0.128,
+              clorofila: 1.90,
+              brazas: "5.0 - 10.5 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Borde de turbidez de 3m PlanetScope barrido en Zig-Zag silencioso en 8 brazas al norte de Isla Alcatraz.",
+              coords: [[28.832, -111.996], [28.832, -111.976], [28.818, -111.976], [28.818, -111.996]]
+            },
+            {
+              codigo: "KINO-ROCA",
+              nombre: "Bajo Rocoso Sur Isla Alcatraz (ZONA EXCLUSIÓN)",
+              especie: "ALERTA ROMPE-REDES (Hidrófono >2.4 kHz)",
+              prioridad: 3,
+              hsi: 28.0,
+              tempFondo: 25.9,
+              salinidad: 34.7,
+              ndti: 0.145,
+              clorofila: 2.10,
+              brazas: "4.0 - 6.5 bz",
+              confirmadoUsv: true,
+              riesgoRoca: true,
+              tactica: "¡PELIGRO DE ENGANCHE! Hidrófono H3d-Ethernet detectó crepitar intenso de arrecife sumergido al sur de la isla.",
+              coords: [[28.806, -111.978], [28.806, -111.962], [28.796, -111.962], [28.796, -111.978]]
+            }
+          ]
+        },
+        DIURNO_SARDINA: {
+          usvPos: [28.8090, -112.0180],
+          usvTrack: [
+            [28.7860, -111.9540], // 0. Salida Bahía de Kino
+            [28.7960, -111.9880], // 1. Canal Suroeste Isla Alcatraz
+            [28.8090, -112.0180], // 2. Inicio Zig-Zag KINO-D1 Sardina (Motor 4T OFF)
+            [28.7850, -112.0240], // 3. Vértice Zig-Zag KINO-D1 #2
+            [28.8090, -112.0330], // 4. Vértice Zig-Zag KINO-D1 #3
+            [28.7850, -112.0410], // 5. Fin Zig-Zag KINO-D1 #4
+            [28.8350, -112.0330], // 6. Inicio Zig-Zag KINO-D2 Aguamala (Motor 4T OFF)
+            [28.8520, -112.0380], // 7. Vértice Zig-Zag KINO-D2 #2
+            [28.8350, -112.0460], // 8. Vértice Zig-Zag KINO-D2 #3
+            [28.8520, -112.0520]  // 9. Fin Zig-Zag KINO-D2 #4
+          ],
+          zigzagSweeps: [
+            {
+              zona: "KINO-D1",
+              startIdx: 2,
+              endIdx: 5,
+              sensorLabel: "Sonar CHIRP 50 kHz + Sonda Turner 4.85 mg/m³ Chl-a",
+              coords: [
+                [28.8090, -112.0180],
+                [28.7850, -112.0240],
+                [28.8090, -112.0330],
+                [28.7850, -112.0410]
+              ]
+            },
+            {
+              zona: "KINO-D2",
+              startIdx: 6,
+              endIdx: 9,
+              sensorLabel: "PlanetScope RedEdge + Sonar Biomasa Aguamala",
+              coords: [
+                [28.8350, -112.0330],
+                [28.8520, -112.0380],
+                [28.8350, -112.0460],
+                [28.8520, -112.0520]
+              ]
+            }
+          ],
+          telemetry: {
+            badge: "ZIG-ZAG DIURNO SARDINA",
+            mission: "Sardina + Aguamala (50 kHz + Clorofila)",
+            gen: "🔇 APAGADO EN ZIG-ZAG CAPTURA",
+            heading: "285.4° (Dual RTK F9P 0.1° Yaw)",
+            volts: "53.5 V (93% SoC)",
+            soc: 93,
+            sonarBadge: "CHIRP 50 kHz (250m)",
+            depth: "26.0 Brazas (47.5 m)",
+            hydro: "Sin Roca (Cardumen Pelágico)",
+            chl: "4.85 mg/m³ (Surgencia)",
+            ctd: "18.2 °C | 35.1 PSU"
+          },
+          polygons: [
+            {
+              codigo: "KINO-D1",
+              nombre: "Frente de Surgencia Exterior Sur Infiernillo",
+              especie: "Sardina Monterrey + Curvina Golfina",
+              prioridad: 1,
+              hsi: 95.6,
+              tempFondo: 18.2,
+              salinidad: 35.1,
+              ndti: 0.085,
+              clorofila: 4.85,
+              brazas: "18.0 - 45.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Barrido en Zig-Zag de 4 vértices con motor 4T apagado sobre el frente de Clorofila-a (4.85 mg/m³ en sonda Turner) y cardumen compacto en 50 kHz.",
+              coords: [[28.812, -112.045], [28.812, -112.015], [28.782, -112.015], [28.782, -112.045]]
+            },
+            {
+              codigo: "KINO-D2",
+              nombre: "Corredor Marítimo Noroeste — Mancha Aguamala (Medusa Bola de Cañón)",
+              especie: "Aguamala (Stomolophus meleagris)",
+              prioridad: 2,
+              hsi: 88.4,
+              tempFondo: 21.0,
+              salinidad: 34.9,
+              ndti: 0.112,
+              clorofila: 3.40,
+              brazas: "6.5 - 14.0 bz",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Franja de convergencia en aguas abiertas detectada a 3m en PlanetScope RedEdge y cubicada en Zig-Zag por el USV.",
+              coords: [[28.855, -112.055], [28.855, -112.030], [28.832, -112.030], [28.832, -112.055]]
+            }
+          ]
+        }
+      }
+    };
+
+    const CAPTURES_FEED_DATA = [
+      {
+        embarcacion: "Panga La Reina del Maviri II",
+        zona: "TOPO-N1",
+        especie: "Camarón Azul U15",
+        kilos: 94.5,
+        gasolina: 35
+      },
+      {
+        embarcacion: "B/M Don Ernesto (Sardinero)",
+        zona: "TOPO-D1",
+        especie: "Sardina Monterrey",
+        kilos: 42000,
+        gasolina: 450
+      }
+    ];
+
+    const map = L.map('map', {
+      center: [25.578, -109.082],
+      zoom: 12,
+      zoomControl: true
+    });
+
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+      attribution: 'Satélite Base + Superposición PlanetScope 3m Daily | USV Trimarán 48V'
+    }).addTo(map);
+
+    const polygonsLayerGroup = L.layerGroup().addTo(map);
+    const usvTrackLayerGroup = L.layerGroup().addTo(map);
+    let usvAnimInterval = null;
+
+    // Estado de control de motores del USV 48V
+    let usvTotalMotorStop = false;      // Paro total de propulsión (0.0 kt)
+    let usvForceSilent4TOff = false;    // Forzar apagado manual del generador 4T incluso en tránsito
+    let currentUsvMarker = null;
+
+    function isSegmentInZigZag(segIdx, zigzagSweeps) {
+      if (!zigzagSweeps) return null;
+      for (const z of zigzagSweeps) {
+        if (segIdx >= z.startIdx && segIdx < z.endIdx) {
+          return z;
+        }
+      }
+      return null;
+    }
+
+    function updateUsvMotorUiState(activeZigZag, shiftData) {
+      const badgeEl = document.getElementById('usvModeBadge');
+      const missionEl = document.getElementById('usvMissionState');
+      const propEl = document.getElementById('usvPropState');
+      const genEl = document.getElementById('usvGenState');
+      const stopBtn = document.getElementById('btnToggleTotalMotorStop');
+      const genBtn = document.getElementById('btnToggleGenSilence');
+
+      if (usvTotalMotorStop) {
+        badgeEl.textContent = '🛑 MOTORES APAGADOS';
+        badgeEl.className = 'badge badge-purple';
+        missionEl.style.color = '#f43f5e';
+        missionEl.textContent = 'PARO TOTAL DE MOTORES (0.0 kt • En Posición)';
+        propEl.style.color = '#f43f5e';
+        propEl.textContent = 'APAGADA (0 W • Corte Dual VESC 48V)';
+        genEl.style.color = '#f43f5e';
+        genEl.textContent = '🛑 APAGADO (Corte Solenoide Combustible)';
+        stopBtn.innerHTML = '▶️ ENCENDER MOTORES Y REANUDAR ZIG-ZAG';
+        stopBtn.style.background = 'rgba(16,185,129,0.25)';
+        stopBtn.style.borderColor = '#10b981';
+        stopBtn.style.color = '#a7f3d0';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#f43f5e; color:#fff; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 14px #f43f5e; white-space:nowrap;">🛑 USV 48V [MOTORES APAGADOS • 0.0 KT]</div>`,
+            iconSize: [210, 26],
+            iconAnchor: [105, 13]
+          }));
+        }
+        return;
+      }
+
+      stopBtn.innerHTML = '🛑 APAGAR MOTORES (Paro Total Propulsión 0.0 kt)';
+      stopBtn.style.background = 'rgba(244,63,94,0.2)';
+      stopBtn.style.borderColor = '#f43f5e';
+      stopBtn.style.color = '#fecdd3';
+
+      propEl.style.color = '#34d399';
+      propEl.textContent = 'ACTIVA • 2x Flipsky 3.0 kW (48V)';
+
+      if (activeZigZag) {
+        // Dentro de un polígono ejecutando Zig-Zag de captura de datos -> Motor 4T se apaga automáticamente
+        badgeEl.textContent = `ZIG-ZAG [${activeZigZag.zona}] 3.0 KT`;
+        badgeEl.className = 'badge badge-green';
+        missionEl.style.color = '#facc15';
+        missionEl.textContent = `🌀 Captura Zig-Zag en ${activeZigZag.zona} (3.0 kt)`;
+        genEl.style.color = '#facc15';
+        genEl.textContent = '🔇 APAGADO AUTOMÁTICO EN ZIG-ZAG (0 dB)';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#facc15; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 14px #facc15; white-space:nowrap;">🌀 USV 48V [ZIG-ZAG ${activeZigZag.zona} • MOTOR 4T OFF 🔇]</div>`,
+            iconSize: [240, 26],
+            iconAnchor: [120, 13]
+          }));
+        }
+      } else if (usvForceSilent4TOff) {
+        badgeEl.textContent = 'TRÁNSITO ELÉCTRICO 4.5 KT';
+        badgeEl.className = 'badge badge-green';
+        missionEl.style.color = '#34d399';
+        missionEl.textContent = 'Tránsito Canal 100% Batería LiFePO4';
+        genEl.style.color = '#34d399';
+        genEl.textContent = '🔇 APAGADO MANUAL (Modo Silencioso Forzado)';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#10b981; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 12px #10b981; white-space:nowrap;">🚤 USV 48V [TRÁNSITO SILENCIOSO • 4T OFF 🔇]</div>`,
+            iconSize: [225, 26],
+            iconAnchor: [112, 13]
+          }));
+        }
+      } else {
+        badgeEl.textContent = 'TRÁNSITO CANAL 7.8 KT';
+        badgeEl.className = 'badge badge-amber';
+        missionEl.style.color = '#38bdf8';
+        missionEl.textContent = 'Tránsito por Canal Dragado hacia Polígono';
+        genEl.style.color = '#38bdf8';
+        genEl.textContent = '⚡ ENCENDIDO EN TRÁNSITO (Se apaga en Zig-Zag)';
+        if (currentUsvMarker) {
+          currentUsvMarker.setIcon(L.divIcon({
+            className: 'usv-custom-icon',
+            html: `<div style="background:#06b6d4; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 12px #06b6d4; white-space:nowrap;">🚤 USV 48V [TRÁNSITO CANAL • HÍBRIDO 7.8 KT]</div>`,
+            iconSize: [225, 26],
+            iconAnchor: [112, 13]
+          }));
+        }
+      }
+
+      genBtn.textContent = usvForceSilent4TOff
+        ? '🔄 Modo Híbrido Auto (4T)'
+        : '🔇 Forzar Apagado Motor 4T';
+    }
+
+    function renderCapturesFeed() {
+      const container = document.getElementById('capturesFeed');
+      container.innerHTML = CAPTURES_FEED_DATA.map((c) => `
+        <div style="background:rgba(6,13,24,0.65); padding:0.5rem; border-radius:6px; border-left:3px solid #10b981;">
+          <div style="display:flex; justify-content:space-between; font-weight:700; color:#fff;">
+            <span>${c.embarcacion}</span>
+            <span style="color:#34d399;">+${c.kilos.toLocaleString()} kg</span>
+          </div>
+          <div style="color:#94a3b8; margin-top:0.15rem;">
+            Zona <strong>${c.zona}</strong> • ${c.especie} • Ahorro: <strong>${c.gasolina} L gasolina</strong>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDashboard() {
+      if (usvAnimInterval) {
+        clearInterval(usvAnimInterval);
+        usvAnimInterval = null;
+      }
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const token = document.getElementById('tokenSelect').value;
+      const showUsv = document.getElementById('chkShowUsvTrack').checked;
+      const showZigZag = document.getElementById('chkShowZigZag').checked;
+      const showRocks = document.getElementById('chkShowRockHazards').checked;
+
+      const lockBanner = document.getElementById('tokenLockBanner');
+      if (token === 'EXPIRED-TOKEN') {
+        lockBanner.style.display = 'block';
+        polygonsLayerGroup.clearLayers();
+        usvTrackLayerGroup.clearLayers();
+        document.getElementById('polygonsListContainer').innerHTML = `
+          <div style="padding:1rem; text-align:center; color:#fecdd3; background:rgba(244,63,94,0.12); border:1px solid #f43f5e; border-radius:8px;">
+            Token suspendido por falta de pago mensual. Renueve la iguala de la cooperativa para desbloquear las coordenadas de las 10:00 PM.
+          </div>
+        `;
+        return;
+      }
+      lockBanner.style.display = 'none';
+
+      const zoneData = LOCAL_DATASETS[zona];
+      const shiftData = zoneData[turno];
+
+      document.getElementById('bannerZoneTitle').textContent = zoneData.bannerTitle;
+      document.getElementById('horarioCorteLabel').textContent =
+        turno === 'NOCTURNO_CAMARON' ? '21:30 PM → Envío 22:00 PM' : '04:45 AM → Envío 05:15 AM';
+      document.getElementById('polygonsHeaderTitle').textContent =
+        turno === 'NOCTURNO_CAMARON' ? '🦐 Polígonos Camarón (Noche)' : '🐟 Frentes Sardina/Escama (Día)';
+
+      const t = shiftData.telemetry;
+      document.getElementById('usvModeBadge').textContent = t.badge;
+      document.getElementById('usvMissionState').textContent = t.mission;
+      document.getElementById('usvGenState').textContent = t.gen;
+      document.getElementById('usvHeading').textContent = t.heading;
+      document.getElementById('usvBatteryVolts').textContent = t.volts;
+      document.getElementById('batteryProgress').value = t.soc;
+      document.getElementById('sonarFreqBadge').textContent = t.sonarBadge;
+      document.getElementById('usvDepthBrazas').textContent = t.depth;
+      document.getElementById('usvHydrophoneState').textContent = t.hydro;
+      document.getElementById('usvChlorophyll').textContent = t.chl;
+      document.getElementById('usvCtdState').textContent = t.ctd;
+
+      map.setView(zoneData.center, zoneData.zoom);
+      polygonsLayerGroup.clearLayers();
+      usvTrackLayerGroup.clearLayers();
+
+      const visiblePolygons = shiftData.polygons.filter((p) => showRocks || !p.riesgoRoca);
+      document.getElementById('polygonsCountBadge').textContent = `${visiblePolygons.length} Zonas`;
+
+      const listHtml = [];
+      visiblePolygons.forEach((p) => {
+        const color = p.riesgoRoca ? '#d946ef' : (p.prioridad === 1 ? '#10b981' : '#f59e0b');
+        const polyLayer = L.polygon(p.coords, {
+          color: color,
+          weight: 2.5,
+          fillColor: color,
+          fillOpacity: p.riesgoRoca ? 0.38 : 0.24,
+          dashArray: p.riesgoRoca ? '6, 6' : null
+        }).addTo(polygonsLayerGroup);
+
+        polyLayer.bindPopup(`
+          <div style="font-family:sans-serif; color:#0f172a; min-width:240px;">
+            <strong style="font-size:0.92rem;">[${p.codigo}] ${p.nombre}</strong>
+            <hr style="margin:0.35rem 0;"/>
+            <div><b>Especie:</b> ${p.especie}</div>
+            <div><b>Score Hábitat (HSI):</b> ${p.hsi}%</div>
+            <div><b>Profundidad:</b> ${p.brazas}</div>
+            <div><b>Temp. Fondo (CTD/CMEMS):</b> ${p.tempFondo} °C | <b>Salinidad:</b> ${p.salinidad} PSU</div>
+            <div><b>Turbidez 3m (NDTI):</b> ${p.ndti} | <b>Clorofila-a:</b> ${p.clorofila} mg/m³</div>
+            <div style="margin-top:0.35rem; padding:0.35rem; background:${p.riesgoRoca ? '#fae8ff' : '#ecfdf5'}; border-radius:4px; font-size:0.78rem;">
+              <b>Táctica USV 48V:</b> ${p.tactica}
+            </div>
+          </div>
+        `);
+
+        listHtml.push(`
+          <div class="polygon-item ${p.riesgoRoca ? 'rock-hazard' : ''}" data-codigo="${p.codigo}">
+            <div class="polygon-header">
+              <span class="polygon-title">[${p.codigo}] ${p.nombre}</span>
+              <span class="badge ${p.riesgoRoca ? 'badge-purple' : (p.prioridad === 1 ? 'badge-green' : 'badge-amber')}">
+                ${p.riesgoRoca ? 'ROCA >2.4kHz' : `HSI ${p.hsi}%`}
+              </span>
+            </div>
+            <div style="font-size:0.75rem; color:#cbd5e1; margin-bottom:0.35rem;">${p.especie}</div>
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <span>Profundidad</span>
+                <strong>${p.brazas}</strong>
+              </div>
+              <div class="metric-box">
+                <span>Temp Fondo / Salinidad</span>
+                <strong>${p.tempFondo}°C / ${p.salinidad} PSU</strong>
+              </div>
+              <div class="metric-box">
+                <span>Turbidez 3m (NDTI)</span>
+                <strong>${p.ndti}</strong>
+              </div>
+              <div class="metric-box">
+                <span>Clorofila-a (Turner)</span>
+                <strong>${p.clorofila} mg/m³</strong>
+              </div>
+            </div>
+            <div style="font-size:0.73rem; color:${p.riesgoRoca ? '#f0abfc' : '#a7f3d0'}; line-height:1.35;">
+              ${p.tactica}
+            </div>
+          </div>
+        `);
+      });
+
+      const listContainer = document.getElementById('polygonsListContainer');
+      listContainer.innerHTML = listHtml.join('');
+
+      listContainer.querySelectorAll('.polygon-item').forEach((card, idx) => {
+        card.addEventListener('click', () => {
+          const p = visiblePolygons[idx];
+          if (p) {
+            map.fitBounds(p.coords, { padding: [40, 40] });
+          }
+        });
+      });
+
+      // Dibujar los barridos en Zig-Zag de captura de datos dentro de cada polígono
+      let totalSampleNodes = 0;
+      if (showZigZag && shiftData.zigzagSweeps) {
+        shiftData.zigzagSweeps.forEach((zz) => {
+          L.polyline(zz.coords, {
+            color: '#facc15',
+            weight: 4.0,
+            opacity: 0.95
+          }).bindTooltip(
+            `🌀 Barrido Zig-Zag [${zz.zona}] • 🔇 Motor 4T APAGADO (3.0 kt Sigilo) • ${zz.sensorLabel}`,
+            { sticky: true }
+          ).addTo(usvTrackLayerGroup);
+
+          zz.coords.forEach((pt, i) => {
+            totalSampleNodes++;
+            L.circleMarker(pt, {
+              radius: 5.5,
+              color: '#04130d',
+              fillColor: '#facc15',
+              fillOpacity: 1,
+              weight: 2
+            }).bindPopup(`
+              <div style="font-family:sans-serif; color:#0f172a; min-width:220px;">
+                <strong>🎯 Punto de Captura Zig-Zag #${i + 1} [${zz.zona}]</strong>
+                <hr style="margin:0.3rem 0;"/>
+                <div><b>Estado Motor 4T:</b> <span style="color:#047857; font-weight:700;">🔇 APAGADO (0 dB Ruido Submarino)</span></div>
+                <div><b>Propulsión:</b> Eléctrica Silenciosa 48V a 3.0 nudos</div>
+                <div><b>Sensores Activos:</b> ${zz.sensorLabel}</div>
+                <div><b>Coordenada Agua:</b> ${pt[0].toFixed(4)}° N, ${pt[1].toFixed(4)}° W</div>
+              </div>
+            `).bindTooltip(`🎯 Muestra #${i + 1} (${zz.zona} • Motor 4T OFF)`, { direction: 'top' }).addTo(usvTrackLayerGroup);
+          });
+        });
+      }
+      const samplesEl = document.getElementById('usvSamplesCount');
+      if (samplesEl) {
+        samplesEl.textContent = `${totalSampleNodes || 14} Puntos Zig-Zag (Sonar + CTD + Chl-a)`;
+      }
+
+      if (showUsv) {
+        L.polyline(shiftData.usvTrack, {
+          color: '#38bdf8',
+          weight: 3.0,
+          dashArray: '8, 6',
+          opacity: 0.85
+        }).addTo(usvTrackLayerGroup);
+
+        // Draw transit waypoint nodes along the deep water channel
+        shiftData.usvTrack.forEach((pt, idx) => {
+          const inZz = isSegmentInZigZag(idx, shiftData.zigzagSweeps) || isSegmentInZigZag(idx - 1, shiftData.zigzagSweeps);
+          if (inZz && showZigZag) return; // Ya dibujado como nodo amarillo de captura Zig-Zag
+          L.circleMarker(pt, {
+            radius: 4,
+            color: '#06b6d4',
+            fillColor: '#fff',
+            fillOpacity: 1,
+            weight: 2
+          }).bindTooltip(`WP-${idx + 1} (Tránsito Canal Seguro)`, { direction: 'top' }).addTo(usvTrackLayerGroup);
+        });
+
+        const usvIcon = L.divIcon({
+          className: 'usv-custom-icon',
+          html: `<div style="background:#facc15; color:#04130d; font-weight:800; font-size:11px; padding:3px 8px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 14px #facc15; white-space:nowrap;">🌀 USV 48V [ZIG-ZAG • MOTOR 4T OFF 🔇]</div>`,
+          iconSize: [240, 26],
+          iconAnchor: [120, 13]
+        });
+
+        currentUsvMarker = L.marker(shiftData.usvPos, { icon: usvIcon }).addTo(usvTrackLayerGroup);
+        currentUsvMarker.bindPopup(`
+          <div style="font-family:sans-serif; color:#0f172a; min-width:240px;">
+            <strong>🚤 USV Trimarán Híbrido 48V "Stealth"</strong>
+            <hr style="margin:0.3rem 0;"/>
+            <div><b>Misión:</b> ${t.mission}</div>
+            <div><b>Modo Captura Zig-Zag:</b> Apaga automáticamente el generador 4T al entrar al polígono para barrer a 3.0 nudos sin ruido acústico.</div>
+            <div><b>Propulsión:</b> 2x 3.0 kW Flipsky 65161 + Dual VESC</div>
+            <div><b>Batería LiFePO4:</b> 10.24 kWh (${t.volts}) — 25 MN Limp-Home</div>
+            <div><b>Sonar Activo:</b> ${t.sonarBadge} (${t.depth})</div>
+            <div><b>Hidrófono:</b> ${t.hydro}</div>
+            <div><b>Sonda Turner:</b> Clorofila ${t.chl} | CTD ${t.ctd}</div>
+          </div>
+        `);
+
+        // Animate USV smoothly along the water channel + Zig-Zag capture waypoints
+        let segIdx = 0;
+        let step = 0;
+        const stepsPerSeg = 32;
+        updateUsvMotorUiState(isSegmentInZigZag(0, shiftData.zigzagSweeps), shiftData);
+
+        usvAnimInterval = setInterval(() => {
+          if (usvTotalMotorStop) {
+            return; // Paro total de motores activo: el USV mantiene posición con motores apagados
+          }
+          const pts = shiftData.usvTrack;
+          if (!pts || pts.length < 2) return;
+          const p1 = pts[segIdx];
+          const p2 = pts[(segIdx + 1) % pts.length];
+          const frac = step / stepsPerSeg;
+          const lat = p1[0] + (p2[0] - p1[0]) * frac;
+          const lon = p1[1] + (p2[1] - p1[1]) * frac;
+          currentUsvMarker.setLatLng([lat, lon]);
+
+          if (step === 0) {
+            const activeZz = isSegmentInZigZag(segIdx, shiftData.zigzagSweeps);
+            updateUsvMotorUiState(activeZz, shiftData);
+          }
+
+          step++;
+          if (step > stepsPerSeg) {
+            step = 0;
+            segIdx = (segIdx + 1) % (pts.length - 1);
+          }
+        }, 160);
+      }
+    }
+
+    document.getElementById('btnExportKml').addEventListener('click', () => {
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+
+      const placemarks = shiftData.polygons.map((p) => {
+        const ring = [...p.coords, p.coords[0]]
+          .map((pt) => `${pt[1]},${pt[0]},0`)
+          .join(' ');
+        return `
+    <Placemark>
+      <name>[${p.codigo}] ${p.nombre} (HSI ${p.hsi}%)</name>
+      <description>${p.especie} | ${p.brazas} | Temp Fondo: ${p.tempFondo}C | Clorofila: ${p.clorofila} mg/m3 | ${p.tactica}</description>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>${ring}</coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>`;
+      }).join('\n');
+
+      const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Boletin Satelital 3m PlanetScope + USV 48V (${zona} - ${turno})</name>
+    ${placemarks}
+  </Document>
+</kml>`;
+
+      const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `boletin_${zona.toLowerCase().replace(/\s+/g, '_')}_${turno.toLowerCase()}.kml`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // =========================================================================
+    // ETAPA 3: EXPORTADOR .GPX 1.1 UNIVERSAL (GARMIN, SIMRAD, LOWRANCE, FURUNO)
+    // =========================================================================
+    document.getElementById('btnExportGpx').addEventListener('click', () => {
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+
+      const waypointsXml = shiftData.polygons.map((p) => {
+        const lats = p.coords.map((c) => c[0]);
+        const lons = p.coords.map((c) => c[1]);
+        const cLat = (lats.reduce((a, b) => a + b, 0) / lats.length).toFixed(6);
+        const cLon = (lons.reduce((a, b) => a + b, 0) / lons.length).toFixed(6);
+        const sym = p.riesgoRoca ? 'Skull and Crossbones' : 'Fishing Hot Spot Facility';
+        return `  <wpt lat="${cLat}" lon="${cLon}">
+    <name>${p.codigo} (${p.riesgoRoca ? 'PELIGRO ROCA' : 'HSI ' + p.hsi + '%'})</name>
+    <desc>${p.especie} | ${p.brazas} | Temp: ${p.tempFondo}C | ${p.tactica}</desc>
+    <sym>${sym}</sym>
+  </wpt>`;
+      }).join('\n');
+
+      const routePointsXml = shiftData.usvTrack.map((pt, idx) =>
+        `    <rtept lat="${pt[0].toFixed(6)}" lon="${pt[1].toFixed(6)}"><name>CANAL-WP-${idx + 1}</name></rtept>`
+      ).join('\n');
+
+      const tracksXml = shiftData.polygons.map((p) => {
+        const ring = [...p.coords, p.coords[0]];
+        const pts = ring.map((pt) => `      <trkpt lat="${pt[0].toFixed(6)}" lon="${pt[1].toFixed(6)}"></trkpt>`).join('\n');
+        return `  <trk>
+    <name>POLIGONO ${p.codigo} - ${p.nombre}</name>
+    <trkseg>
+${pts}
+    </trkseg>
+  </trk>`;
+      }).join('\n');
+
+      const gpx = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="USV-48V-Stealth-PlanetScope-3m" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Boletin Plotter Marino (${zona} - ${turno})</name>
+    <desc>Waypoints de pesca, ruta de canal dragado y poligonos confirmados por USV 48V</desc>
+  </metadata>
+${waypointsXml}
+  <rte>
+    <name>Ruta Canal Navegable Seguro (${zona})</name>
+${routePointsXml}
+  </rte>
+${tracksXml}
+</gpx>`;
+
+      const blob = new Blob([gpx], { type: 'application/gpx+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `plotter_${zona.toLowerCase().replace(/\s+/g, '_')}_${turno.toLowerCase()}.gpx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // =========================================================================
+    // ETAPA 1: CÁLCULO ASTRONÓMICO DE FASE LUNAR Y REFLUJO DE MAREA
+    // =========================================================================
+    function updateLunarTideInfo() {
+      const zona = document.getElementById('zonaSelect').value;
+      const now = new Date();
+      const synodicMonth = 29.53058867 * 86400 * 1000;
+      const refNewMoon = Date.UTC(2025, 0, 29, 12, 36, 0);
+      const phase = (((now.getTime() - refNewMoon) % synodicMonth) + synodicMonth) % synodicMonth / synodicMonth;
+      const springIdx = Math.pow(Math.cos(2 * Math.PI * phase), 2);
+      const peakKnots = zona.includes('Topolobampo') ? 4.2 : 3.6;
+      const currentKnots = (1.4 + (peakKnots - 1.4) * (0.45 + 0.55 * springIdx)).toFixed(1);
+      const tideType = springIdx >= 0.65 ? 'Marea Viva' : 'Marea Media';
+      const el = document.getElementById('lunarTideLabel');
+      if (el) {
+        el.textContent = `${tideType} • Reflujo ${currentKnots} kt`;
+      }
+    }
+
+    // =========================================================================
+    // ETAPA 4: RELOJES DE NAVEGACIÓN OFFLINE CAPITÁN DE PANGA (BRG, MN, ETA, ROCA)
+    // =========================================================================
+    function haversineNmAndBearing(lat1, lon1, lat2, lon2) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const toDeg = (r) => (r * 180) / Math.PI;
+      const R_km = 6371.0;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distKm = R_km * c;
+      const distNm = distKm / 1.852;
+
+      const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+      const x =
+        Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+        Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+      const brg = (toDeg(Math.atan2(y, x)) + 360) % 360;
+      const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+      const cardinal = dirs[Math.round(brg / 45) % 8];
+      return { distKm, distNm, brg, cardinal };
+    }
+
+    function updateCaptainGauges(customLat, customLon) {
+      const posVal = document.getElementById('pangaPosSelect').value.split(',');
+      const pLat = customLat !== undefined ? customLat : parseFloat(posVal[0]);
+      const pLon = customLon !== undefined ? customLon : parseFloat(posVal[1]);
+
+      const targetRaw = document.getElementById('pangaTargetSelect').value.split('|');
+      const tCoords = targetRaw[0].split(',');
+      const tLat = parseFloat(tCoords[0]);
+      const tLon = parseFloat(tCoords[1]);
+      const tName = targetRaw[1] || 'Polígono #1';
+
+      const nav = haversineNmAndBearing(pLat, pLon, tLat, tLon);
+      const etaMin = Math.max(1, Math.round((nav.distNm / 12.0) * 60));
+
+      document.getElementById('gaugeBrg').textContent = `${String(Math.round(nav.brg)).padStart(3, '0')}° ${nav.cardinal}`;
+      document.getElementById('gaugeTargetName').textContent = `Hacia ${tName}`;
+      document.getElementById('gaugeDistNm').textContent = `${nav.distNm.toFixed(2)} MN`;
+      document.getElementById('gaugeDistKm').textContent = `${nav.distKm.toFixed(2)} km por canal`;
+      document.getElementById('gaugeEta').textContent = `${etaMin} min`;
+
+      // Check proximity to acoustic rock hazard polygons (TOPO-ROCA: 25.5610, -109.1160 | KINO-ROCA: 28.8010, -111.9700)
+      const dTopoRock = haversineNmAndBearing(pLat, pLon, 25.5610, -109.1160).distKm * 1000;
+      const dKinoRock = haversineNmAndBearing(pLat, pLon, 28.8010, -111.9700).distKm * 1000;
+      const minRockDistM = Math.min(dTopoRock, dKinoRock);
+
+      const rockBox = document.getElementById('gaugeRockBox');
+      const rockStatus = document.getElementById('gaugeRockStatus');
+      const rockSub = document.getElementById('gaugeRockSub');
+
+      if (minRockDistM < 350) {
+        rockBox.style.borderColor = '#f43f5e';
+        rockBox.style.background = 'rgba(244, 63, 94, 0.18)';
+        rockStatus.style.color = '#f43f5e';
+        rockStatus.textContent = '¡ALERTA ROCA!';
+        rockSub.textContent = `Piedra a ${Math.round(minRockDistM)}m (>2.4 kHz) ¡NO CALAR!`;
+      } else {
+        rockBox.style.borderColor = 'var(--border-subtle)';
+        rockBox.style.background = '#050b14';
+        rockStatus.style.color = '#34d399';
+        rockStatus.textContent = 'FONDO LIMPIO';
+        rockSub.textContent = 'Lodo suave (Seguro calar red)';
+      }
+    }
+
+    document.getElementById('pangaPosSelect').addEventListener('change', () => updateCaptainGauges());
+    document.getElementById('pangaTargetSelect').addEventListener('change', () => updateCaptainGauges());
+    document.getElementById('btnUseDeviceGps').addEventListener('click', () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => updateCaptainGauges(pos.coords.latitude, pos.coords.longitude),
+          () => updateCaptainGauges()
+        );
+      }
+    });
+
+    // =========================================================================
+    // ETAPAS 5 Y 6: SIMULADOR INTERACTIVO DE FAILSAFES USV 48V Y EDGE AI
+    // =========================================================================
+    function appendUsvLog(msg) {
+      const logEl = document.getElementById('usvConsoleLog');
+      if (!logEl) return;
+      const ts = new Date().toLocaleTimeString();
+      logEl.innerHTML = `[${ts}] ${msg}<br/>` + logEl.innerHTML;
+    }
+
+    // Controles directos de Apagado de Motor y enfoque Zig-Zag en la Vista Principal (Mapa GIS)
+    document.getElementById('btnToggleTotalMotorStop').addEventListener('click', () => {
+      usvTotalMotorStop = !usvTotalMotorStop;
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+      updateUsvMotorUiState(isSegmentInZigZag(0, shiftData.zigzagSweeps), shiftData);
+      appendUsvLog(
+        usvTotalMotorStop
+          ? '<strong style="color:#f43f5e;">[PARO TOTAL DE MOTORES]</strong> Operador ejecutó corte de emergencia: Propulsores 48V Flipsky (0 W) y Generador 4T APAGADOS (0.0 kt).'
+          : '<strong style="color:#34d399;">[REANUDACIÓN DE MOTORES]</strong> Propulsión 48V reactivada. Reanudando navegación en Zig-Zag de captura de datos.'
+      );
+    });
+
+    document.getElementById('btnToggleGenSilence').addEventListener('click', () => {
+      usvForceSilent4TOff = !usvForceSilent4TOff;
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+      updateUsvMotorUiState(null, shiftData);
+      appendUsvLog(
+        usvForceSilent4TOff
+          ? '<strong style="color:#facc15;">[APAGADO MOTOR 4T FORZADO]</strong> Generador de combustión 4T apagado manualmente. Navegando 100% con banco LiFePO4 10.24 kWh (0 dB).'
+          : '<strong style="color:#38bdf8;">[MODO HÍBRIDO AUTOMÁTICO]</strong> El generador 4T opera en tránsito y se apaga automáticamente al entrar a cada polígono Zig-Zag.'
+      );
+    });
+
+    document.getElementById('btnZoomZigZag').addEventListener('click', () => {
+      const zona = document.getElementById('zonaSelect').value;
+      const turno = document.getElementById('turnoSelect').value;
+      const shiftData = LOCAL_DATASETS[zona][turno];
+      if (shiftData.zigzagSweeps && shiftData.zigzagSweeps.length > 0) {
+        map.fitBounds(shiftData.zigzagSweeps[0].coords, { padding: [45, 45] });
+      }
+    });
+
+    document.getElementById('btnSimLimpHome').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#f43f5e;">[FAILSAFE CRÍTICO 48V]</strong> Falla mecánica detectada en Generador 4T a 20.0 MN de la costa. ' +
+        'Activando modo <strong>LIMP_HOME_25NM_BATTERY</strong> con el banco masivo <strong>LiFePO4 10.24 kWh (48V 200Ah)</strong>. ' +
+        'Potencia crucero económico: 650 W (4.2 nudos) → <strong>Autonomía asegurada: 25.0 Millas Náuticas</strong> hasta el muelle sin quedar a la deriva.'
+      );
+      document.getElementById('usvModeBadge').textContent = 'LIMP-HOME 25 MN ACTIVO';
+      document.getElementById('usvMissionState').textContent = 'Retorno Autónomo LiFePO4 (4.2 kt)';
+      document.getElementById('usvGenState').textContent = 'FALLA SIMULADA → Respaldo 10.24 kWh';
+    });
+
+    document.getElementById('btnSimRadioFailover').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#f59e0b;">[FAILOVER TELEMETRÍA]</strong> Pérdida de paquete en Starlink Mini (latencia >5s). ' +
+        'Conmutando sin interrupción al módem sub-GHz <strong>RFDesign RFD900x (915 MHz, 1W, alcance 40 km)</strong> enviando tramas MAVLink HIGH_LATENCY2.'
+      );
+    });
+
+    document.getElementById('btnSimAdaptiveLawnmower').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#34d399;">[EDGE AI JETSON ORIN NANO]</strong> Pico confirmado: Sonar Garmin GSD 25 (CHIRP 1 kW) + Sonda Turner Cyclops-7F (Clorofila 5.12 mg/m³). ' +
+        'Apagando motor 4T y ejecutando grilla <strong>Lawnmower Zig-Zag</strong> sobre el polígono.'
+      );
+      activateTab('gis');
+      setTimeout(() => {
+        document.getElementById('btnZoomZigZag').click();
+      }, 200);
+    });
+
+    document.getElementById('btnSimBilgeBlower').addEventListener('click', () => {
+      appendUsvLog(
+        '<strong style="color:#38bdf8;">[SEGURIDAD ISO 8846]</strong> SoC del banco LiFePO4 llegó a 30%. ' +
+        'Iniciando secuencia obligatoria de <strong>90 segundos del Extractor de Vapores (Bilge Blower Ignition Protected)</strong> antes de accionar el solenoide de arranque del generador.'
+      );
+    });
+
+    document.getElementById('catchForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newCatch = {
+        embarcacion: document.getElementById('inputEmbarcacion').value,
+        zona: document.getElementById('inputPoligono').value,
+        especie: document.getElementById('inputEspecie').value,
+        kilos: parseFloat(document.getElementById('inputKilos').value) || 85,
+        gasolina: parseFloat(document.getElementById('inputGasolina').value) || 35,
+        ts: new Date().toISOString()
+      };
+      CAPTURES_FEED_DATA.unshift(newCatch);
+      try {
+        const offlineQueue = JSON.parse(localStorage.getItem('usv_offline_captures') || '[]');
+        offlineQueue.unshift(newCatch);
+        localStorage.setItem('usv_offline_captures', JSON.stringify(offlineQueue));
+      } catch (_) {}
+      renderCapturesFeed();
+      document.getElementById('catchDialog').close();
+    });
+
+    ['zonaSelect', 'turnoSelect', 'tokenSelect', 'chkShowUsvTrack', 'chkShowZigZag', 'chkShowRockHazards'].forEach((id) => {
+      document.getElementById(id).addEventListener('change', () => {
+        updateLunarTideInfo();
+        renderDashboard();
+      });
+    });
+
+    // Register Offline-First Service Worker (Stage 4)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    updateLunarTideInfo();
+    updateCaptainGauges();
+    renderCapturesFeed();
+    renderDashboard();
+  </script>
+</body>
+</html>
