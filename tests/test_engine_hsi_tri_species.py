@@ -118,3 +118,22 @@ def test_jaiba_hypoxia_trap_mortality_protection():
     assert res["alerta_hipoxia_trampas"] is True
     assert res["densidad_trampas_sugerida_ha"] == 0
     assert res["prioridad"] == 3
+
+
+def test_postgis_schema_and_n8n_tri_species_workflow():
+    """Valida que el esquema PostGIS y el flujo n8n incluyan Jaiba, Sonda DO y Starlink."""
+    import json
+
+    root = Path(__file__).resolve().parent.parent / "plataforma_web_gis"
+    sql_text = (root / "db" / "init_postgis.sql").read_text(encoding="utf-8")
+    assert "oxigeno_disuelto_mg_l" in sql_text
+    assert "sustrato_sidescan" in sql_text
+    assert "densidad_trampas_sugerida_ha" in sql_text
+    assert "starlink_mini_activo" in sql_text
+
+    n8n_data = json.loads((root / "n8n_workflows" / "flujo_diario_10pm_y_5am.json").read_text(encoding="utf-8"))
+    node_ids = [n["id"] for n in n8n_data["nodes"]]
+    assert "cron-nocturno-camaron" in node_ids
+    assert "cron-madrugada-jaiba" in node_ids
+    assert "cron-diurno-pescado" in node_ids
+
