@@ -137,3 +137,20 @@ def test_postgis_schema_and_n8n_tri_species_workflow():
     assert "cron-madrugada-jaiba" in node_ids
     assert "cron-diurno-pescado" in node_ids
 
+
+def test_docker_and_env_deployment_stack():
+    """Valida que el stack Docker Compose, Dockerfile del backend y .env.example estén completos para Etapa 1."""
+    root = Path(__file__).resolve().parent.parent / "plataforma_web_gis"
+    compose_text = (root / "docker-compose.yml").read_text(encoding="utf-8")
+    dockerfile_text = (root / "backend" / "Dockerfile").read_text(encoding="utf-8")
+    env_text = (root / ".env.example").read_text(encoding="utf-8")
+
+    assert "backend_gis:" in compose_text
+    assert "postgis:" in compose_text
+    assert "n8n:" in compose_text
+    assert "uvicorn" in dockerfile_text
+    assert "PLANET_API_KEY" in env_text
+    assert "CMEMS_BIO_DO_DATASET_ID" in env_text
+    assert "STARLINK_MINI_GATEWAY_IP" in env_text
+
+
