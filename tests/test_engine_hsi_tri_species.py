@@ -14,13 +14,24 @@ from engine_hsi import (
 
 
 def test_dual_tier_sensor_profiles():
-    """Valida que existan el MVP de Bajo Costo y la configuración de Grado Científico."""
+    """Valida los 3 niveles: Etapa 1 Solo Satelital, MVP Trimarán Completo y Grado Científico con mano de obra separada."""
+    sat_only = get_sensor_tier_profile("ETAPA_1_SATELITAL")
     mvp = get_sensor_tier_profile("MVP_BAJO_COSTO")
     sci = get_sensor_tier_profile("GRADO_CIENTIFICO")
 
-    assert mvp["costo_sensores_usd"] < 10000
-    assert "GT56UHD" in mvp["sonar_jaiba_bento"]
-    assert sci["costo_sensores_usd"] > 50000
+    assert sat_only["inversion_total_llave_en_mano_usd"] == 11120
+    assert sat_only["costo_datos_satelitales_6m_usd"] == 4320
+    assert sat_only["mano_obra_ingenieria_software_usd"] == 6800
+
+    assert mvp["inversion_total_llave_en_mano_usd"] == 53949
+    assert mvp["costo_materiales_navales_usd"] == 19229
+    assert mvp["costo_sensores_usd"] == 10500
+    assert mvp["mano_obra_astillero_usd"] == 3500
+    assert mvp["mano_obra_ingenieria_software_usd"] == 16400
+    assert "INDISPENSABLE" in mvp["starlink_incluido"]
+
+    assert sci["inversion_total_llave_en_mano_usd"] == 148400
+    assert sci["costo_sensores_usd"] == 78400
     assert "Simrad EK80" in sci["sonar_vertical"]
     assert sci["incertidumbre_biomasa_pct"] < mvp["incertidumbre_biomasa_pct"]
 

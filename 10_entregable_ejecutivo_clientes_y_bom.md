@@ -170,13 +170,31 @@ El flujo de dinero de los socios hacia ti por concepto de ingeniería (**\$16,40
 
 ---
 
-## 7. Resumen Global de Inversión (Comparativa Final para Toma de Decisión)
+## 7. Resumen Global Auditado: Etapa 1 (Solo Satélite 3m), MVP Trimarán 48V y Grado Científico (Con Materiales, Sensores, Starlink Indispensable y Mano de Obra Separada)
 
-| Concepto | Con Trimarán Fabricado desde Cero (Opción 1) | Con Pontón Recreativo de \$45k MXN Modificado (Opción 2) |
+### 7.1 Costo de la Etapa 1 por Separado (Solo Análisis Satelital de Máxima Precisión — Entrega Día 21, Sin USV)
+Para clientes o cooperativas que deseen **iniciar únicamente con la Etapa 1 (Plataforma Satelital Comercial de 3.0 m Diarios para las 3 especies: Camarón, Pescado y Jaiba + App Móvil Offline para Capitanes)**:
+
+| Rubro Etapa 1 (Solo Análisis Satelital de Alta Precisión — 6 Meses de Zafra) | Polígono Estándar Cooperativa ($600\text{ km}^2$) | Cobertura Extendida Multi-Bahía ($1,500\text{ km}^2$ + SAR) |
 | :--- | :---: | :---: |
-| **Bolsa 1A: Electrónica 48V, Aviónica, Cajas IP68, Cableado, 2x F9P y Satélite 3m (6 meses)** | \$14,729 USD | \$14,729 USD |
-| **Bolsa 1B: Sensores Submarinos Multi-Especie (CHIRP 1kW + Hidrófono + Clorofila/CTD)** | \$7,700 USD | \$7,700 USD |
-| **Bolsa 2: Casco en México + Banco LiFePO4 10.24 kWh + Generador Híbrido 4T** | \$9,850 USD | \$8,675 USD |
-| **Bolsa 3: Honorarios de Ingeniería, Software Web GIS, Mecatrónica y Pruebas (4 Hitos)** | \$16,400 USD | \$16,400 USD |
-| **INVERSIÓN TOTAL (Comprando Bolsa 1 con Tarjeta y Domicilio en EE. UU.)** | **\$48,679 USD** *(~\$973,580 MXN)* | **\$47,504 USD** *(~\$950,080 MXN)* |
-| *Costo opcional si se importa todo vía Agencia Aduanal Mexicana (22% Arancel/IVA + Hazmat)* | *+\$5,641 USD (\$54,320 USD total)* | *+\$5,641 USD (\$53,145 USD total)* |
+| **1. Datos Satelitales Comerciales de Máxima Precisión (6 Meses):**<br/>Constelación **PlanetScope SuperDove 3.0 m Diario (8 Bandas con RedEdge)** + Fusión diaria con **Copernicus CMEMS** (Temperatura de fondo, Salinidad, Oxígeno Disuelto $DO$ y Corrientes) + **NOAA VIIRS SST Nocturna** + **Sentinel-2 (10m)**. | **\$3,600 USD** *(\$600 USD/mes)* | **\$7,500 USD** *(\$1,250 USD/mes)* |
+| **2. Infraestructura Cloud GIS, Base Espacial PostGIS y Orquestación Automática n8n (6 Meses):**<br/>Servidor dedicado para cálculo diario de polígonos (Corte 21:30 PM Camarón / 04:00 AM Jaiba / 04:45 AM Pescado) y exportación `.GPX`/`.KML`. | **\$720 USD** *(\$120 USD/mes)* | **\$720 USD** *(\$120 USD/mes)* |
+| **3. Mano de Obra de Ingeniería y Software (Separada — Pago Único Hito 1):**<br/>Programación de los 3 modelos biofísicos (`CAMARON`, `PESCADO`, `JAIBA`), calibración batimétrica local, portal Web GIS con control de tokens y App Móvil Progresiva Offline (PWA). | **\$6,800 USD** | **\$6,800 USD** |
+| **INVERSIÓN TOTAL ETAPA 1 (Solo Análisis Satelital 3m + App por 6 Meses)** | **\$11,120 USD** *(~\$222,400 MXN)* | **\$15,020 USD** *(~\$300,400 MXN)* |
+
+---
+
+### 7.2 Comparativa Integral del USV Trimarán 48V Completo: MVP Comercial vs. Grado Científico (Rubros Separados)
+
+> [!IMPORTANT]
+> **Starlink Indispensable:** En ambas versiones del USV Trimarán Híbrido 48V, el enlace satelital **Starlink Mini DC / Marítimo con plan de datos activo de 6 meses** es **estrictamente indispensable** para transmitir en tiempo real los ecogramas CHIRP, el barrido lateral Side-Scan de jaiba y las alertas de hipoxia desde 25 millas mar adentro antes de que salgan las pangas.
+
+| Rubro Desglosado (Materiales, Sensores, Satélite/Starlink y Mano de Obra Separada) | Opción A: MVP Comercial Trimarán 48V (Con Pontón Modificado) | Opción A2: MVP Comercial Trimarán 48V (Casco desde Cero) | Opción B: Grado Científico INAPESCA / CIBNOR (Certificación Biomasa) |
+| :--- | :---: | :---: | :---: |
+| **1. Materiales Navales, Propulsión 48V, Energía y Aviónica Base:**<br/>• Estructura en Aluminio Naval 5083 + Tanque 90–150L (solo materiales, sin mano de obra).<br/>• 2x Propulsores 48V 3kW Flipsky + Dual VESC Water Cooled + Toberas Inox 316 (\$2,800).<br/>• Banco Masivo LiFePO4 48V 200Ah (10.24 kWh — 25 MN *Limp-Home*) + Generador 4T (\$4,250).<br/>• Cube Orange+ + **2x RTK u-blox ZED-F9P (\$780)** + Jetson Orin + FLIR Boson + Radar 24GHz + AIS SEMAR + Cajas IP68 y Cableado UL1426 AWG 2/0 (\$7,529 MVP / \$14,200 Científico). | **\$17,480 USD** | **\$18,655 USD** | **\$25,400 USD** |
+| **2. Enlace Satelital Embarcado INDISPENSABLE (Starlink + Radio Backup 40 km):**<br/>• Antena **Starlink Mini DC Indispensable (\$599)** + **6 Meses Servicio Roam/Marítimo (\$900)** + Radioenlace RFD900x 915 MHz (\$250). *(En Grado Científico: Starlink Flat High Performance Marítimo Prioritario).* | **\$1,749 USD** | **\$1,749 USD** | **\$3,500 USD** |
+| **3. Paquete de Sensores Submarinos Tri-Especie (Camarón + Pescado + Jaiba):**<br/>• **MVP Comercial (\$10,500 USD):** Sonar Garmin GSD 25 + Airmar B265LH CHIRP 50/200 kHz (\$2,600) + **Side-Scan Jaiba Cerulean Omniscan 450 / GT56UHD 800 kHz (\$1,850)** + Sonda Turner Cyclops-7F Clorofila/Turbidez/CTD (\$3,200) + **Sonda Óptica Oxígeno Disuelto DO Industrial (\$950)** + Hidrófono Aquarian H3d-Ethernet (\$1,900).<br/>• **Grado Científico (\$78,400 USD):** Ecosonda Multifrecuencia **Simrad EK80 WBT Mini** (\$24,500) + **Cámara Acústica Multihaz Oculus M1200d + Side-Scan Edgetech** (\$31,500) + **Perfilador RBRconcerto³ CTD-DO-Chl** (\$13,600) + **Hidrófono Calibrado icListen HF** (\$8,800). | **\$10,500 USD** | **\$10,500 USD** | **\$78,400 USD** |
+| **4. Datos Satelitales de Máxima Precisión (PlanetScope 3.0 m Diario — 6 Meses + Cloud):**<br/>• Suscripción PlanetScope 3m 8-Bandas (\$3,600) + Cloud PostGIS/n8n (\$720). *(En Científico incluye Tasking SAR Todo-Clima Capella/ICEYE).* | **\$4,320 USD** | **\$4,320 USD** | **\$12,600 USD** |
+| **5A. Mano de Obra de Astillero, Soldadura TIG Naval y Mecánica (Separada):**<br/>• 140 horas calificadas de corte, soldadura de 3er pontón y pozo acústico (*Moonpool*), montaje de toberas corta-cabos, adecuación de tanque ISO 8846 y pintura epóxica Stealth. | **\$3,500 USD** *(~\$70,000 MXN)* | **\$3,500 USD** *(~\$70,000 MXN)* | **\$4,500 USD** *(~\$90,000 MXN)* |
+| **5B. Mano de Obra de Ingeniería de Control, Software Tri-Especie, IA y Pruebas (Separada):**<br/>• Honorarios en 4 Hitos: Plataforma Satelital 3m (Camarón/Pescado/Jaiba), Integración Mecatrónica 48V, Visión/Acústica Edge AI en Jetson, Expediente SEMAR y Pruebas de Mar. | **\$16,400 USD** *(~\$328,000 MXN)* | **\$16,400 USD** *(~\$328,000 MXN)* | **\$24,000 USD** *(~\$480,000 MXN)* |
+| **INVERSIÓN TOTAL LLAVE EN MANO (Materiales + Sensores + Starlink + Satélite 3m + Mano de Obra)** | **\$53,949 USD** *(~\$1,078,980 MXN)* | **\$55,124 USD** *(~\$1,102,480 MXN)* | **\$148,400 USD** *(~\$2,968,000 MXN)* |

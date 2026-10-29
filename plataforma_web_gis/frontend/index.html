@@ -714,9 +714,10 @@
         <option value="PROSPECCION_JAIBA">🦀 Opción 3: Jaiba (Bentónica • Side-Scan 800kHz + Sonda DO)</option>
       </select>
 
-      <select id="tierSelect" aria-label="Seleccionar Nivel de Instrumentación">
-        <option value="MVP_BAJO_COSTO">⚡ Arquitectura: MVP Bajo Costo ($8,770 USD Sensores)</option>
-        <option value="GRADO_CIENTIFICO">🔬 Arquitectura: Grado Científico INAPESCA ($78,400 USD Sensores)</option>
+      <select id="tierSelect" aria-label="Seleccionar Nivel de Proyecto e Instrumentación">
+        <option value="MVP_BAJO_COSTO">🚤 MVP Trimarán 48V Completo (3 Especies + Starlink + Mano de Obra): $53,949 USD</option>
+        <option value="GRADO_CIENTIFICO">🔬 Grado Científico INAPESCA (Simrad EK80 + Oculus + RBR + Mano de Obra): $148,400 USD</option>
+        <option value="ETAPA_1_SATELITAL">🛰️ Etapa 1 (Solo Análisis Satelital 3m Tri-Especie + App Día 21): $11,120 USD</option>
       </select>
 
       <select id="tokenSelect" aria-label="Token de Suscripción de Cooperativa">
@@ -948,21 +949,62 @@
       </div>
     </div>
 
-    <!-- SECCIÓN 1: SELECTOR INTERACTIVO DE PRESUPUESTO EN 3 BOLSAS -->
+    <!-- SECCIÓN 1: ETAPA 1 (SOLO SATÉLITE) + TABLA DESGLOSADA MVP TRIMARÁN vs GRADO CIENTÍFICO CON MANO DE OBRA SEPARADA -->
     <div class="section-block">
-      <h3>1. Estructura Financiera en "3 Bolsas" y Selector de Casco (Cero Impuestos Inflados)</h3>
+      <h3>1. Desglose Auditado: Etapa 1 (Solo Satélite 3m), MVP Trimarán 48V y Grado Científico (Materiales, Sensores, Starlink Indispensable y Mano de Obra Separada)</h3>
       <p style="font-size:0.84rem; color:#cbd5e1; margin-bottom:0.85rem;">
-        Al encontrarse los socios en <strong>Puerto Rico / EE. UU.</strong>, la <strong>Bolsa 1 (Electrónica y Sensores)</strong> se adquiere directamente con tarjeta estadounidense en los enlaces oficiales de abajo, evitando el 22% de sobrecosto aduanal y evitando triangular dinero por cuentas mexicanas (+30% ISR). Selecciona la opción de casco para ver el total exacto:
+        A continuación se presenta primero el costo de la <strong>Etapa 1 Independiente (Solo Análisis Satelital de Máxima Precisión a 3.0 m para Camarón, Pescado y Jaiba — Entrega Día 21)</strong>, seguido de la tabla completa del <strong>Trimarán Autónomo 48V</strong> separando estrictamente <strong>Materiales Navales, Starlink Indispensable, Sensores Submarinos y Mano de Obra (Astillero vs. Ingeniería)</strong>:
       </p>
 
+      <!-- SUB-TABLA 1A: ETAPA 1 SOLO ANÁLISIS SATELITAL -->
+      <div style="margin-bottom:1.25rem; background:rgba(6,182,212,0.08); border:1px solid var(--border-subtle); border-radius:8px; padding:0.9rem;">
+        <strong style="color:#67e8f9; font-size:0.9rem; display:block; margin-bottom:0.5rem;">
+          🛰️ ETAPA 1 INDEPENDIENTE (Día 21 — Solo Análisis Satelital de Máxima Precisión 3.0m para Camarón, Pescado y Jaiba — Sin Barco USV):
+        </strong>
+        <div class="table-scroll">
+          <table class="table-bom">
+            <thead>
+              <tr>
+                <th>Rubro Etapa 1 (Solo Análisis Satelital + App Capitán)</th>
+                <th>Polígono Estándar Cooperativa (600 km²)</th>
+                <th>Cobertura Extendida Multi-Bahía (1,500 km² + SAR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Datos Satelitales Comerciales de Máxima Precisión (6 Meses de Zafra):</strong><br/>Constelación <strong>PlanetScope SuperDove 3.0 m Diario (8 Bandas con RedEdge)</strong> + Fusión diaria con <strong>Copernicus CMEMS</strong> (Temperatura de fondo, Salinidad, Oxígeno Disuelto DO y Corrientes) + <strong>NOAA VIIRS SST Nocturna</strong> + <strong>Sentinel-2 (10m)</strong></td>
+                <td><strong>$3,600 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">($600 USD/mes × 6 meses)</span></td>
+                <td><strong>$7,500 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">($1,250 USD/mes × 6 meses)</span></td>
+              </tr>
+              <tr>
+                <td><strong>2. Infraestructura Cloud GIS, Base Espacial PostGIS y Orquestación Automática n8n (6 Meses):</strong><br/>Servidor dedicado para cálculo diario de los 3 modelos (Corte 21:30 PM Camarón / 04:00 AM Jaiba / 04:45 AM Pescado) y exportación <code>.GPX</code>/<code>.KML</code></td>
+                <td><strong>$720 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">($120 USD/mes × 6 meses)</span></td>
+                <td><strong>$720 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">($120 USD/mes × 6 meses)</span></td>
+              </tr>
+              <tr>
+                <td><strong>3. Mano de Obra de Ingeniería de Software y Algoritmos (Separada — Pago Único Hito 1):</strong><br/>Programación de los 3 motores biofísicos (<code>CAMARON</code>, <code>PESCADO</code>, <code>JAIBA</code>), calibración batimétrica, portal Web GIS con bloqueo por token y App Móvil Progresiva Offline (PWA)</td>
+                <td><strong>$6,800 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">($136,000 MXN pago único)</span></td>
+                <td><strong>$6,800 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">($136,000 MXN pago único)</span></td>
+              </tr>
+              <tr style="background:rgba(6, 182, 212, 0.16); font-size:0.88rem;">
+                <td><strong>TOTAL ETAPA 1 LLAVE EN MANO (Solo Análisis Satelital 3m + App por 6 Meses)</strong></td>
+                <td><strong style="color:#67e8f9;">$11,120 USD (~$222,400 MXN)</strong></td>
+                <td><strong style="color:#67e8f9;">$15,020 USD (~$300,400 MXN)</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUB-TABLA 1B: TRIMARÁN 48V COMPLETO (MVP COMERCIAL VS GRADO CIENTÍFICO CON MANO DE OBRA SEPARADA) -->
       <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; background:rgba(6,13,24,0.65); padding:0.85rem; border-radius:8px; border:1px solid var(--border-subtle);">
-        <label for="radioHullScratchProp" style="font-size:0.85rem; font-weight:700; cursor:pointer;">
-          <input type="radio" id="radioHullScratchProp" name="hullOptionProp" value="scratch" checked />
-          Opción 1: Trimarán Aluminio Naval 5083 Fabricado desde Cero ($5,600 USD) — Total Proyecto: <span style="color:#34d399;">$48,679 USD</span>
-        </label>
         <label for="radioHullPontoonProp" style="font-size:0.85rem; font-weight:700; cursor:pointer;">
-          <input type="radio" id="radioHullPontoonProp" name="hullOptionProp" value="pontoon" />
-          Opción 2: Pontón Recreativo ($45,000 MXN base + $43,500 MXN en 5 Modificaciones = $4,425 USD con Tanque 90-150L Integrado) — Total Proyecto: <span style="color:#34d399;">$47,504 USD</span>
+          <input type="radio" id="radioHullPontoonProp" name="hullOptionProp" value="pontoon" checked />
+          MVP Opción A (Con Pontón Modificado + Tanque 90–150L Integrado): <span style="color:#34d399;">$53,949 USD</span>
+        </label>
+        <label for="radioHullScratchProp" style="font-size:0.85rem; font-weight:700; cursor:pointer;">
+          <input type="radio" id="radioHullScratchProp" name="hullOptionProp" value="scratch" />
+          MVP Opción A2 (Con Trimarán Aluminio Naval 5083 desde Cero): <span style="color:#34d399;">$55,124 USD</span>
         </label>
       </div>
 
@@ -970,46 +1012,60 @@
         <table class="table-bom">
           <thead>
             <tr>
-              <th>Bolsa Financiera</th>
+              <th>Rubro Desglosado (Materiales, Sensores, Starlink y Mano de Obra Separada)</th>
               <th>Cómo se Paga</th>
-              <th>Descripción de Componentes Incluidos</th>
-              <th>Monto (USD)</th>
-              <th>Equivalente (MXN)</th>
+              <th>Descripción Exacta de Equipos y Alcance</th>
+              <th>MVP Comercial Trimarán 48V (USD)</th>
+              <th>Grado Científico INAPESCA / CIBNOR (USD)</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Bolsa 1A (EE. UU.)</strong><br/><span class="badge badge-green">Tarjeta Socio USA/PR</span></td>
-              <td>Compra directa online en EE. UU. + reembolso de <strong>$780 USD</strong> al consultor por sus 2x F9P en stock inmediato</td>
-              <td>Propulsión 48V 6kW Flipsky + Dual VESC Water Cooled + Herrajes/Toberas Blue Robotics + Cube Orange+ + <strong>2x RTK u-blox ZED-F9P</strong> + Jetson Orin Nano 8GB + 1TB NVMe + Cámara Térmica FLIR Boson 320 + Radar 24GHz Ainstein + Starlink Mini + AIS Clase B SEMAR + Luces COLREG + RFD900x 915MHz + Penetradores WetLink IP68 + Cajas IP68 y Cableado Marino UL1426 AWG 2/0 + <strong>Suscripción PlanetScope 3m Diario (6 Meses)</strong></td>
-              <td><strong>$14,729 USD</strong></td>
-              <td>$294,580 MXN</td>
+              <td><strong>1. Materiales Navales, Propulsión 48V, Batería 10.24 kWh y Aviónica</strong><br/><span class="badge badge-green">Sin Mano de Obra</span></td>
+              <td>Materiales en México + Electrónica con Tarjeta USA/PR (+ $780 USD de 2x F9P al consultor)</td>
+              <td id="propBolsa2Desc"><strong>Materiales Puros:</strong> Estructura Aluminio Naval 5083 + Tanque 90–150L ($2,850 materiales pontón) + 2x Motores 48V 3kW Flipsky + Dual VESC Water Cooled + Toberas Inox 316 ($2,800) + <strong>Banco LiFePO4 48V 200Ah (10.24 kWh — 25 MN Limp-Home) + Generador 4T ($4,250)</strong> + Cube Orange+ + <strong>2x RTK u-blox ZED-F9P ($780)</strong> + Jetson Orin + FLIR Boson + Radar 24GHz + AIS Clase B SEMAR + Penetradores WetLink IP68, Cajas IP68 y Cableado UL1426 AWG 2/0 ($7,529 MVP / $14,200 Científico)</td>
+              <td><strong id="propBolsa2Usd">$17,429 USD</strong><br/><span id="propBolsa2Mxn" style="font-size:0.75rem; color:#94a3b8;">$348,580 MXN</span></td>
+              <td><strong>$25,400 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$508,000 MXN</span></td>
             </tr>
             <tr>
-              <td><strong>Bolsa 1B (EE. UU.)</strong><br/><span class="badge badge-green">Tarjeta Socio USA/PR</span></td>
+              <td><strong>2. Enlace Satelital Embarcado INDISPENSABLE (Starlink + Radio 40km)</strong><br/><span class="badge badge-amber">100% Indispensable</span></td>
               <td>Compra directa online en EE. UU.</td>
-              <td><strong>Paquete Submarino Multi-Especie Doble Turno:</strong> Módulo Sonar CHIRP 1kW Garmin GSD 25 + Transductor Bronce Airmar B265LH (50/200 kHz) ($2,600) + Hidrófono Digital Aquarian H3d-Ethernet ($1,900) + Sonda Clorofila-a / Turbidez / Micro-CTD Turner Designs Cyclops-7F ($3,200)</td>
-              <td><strong>$7,700 USD</strong></td>
-              <td>$154,000 MXN</td>
+              <td><strong>Requisito Crítico de Misión:</strong> Antena <strong>Starlink Mini DC Indispensable ($599)</strong> + <strong>6 Meses Servicio Starlink Roam/Marítimo ($900)</strong> para enviar ecogramas y alertas de hipoxia desde 25 MN mar adentro + Radioenlace de respaldo RFDesign RFD900x 915 MHz 40 km ($250). <em>(En Científico: Starlink Flat High Performance Marítimo Prioritario).</em></td>
+              <td><strong>$1,749 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$34,980 MXN</span></td>
+              <td><strong>$3,500 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$70,000 MXN</span></td>
             </tr>
             <tr>
-              <td><strong>Bolsa 2 (México)</strong><br/><span class="badge badge-amber">Proveedores Locales MX</span></td>
-              <td>Pago directo en México a taller naval y distribuidor de baterías LiFePO4</td>
-              <td id="propBolsa2Desc"><strong>Opción 1 (Trimarán desde Cero):</strong> Casco Aluminio 5083 CNC + Flotadores PAD con espuma + Tanque 60L XLPE con snorkel anti-explosión ($5,600 USD) + <strong>Banco Masivo LiFePO4 10.24 kWh (48V 200Ah, ~85 kg) para 25 MN Limp-Home ($2,650 USD)</strong> + Generador Híbrido 4T Automatizado ($1,600 USD)</td>
-              <td><strong id="propBolsa2Usd">$9,850 USD</strong></td>
-              <td id="propBolsa2Mxn">$197,000 MXN</td>
+              <td><strong>3. Paquete de Sensores Submarinos Tri-Especie (Camarón + Pescado + Jaiba)</strong><br/><span class="badge badge-green">Tarjeta Socio USA/PR</span></td>
+              <td>Compra directa online en EE. UU.</td>
+              <td><strong>• MVP Comercial ($10,550 USD):</strong> Sonar CHIRP 1kW Garmin GSD 25 + Airmar B265LH 50/200 kHz ($2,600) + <strong>Side-Scan UHD Jaiba Cerulean Omniscan 450 / GT56UHD 800 kHz ($1,850)</strong> + Sonda Turner Cyclops-7F Clorofila/Turbidez/CTD ($3,200) + <strong>Sonda Óptica Oxígeno Disuelto DO Industrial Sumergible ($950)</strong> + Hidrófono Aquarian H3d-Ethernet ($1,900).<br/><strong>• Grado Científico ($78,400 USD):</strong> Ecosonda Multifrecuencia <strong>Simrad EK80 WBT Mini</strong> ($24,500) + <strong>Cámara Acústica Multihaz Oculus M1200d + Side-Scan Edgetech</strong> ($31,500) + <strong>Perfilador RBRconcerto³ CTD-DO-Chl</strong> ($13,600) + <strong>Hidrófono Calibrado icListen HF</strong> ($8,800).</td>
+              <td><strong>$10,550 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$211,000 MXN</span></td>
+              <td><strong>$78,400 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$1,568,000 MXN</span></td>
             </tr>
             <tr>
-              <td><strong>Bolsa 3 (Ingeniería)</strong><br/><span class="badge badge-green">4 Hitos al Consultor</span></td>
-              <td>Transferencia directa al Director de Ingeniería contra entregables (Semanas 1–8)</td>
-              <td><strong>Hito 1 (Día 21):</strong> Plataforma Web Satelital 3m en vivo ($4,800 USD)<br/><strong>Hito 2 (Sem 4):</strong> Diseño Naval CAD y Supervisión de Casco ($2,800 USD)<br/><strong>Hito 3 (Sem 6):</strong> Integración Mecatrónica 48V, IA y Expediente SEMAR ($5,600 USD)<br/><strong>Hito 4 (Sem 8):</strong> App Móvil Offline y Pruebas de Mar Doble Turno ($3,200 USD)</td>
-              <td><strong>$16,400 USD</strong></td>
-              <td>$328,000 MXN</td>
+              <td><strong>4. Datos Satelitales de Máxima Precisión 3.0m (6 Meses + Cloud GIS)</strong><br/><span class="badge badge-green">Suscripción Zafra</span></td>
+              <td>Suscripción directa Planet Labs + Cloud</td>
+              <td><strong>PlanetScope Daily Monitoring 3.0 m Diario (8 Bandas)</strong> por 6 meses ($3,600) + Servidor Cloud PostGIS y Orquestador n8n ($720). <em>(En Científico incluye cobertura regional extendida + Tasking Radar SAR Capella/ICEYE Todo-Clima).</em></td>
+              <td><strong>$4,320 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$86,400 MXN</span></td>
+              <td><strong>$12,600 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$252,000 MXN</span></td>
+            </tr>
+            <tr>
+              <td><strong>5A. Mano de Obra de Astillero, Soldadura TIG Naval y Mecánica</strong><br/><span class="badge badge-amber">Separada — Taller MX</span></td>
+              <td>Pago directo por avance en taller naval local (Sinaloa/Sonora)</td>
+              <td><strong>140 Horas Calificadas de Manufactura Naval:</strong> Corte y soldadura TIG en aluminio marino 5083 del 3er pontón central y pozo acústico (<em>Moonpool</em>), disipador de olas a 45°, montaje de toberas Inox 316, adecuación de tanque con extractor ISO 8846 y cubierta ciega "Stealth".</td>
+              <td><strong>$3,500 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$70,000 MXN</span></td>
+              <td><strong>$4,500 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$90,000 MXN</span></td>
+            </tr>
+            <tr>
+              <td><strong>5B. Mano de Obra de Ingeniería de Control, Software Tri-Especie, IA e Integración</strong><br/><span class="badge badge-green">Separada — 4 Hitos</span></td>
+              <td>Transferencia al Director de Ingeniería contra entregables (Semanas 1–8)</td>
+              <td><strong>Hito 1 (Día 21):</strong> Plataforma Web Satelital 3m Tri-Especie: Camarón, Pescado y Jaiba ($4,800 USD)<br/><strong>Hito 2 (Sem 4):</strong> Planos Navales CAD y Supervisión Estructural ($2,800 USD)<br/><strong>Hito 3 (Sem 6):</strong> Integración Mecatrónica 48V, Side-Scan/DO Edge AI y Expediente SEMAR ($5,600 USD)<br/><strong>Hito 4 (Sem 8):</strong> App Móvil Offline y Pruebas de Mar ($3,200 USD). <em>(En Científico incluye calibración hidroacústica con esfera de carburo de tungsteno).</em></td>
+              <td><strong>$16,400 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$328,000 MXN</span></td>
+              <td><strong>$24,000 USD</strong><br/><span style="font-size:0.75rem; color:#94a3b8;">$480,000 MXN</span></td>
             </tr>
             <tr style="background:rgba(16, 185, 129, 0.16); font-size:0.9rem;">
-              <td colspan="3"><strong>INVERSIÓN TOTAL LLAVE EN MANO (Comprando Bolsa 1 en EE. UU. / Puerto Rico)</strong></td>
-              <td><strong id="propTotalUsd" style="color:#34d399;">$48,679 USD</strong></td>
-              <td><strong id="propTotalMxn" style="color:#34d399;">$973,580 MXN</strong></td>
+              <td colspan="3"><strong>INVERSIÓN TOTAL LLAVE EN MANO (Materiales + Starlink Indispensable + Sensores 3 Especies + Satélite 3m + Mano de Obra)</strong></td>
+              <td><strong id="propTotalUsd" style="color:#34d399;">$53,949 USD</strong><br/><span id="propTotalMxn" style="font-size:0.78rem; color:#a7f3d0;">~$1,078,980 MXN</span></td>
+              <td><strong style="color:#38bdf8;">$148,400 USD</strong><br/><span style="font-size:0.78rem; color:#bae6fd;">~$2,968,000 MXN</span></td>
             </tr>
           </tbody>
         </table>
@@ -1447,12 +1503,12 @@
       radio.addEventListener('change', (e) => {
         const isPontoon = e.target.value === 'pontoon';
         document.getElementById('propBolsa2Desc').innerHTML = isPontoon
-          ? '<strong>Opción 2 (Pontón Recreativo Modificado — $4,425 USD):</strong> Pontón base con tanque integrado 90–150L ($45,000 MXN) + 5 Modificaciones a Trimarán ($43,500 MXN) + <strong>Banco Masivo LiFePO4 10.24 kWh para 25 MN Limp-Home ($2,650 USD)</strong> + Generador Híbrido 4T ($1,600 USD)'
-          : '<strong>Opción 1 (Trimarán desde Cero — $5,600 USD):</strong> Casco Aluminio 5083 CNC + Flotadores PAD con espuma + Tanque 60L XLPE con snorkel anti-explosión ($5,600 USD) + <strong>Banco Masivo LiFePO4 10.24 kWh para 25 MN Limp-Home ($2,650 USD)</strong> + Generador Híbrido 4T ($1,600 USD)';
-        document.getElementById('propBolsa2Usd').textContent = isPontoon ? '$8,675 USD' : '$9,850 USD';
-        document.getElementById('propBolsa2Mxn').textContent = isPontoon ? '$173,500 MXN' : '$197,000 MXN';
-        document.getElementById('propTotalUsd').textContent = isPontoon ? '$47,504 USD' : '$48,679 USD';
-        document.getElementById('propTotalMxn').textContent = isPontoon ? '$950,080 MXN' : '$973,580 MXN';
+          ? '<strong>Materiales Puros (Opción A — Pontón Modificado):</strong> Estructura Aluminio Naval 5083 + Tanque integrado 90–150L ($2,850 materiales) + 2x Motores 48V 3kW Flipsky + Dual VESC Water Cooled + Toberas Inox 316 ($2,800) + <strong>Banco LiFePO4 48V 200Ah (10.24 kWh — 25 MN Limp-Home) + Generador 4T ($4,250)</strong> + Cube Orange+ + <strong>2x RTK u-blox ZED-F9P ($780)</strong> + Jetson Orin + FLIR Boson + Radar 24GHz + AIS SEMAR + Cajas IP68 y Cableado UL1426 AWG 2/0 ($6,749)'
+          : '<strong>Materiales Puros (Opción A2 — Trimarán desde Cero):</strong> Casco Aluminio 5083 CNC + Flotadores PAD + Tanque 60L XLPE ($4,025 materiales) + 2x Motores 48V 3kW Flipsky + Dual VESC Water Cooled + Toberas Inox 316 ($2,800) + <strong>Banco LiFePO4 48V 200Ah (10.24 kWh — 25 MN Limp-Home) + Generador 4T ($4,250)</strong> + Cube Orange+ + <strong>2x RTK u-blox ZED-F9P ($780)</strong> + Jetson Orin + FLIR Boson + Radar 24GHz + AIS SEMAR + Cajas IP68 y Cableado UL1426 AWG 2/0 ($6,749)';
+        document.getElementById('propBolsa2Usd').textContent = isPontoon ? '$17,429 USD' : '$18,604 USD';
+        document.getElementById('propBolsa2Mxn').textContent = isPontoon ? '$348,580 MXN' : '$372,080 MXN';
+        document.getElementById('propTotalUsd').textContent = isPontoon ? '$53,949 USD' : '$55,124 USD';
+        document.getElementById('propTotalMxn').textContent = isPontoon ? '~$1,078,980 MXN' : '~$1,102,480 MXN';
       });
     });
 
@@ -2281,7 +2337,14 @@
       const zoneData = LOCAL_DATASETS[zona];
       const shiftData = zoneData[turno];
 
-      document.getElementById('bannerZoneTitle').textContent = `${zoneData.bannerTitle} • [${isSci ? '🔬 GRADO CIENTÍFICO (Simrad EK80 + Oculus 1.2MHz + RBR)' : '⚡ MVP BAJO COSTO (Garmin CHIRP + Side-Scan GT56UHD + Atlas DO)'}]`;
+      const isSatOnly = tier === 'ETAPA_1_SATELITAL';
+      const tierLabelBanner = isSatOnly
+        ? '🛰️ ETAPA 1: SOLO ANÁLISIS SATELITAL 3M ($11,120 USD • Sin Barco USV)'
+        : (isSci
+          ? '🔬 GRADO CIENTÍFICO COMPLETO ($148,400 USD • Simrad EK80 + Oculus 1.2MHz + RBR + Starlink)'
+          : '🚤 MVP TRIMARÁN 48V COMPLETO ($53,949 USD • Garmin CHIRP + Side-Scan + DO + Starlink Indispensable)');
+
+      document.getElementById('bannerZoneTitle').textContent = `${zoneData.bannerTitle} • [${tierLabelBanner}]`;
       document.getElementById('horarioCorteLabel').textContent =
         turno === 'NOCTURNO_CAMARON'
           ? '21:30 PM → Envío 22:00 PM'
@@ -2292,23 +2355,25 @@
           : (turno === 'PROSPECCION_JAIBA' ? '🦀 Opción 3: Corredores Jaiba (Trampas)' : '🐟 Opción 2: Frentes Pescado/Escama');
 
       const t = shiftData.telemetry;
-      document.getElementById('usvModeBadge').textContent = t.badge;
-      document.getElementById('usvMissionState').textContent = t.mission;
-      document.getElementById('usvGenState').textContent = t.gen;
-      document.getElementById('usvHeading').textContent = t.heading;
-      document.getElementById('usvBatteryVolts').textContent = t.volts;
-      document.getElementById('batteryProgress').value = t.soc;
-      document.getElementById('sonarFreqBadge').textContent = isSci
-        ? (turno === 'PROSPECCION_JAIBA' ? 'Oculus 1.2 MHz + EK80' : 'Simrad EK80 Broadband')
-        : t.sonarBadge;
+      document.getElementById('usvModeBadge').textContent = isSatOnly ? '🛰️ FASE 1: SOLO SATÉLITE' : t.badge;
+      document.getElementById('usvMissionState').textContent = isSatOnly
+        ? 'Análisis Satelital 3m PlanetScope + CMEMS (Sin USV)'
+        : t.mission;
+      document.getElementById('usvGenState').textContent = isSatOnly ? 'N/A (Solo Etapa 1 Cloud GIS)' : t.gen;
+      document.getElementById('usvHeading').textContent = isSatOnly ? 'N/A (Entrega Directa a Celular/Plotter)' : t.heading;
+      document.getElementById('usvBatteryVolts').textContent = isSatOnly ? 'N/A' : t.volts;
+      document.getElementById('batteryProgress').value = isSatOnly ? 100 : t.soc;
+      document.getElementById('sonarFreqBadge').textContent = isSatOnly
+        ? 'PlanetScope 8-Band + CMEMS'
+        : (isSci ? (turno === 'PROSPECCION_JAIBA' ? 'Oculus 1.2 MHz + EK80' : 'Simrad EK80 Broadband') : t.sonarBadge);
       document.getElementById('usvDepthBrazas').textContent = t.depth;
-      document.getElementById('usvHydrophoneState').textContent = isSci
-        ? `icListen HF Calibrado • ${t.hydro}`
-        : t.hydro;
+      document.getElementById('usvHydrophoneState').textContent = isSatOnly
+        ? 'Carta Batimétrica GEBCO (Sin Hidrófono In-Situ)'
+        : (isSci ? `icListen HF Calibrado • ${t.hydro}` : t.hydro);
       document.getElementById('usvChlorophyll').textContent = t.chl;
-      document.getElementById('usvCtdState').textContent = isSci
-        ? `RBRconcerto³ (±0.002°C) • ${t.ctd}`
-        : t.ctd;
+      document.getElementById('usvCtdState').textContent = isSatOnly
+        ? `Modelo CMEMS Fondo • ${t.ctd}`
+        : (isSci ? `RBRconcerto³ (±0.002°C) • ${t.ctd}` : t.ctd);
 
       map.setView(zoneData.center, zoneData.zoom);
       polygonsLayerGroup.clearLayers();
