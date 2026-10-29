@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from engine_hsi import export_polygons_to_kml
+from engine_hsi import export_polygons_to_kml, get_sensor_tier_profile, SENSOR_TIERS
 from gpx_kml_exporter import export_to_marine_gpx
 from tide_and_moon import calculate_lunar_and_tidal_state
 from satellite_connectors import (
@@ -27,8 +27,8 @@ from satellite_connectors import (
 
 app = FastAPI(
     title="API Satelital 3m (PlanetScope) + USV Trimarán 48V Stealth",
-    version="2.0.0",
-    description="Motor Geoespacial Doble Turno: Camarón (Noche) + Sardina/Curvina/Aguamala (Día)",
+    version="2.1.0",
+    description="Motor Geoespacial Tri-Especie (Camarón, Pescado y Jaiba) — Dual-Tier (MVP Bajo Costo vs. Grado Científico)",
 )
 
 app.add_middleware(
@@ -120,15 +120,23 @@ def verify_token(token: str = Query("TOPO-2026-VIP-TOKEN")):
     return {"valid": True, "cliente": info}
 
 
+@app.get("/api/v1/sensor-tiers")
+def list_sensor_tiers(tier: Optional[str] = Query(None)):
+    if tier:
+        return get_sensor_tier_profile(tier)
+    return {"tiers": SENSOR_TIERS}
+
+
 @app.get("/api/v1/polygons")
 def get_polygons(
     zona: str = Query("Topolobampo-Ohuira"),
     turno: str = Query("NOCTURNO_CAMARON"),
+    tier: str = Query("MVP_BAJO_COSTO"),
     token: str = Query("TOPO-2026-VIP-TOKEN"),
 ):
     if token not in VALID_TOKENS:
         raise HTTPException(status_code=403, detail="Acceso bloqueado: Token inválido.")
-    return get_daily_polygons_dataset(zona=zona, turno=turno)
+    return get_daily_polygons_dataset(zona=zona, turno=turno, tier=tier)
 
 
 @app.get("/api/v1/export.kml")
@@ -171,8 +179,9 @@ def download_gpx(
 def usv_telemetry(
     zona: str = Query("Topolobampo-Ohuira"),
     turno: str = Query("NOCTURNO_CAMARON"),
+    tier: str = Query("MVP_BAJO_COSTO"),
 ):
-    return get_usv_live_telemetry(zona=zona, turno=turno)
+    return get_usv_live_telemetry(zona=zona, turno=turno, tier=tier)
 
 
 @app.get("/api/v1/captures")

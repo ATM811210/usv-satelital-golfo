@@ -708,9 +708,15 @@
         <option value="Bahia de Kino">📍 Sonora: Bahía de Kino – Infiernillo</option>
       </select>
 
-      <select id="turnoSelect" aria-label="Seleccionar Turno Operativo">
-        <option value="NOCTURNO_CAMARON">🌙 Turno Noche (22:00 - 05:15): Camarón (200 kHz)</option>
-        <option value="DIURNO_SARDINA">☀️ Turno Día (05:30 - 12:00): Sardina / Clorofila-a (50 kHz)</option>
+      <select id="turnoSelect" aria-label="Seleccionar Especie y Turno Operativo">
+        <option value="NOCTURNO_CAMARON">🦐 Opción 1: Camarón (Noche • CHIRP 200 kHz)</option>
+        <option value="DIURNO_SARDINA">🐟 Opción 2: Pescado / Escama (Día • Clorofila-a + 50 kHz)</option>
+        <option value="PROSPECCION_JAIBA">🦀 Opción 3: Jaiba (Bentónica • Side-Scan 800kHz + Sonda DO)</option>
+      </select>
+
+      <select id="tierSelect" aria-label="Seleccionar Nivel de Instrumentación">
+        <option value="MVP_BAJO_COSTO">⚡ Arquitectura: MVP Bajo Costo ($8,770 USD Sensores)</option>
+        <option value="GRADO_CIENTIFICO">🔬 Arquitectura: Grado Científico INAPESCA ($78,400 USD Sensores)</option>
       </select>
 
       <select id="tokenSelect" aria-label="Token de Suscripción de Cooperativa">
@@ -1699,6 +1705,109 @@
               coords: [[25.555, -109.195], [25.555, -109.168], [25.535, -109.168], [25.535, -109.195]]
             }
           ]
+        },
+        PROSPECCION_JAIBA: {
+          usvPos: [25.6140, -109.0070],
+          usvTrack: [
+            [25.6140, -109.0070],
+            [25.6120, -109.0195],
+            [25.6075, -109.0080],
+            [25.6045, -109.0205],
+            [25.5969, -109.0365],
+            [25.5920, -109.0544],
+            [25.5765, -109.0558],
+            [25.5735, -109.0785],
+            [25.5670, -109.0820],
+            [25.5735, -109.0885],
+            [25.5670, -109.0930]
+          ],
+          zigzagSweeps: [
+            {
+              zona: "TOPO-J1",
+              startIdx: 0,
+              endIdx: 3,
+              coords: [
+                [25.6140, -109.0070],
+                [25.6120, -109.0195],
+                [25.6075, -109.0080],
+                [25.6045, -109.0205]
+              ]
+            },
+            {
+              zona: "TOPO-J2",
+              startIdx: 7,
+              endIdx: 10,
+              coords: [
+                [25.5735, -109.0785],
+                [25.5670, -109.0820],
+                [25.5735, -109.0885],
+                [25.5670, -109.0930]
+              ]
+            }
+          ],
+          telemetry: {
+            badge: "SIDE-SCAN 800kHz • JAIBA",
+            mission: "Mapeo Bentónico y Línea de Trampas (2.8 kt)",
+            gen: "APAGADO (Sigilo Acústico + Sonda DO Activa)",
+            heading: "294.2° (0.1° True Yaw)",
+            volts: "52.1 V (84%)",
+            soc: 84,
+            sonarBadge: "Side-Scan 800 kHz",
+            depth: "2.8 Brazas (5.1 m)",
+            hydro: "Forrajeo Jaiba Confirmado (Quelas/Bivalvos 2.1 kHz)",
+            chl: "DO: 5.4 mg/L (Normóxico) | Chl: 2.4 mg/m³",
+            ctd: "26.2 °C | 31.8 PSU | Conchal-Arena"
+          },
+          polygons: [
+            {
+              codigo: "TOPO-J1",
+              nombre: "Corredor Las Copas – Ecótono Conchal Bahía de Ohuira",
+              especie: "Jaiba Azul y Café (C. arcuatus / C. bellicosus) — 25 Trampas/ha",
+              prioridad: 1,
+              hsi: 95.2,
+              tempFondo: 26.2,
+              salinidad: 31.8,
+              ndti: 0.135,
+              clorofila: 2.40,
+              brazas: "1.5 - 5.0 bz (DO: 5.4 mg/L)",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "CORREDOR JAIBERO #1: Side-Scan 800 kHz / Oculus mapeó transición de arena-conchal con alta actividad acústica de quelas triturando bivalvos (1.8–2.9 kHz) y oxígeno disuelto normóxico (5.4 mg/L). Calar línea de 25 trampas/ha.",
+              coords: [[25.618, -109.020], [25.618, -109.002], [25.601, -109.004], [25.601, -109.022]]
+            },
+            {
+              codigo: "TOPO-J2",
+              nombre: "Canal Somero Sur El Maviri – Banco de Almeja",
+              especie: "Jaiba Café Guerrera (Callinectes bellicosus) — 20 Trampas/ha",
+              prioridad: 1,
+              hsi: 91.8,
+              tempFondo: 25.8,
+              salinidad: 34.0,
+              ndti: 0.122,
+              clorofila: 2.15,
+              brazas: "2.0 - 6.5 bz (DO: 5.8 mg/L)",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Corriente moderada de vaciante dispersa la pluma olfativa de la carnada a lo largo del canal; excelente oxigenación de fondo (5.8 mg/L) y 0 trampas fantasma detectadas.",
+              coords: [[25.576, -109.095], [25.576, -109.075], [25.566, -109.077], [25.566, -109.097]]
+            },
+            {
+              codigo: "TOPO-HIPOXIA",
+              nombre: "Rincón Estancado Interior Ohuira (EXCLUSIÓN HIPOXIA DO < 2.0 mg/L)",
+              especie: "ALERTA MORTALIDAD EN TRAMPA (Hipoxia Fondo 1.65 mg/L)",
+              prioridad: 3,
+              hsi: 14.0,
+              tempFondo: 27.9,
+              salinidad: 29.5,
+              ndti: 0.195,
+              clorofila: 4.80,
+              brazas: "1.0 - 2.8 bz (DO: 1.65 mg/L)",
+              confirmadoUsv: true,
+              riesgoRoca: true,
+              tactica: "¡PROHIBIDO CALAR TRAMPAS JAIBERAS AQUÍ! La sonda óptica DO del USV registró hipoxia crítica de fondo (1.65 mg/L). Cualquier jaiba que entre a las nasas morirá asfixiada antes del levante.",
+              coords: [[25.635, -108.995], [25.635, -108.980], [25.622, -108.980], [25.622, -108.995]]
+            }
+          ]
         }
       },
       "Bahia de Kino": {
@@ -1897,6 +2006,91 @@
               coords: [[28.855, -112.055], [28.855, -112.030], [28.832, -112.030], [28.832, -112.055]]
             }
           ]
+        },
+        PROSPECCION_JAIBA: {
+          usvPos: [28.7840, -111.9380],
+          usvTrack: [
+            [28.7840, -111.9380],
+            [28.7790, -111.9420],
+            [28.7840, -111.9450],
+            [28.7790, -111.9455],
+            [28.7950, -111.9550],
+            [28.8100, -111.9520],
+            [28.8200, -111.9560],
+            [28.8100, -111.9620],
+            [28.8200, -111.9660]
+          ],
+          zigzagSweeps: [
+            {
+              zona: "KINO-J1",
+              startIdx: 0,
+              endIdx: 3,
+              coords: [
+                [28.7840, -111.9380],
+                [28.7790, -111.9420],
+                [28.7840, -111.9450],
+                [28.7790, -111.9455]
+              ]
+            },
+            {
+              zona: "KINO-J2",
+              startIdx: 5,
+              endIdx: 8,
+              coords: [
+                [28.8100, -111.9520],
+                [28.8200, -111.9560],
+                [28.8100, -111.9620],
+                [28.8200, -111.9660]
+              ]
+            }
+          ],
+          telemetry: {
+            badge: "SIDE-SCAN 800kHz • JAIBA KINO",
+            mission: "Mapeo Pradera Zostera y Conchal (2.8 kt)",
+            gen: "APAGADO (Sigilo Acústico + Sonda DO Activa)",
+            heading: "312.5° (0.1° True Yaw)",
+            volts: "52.3 V (86%)",
+            soc: 86,
+            sonarBadge: "Side-Scan 800 kHz",
+            depth: "2.4 Brazas (4.4 m)",
+            hydro: "Forrajeo Jaiba Bivalvos (2.2 kHz Confirmado)",
+            chl: "DO: 5.6 mg/L (Óptimo) | Chl: 2.2 mg/m³",
+            ctd: "25.8 °C | 35.2 PSU | Zostera-Conchal"
+          },
+          polygons: [
+            {
+              codigo: "KINO-J1",
+              nombre: "Boca Estero Santa Cruz – Pradera Zostera Norte",
+              especie: "Jaiba Café Guerrera (Callinectes bellicosus) — 25 Trampas/ha",
+              prioridad: 1,
+              hsi: 94.6,
+              tempFondo: 25.8,
+              salinidad: 35.2,
+              ndti: 0.115,
+              clorofila: 2.20,
+              brazas: "1.2 - 4.5 bz (DO: 5.6 mg/L)",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "CORREDOR JAIBERO KINO #1: Side-Scan 800 kHz / Oculus confirmó ecótono de arena-conchal y parches de pasto marino Zostera con oxígeno disuelto óptimo (5.6 mg/L). Calar línea de 25 trampas/ha.",
+              coords: [[28.792, -111.946], [28.792, -111.930], [28.778, -111.930], [28.778, -111.946]]
+            },
+            {
+              codigo: "KINO-J2",
+              nombre: "Borde Arenoso Isla Alcatraz Este (Trampas Jaiberas)",
+              especie: "Jaiba Café Exportación (C. bellicosus) — 18 Trampas/ha",
+              prioridad: 2,
+              hsi: 86.8,
+              tempFondo: 25.2,
+              salinidad: 35.4,
+              ndti: 0.092,
+              clorofila: 1.80,
+              brazas: "2.5 - 6.0 bz (DO: 5.1 mg/L)",
+              confirmadoUsv: true,
+              riesgoRoca: false,
+              tactica: "Agua clara somera; cámara de quilla Low-Light HD + Jetson YOLOv8 contabilizó alta densidad de jaiba adulta activa sobre arena firme.",
+              coords: [[28.822, -111.968], [28.822, -111.950], [28.808, -111.950], [28.808, -111.968]]
+            }
+          ]
         }
       }
     };
@@ -2063,6 +2257,8 @@
       }
       const zona = document.getElementById('zonaSelect').value;
       const turno = document.getElementById('turnoSelect').value;
+      const tier = document.getElementById('tierSelect') ? document.getElementById('tierSelect').value : 'MVP_BAJO_COSTO';
+      const isSci = tier === 'GRADO_CIENTIFICO';
       const token = document.getElementById('tokenSelect').value;
       const showUsv = document.getElementById('chkShowUsvTrack').checked;
       const showZigZag = document.getElementById('chkShowZigZag').checked;
@@ -2085,11 +2281,15 @@
       const zoneData = LOCAL_DATASETS[zona];
       const shiftData = zoneData[turno];
 
-      document.getElementById('bannerZoneTitle').textContent = zoneData.bannerTitle;
+      document.getElementById('bannerZoneTitle').textContent = `${zoneData.bannerTitle} • [${isSci ? '🔬 GRADO CIENTÍFICO (Simrad EK80 + Oculus 1.2MHz + RBR)' : '⚡ MVP BAJO COSTO (Garmin CHIRP + Side-Scan GT56UHD + Atlas DO)'}]`;
       document.getElementById('horarioCorteLabel').textContent =
-        turno === 'NOCTURNO_CAMARON' ? '21:30 PM → Envío 22:00 PM' : '04:45 AM → Envío 05:15 AM';
+        turno === 'NOCTURNO_CAMARON'
+          ? '21:30 PM → Envío 22:00 PM'
+          : (turno === 'PROSPECCION_JAIBA' ? '04:00 AM → Calado Trampas 05:00 AM' : '04:45 AM → Envío 05:15 AM');
       document.getElementById('polygonsHeaderTitle').textContent =
-        turno === 'NOCTURNO_CAMARON' ? '🦐 Polígonos Camarón (Noche)' : '🐟 Frentes Sardina/Escama (Día)';
+        turno === 'NOCTURNO_CAMARON'
+          ? '🦐 Opción 1: Polígonos Camarón'
+          : (turno === 'PROSPECCION_JAIBA' ? '🦀 Opción 3: Corredores Jaiba (Trampas)' : '🐟 Opción 2: Frentes Pescado/Escama');
 
       const t = shiftData.telemetry;
       document.getElementById('usvModeBadge').textContent = t.badge;
@@ -2098,11 +2298,17 @@
       document.getElementById('usvHeading').textContent = t.heading;
       document.getElementById('usvBatteryVolts').textContent = t.volts;
       document.getElementById('batteryProgress').value = t.soc;
-      document.getElementById('sonarFreqBadge').textContent = t.sonarBadge;
+      document.getElementById('sonarFreqBadge').textContent = isSci
+        ? (turno === 'PROSPECCION_JAIBA' ? 'Oculus 1.2 MHz + EK80' : 'Simrad EK80 Broadband')
+        : t.sonarBadge;
       document.getElementById('usvDepthBrazas').textContent = t.depth;
-      document.getElementById('usvHydrophoneState').textContent = t.hydro;
+      document.getElementById('usvHydrophoneState').textContent = isSci
+        ? `icListen HF Calibrado • ${t.hydro}`
+        : t.hydro;
       document.getElementById('usvChlorophyll').textContent = t.chl;
-      document.getElementById('usvCtdState').textContent = t.ctd;
+      document.getElementById('usvCtdState').textContent = isSci
+        ? `RBRconcerto³ (±0.002°C) • ${t.ctd}`
+        : t.ctd;
 
       map.setView(zoneData.center, zoneData.zoom);
       polygonsLayerGroup.clearLayers();
@@ -2595,7 +2801,7 @@ ${tracksXml}
       document.getElementById('catchDialog').close();
     });
 
-    ['zonaSelect', 'turnoSelect', 'tokenSelect', 'chkShowUsvTrack', 'chkShowZigZag', 'chkShowRockHazards'].forEach((id) => {
+    ['zonaSelect', 'turnoSelect', 'tierSelect', 'tokenSelect', 'chkShowUsvTrack', 'chkShowZigZag', 'chkShowRockHazards'].forEach((id) => {
       document.getElementById(id).addEventListener('change', () => {
         updateLunarTideInfo();
         renderDashboard();

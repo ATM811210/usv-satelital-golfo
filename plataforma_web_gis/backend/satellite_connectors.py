@@ -51,15 +51,93 @@ class PlanetScope3mConnector:
         }
 
 
-def get_daily_polygons_dataset(zona: str = "Topolobampo-Ohuira", turno: str = "NOCTURNO_CAMARON") -> Dict[str, Any]:
+def get_daily_polygons_dataset(
+    zona: str = "Topolobampo-Ohuira",
+    turno: str = "NOCTURNO_CAMARON",
+    tier: str = "MVP_BAJO_COSTO",
+) -> Dict[str, Any]:
     """
     Devuelve los polígonos GeoJSON de alta precisión (3m PlanetScope + CMEMS + Verificación Acústica USV 48V)
-    para el turno seleccionado:
-      - NOCTURNO_CAMARON (22:00 PM a 05:15 AM): Camarón Azul/Café en 2 a 12 brazas (CHIRP 200 kHz + Hidrófono + CTD)
-      - DIURNO_SARDINA (05:30 AM a 12:00 PM): Sardina Monterrey, Curvina y Aguamala en talud exterior (CHIRP 50 kHz + Clorofila-a Turner)
+    para las 3 opciones de especie:
+      1. NOCTURNO_CAMARON (Camarón Azul/Café en 2 a 12 brazas — CHIRP 200 kHz + Hidrófono + CTD)
+      2. DIURNO_SARDINA / PESCADO (Sardina, Curvina, Pargo y Escama — CHIRP 50 kHz + Clorofila-a)
+      3. PROSPECCION_JAIBA (Jaiba Café/Azul C. bellicosus / C. arcuatus en 0.8 a 8.5 brazas — Side-Scan 800kHz/Oculus + Sonda DO)
     """
+    is_jaiba = "JAIBA" in turno.upper()
+    is_camaron = "CAMARON" in turno.upper()
     if zona == "Bahia de Kino":
-        if turno == "NOCTURNO_CAMARON":
+        if is_jaiba:
+            features = [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "id": "kino-jaiba-01",
+                        "codigo_zona": "KINO-J1",
+                        "nombre_canal": "Canal Estero Santa Cruz – Pradera Zostera Norte",
+                        "especie_objetivo": "Jaiba Café Guerrera (Callinectes bellicosus)",
+                        "prioridad": 1,
+                        "score_hsi": 96.4 if tier == "GRADO_CIENTIFICO" else 94.2,
+                        "sst_centigrados": 26.4,
+                        "temp_fondo_centigrados": 25.8,
+                        "salinidad_psu": 35.2,
+                        "oxigeno_disuelto_mg_l": 5.6,
+                        "sustrato_sidescan": "ECOTONO_ARENA_CONCHAL + ZOSTERA",
+                        "densidad_trampas_sugerida_ha": 25,
+                        "turbidez_ndti": 0.115,
+                        "clorofila_mg_m3": 2.2,
+                        "profundidad_brazas_min": 1.2,
+                        "profundidad_brazas_max": 4.5,
+                        "confirmado_por_usv": True,
+                        "riesgo_roca_hidrofono": False,
+                        "recomendacion_tactica": "CORREDOR JAIBERO #1: Side-Scan 800 kHz / Oculus confirmó ecótono de arena-conchal y parches de Zostera con oxígeno disuelto óptimo (5.6 mg/L) y estridulación trófica de bivalvos en hidrófono (2.1 kHz). Calar línea de 25 trampas/ha.",
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-111.946, 28.792],
+                            [-111.930, 28.792],
+                            [-111.930, 28.778],
+                            [-111.946, 28.778],
+                            [-111.946, 28.792],
+                        ]],
+                    },
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "id": "kino-jaiba-02",
+                        "codigo_zona": "KINO-J2",
+                        "nombre_canal": "Borde Arenoso Isla Alcatraz Este (Trampas Jaiberas)",
+                        "especie_objetivo": "Jaiba Café de Exportación (C. bellicosus)",
+                        "prioridad": 2,
+                        "score_hsi": 86.8,
+                        "sst_centigrados": 25.9,
+                        "temp_fondo_centigrados": 25.2,
+                        "salinidad_psu": 35.4,
+                        "oxigeno_disuelto_mg_l": 5.1,
+                        "sustrato_sidescan": "ARENA_FIRME_CONCHAL",
+                        "densidad_trampas_sugerida_ha": 18,
+                        "turbidez_ndti": 0.092,
+                        "clorofila_mg_m3": 1.8,
+                        "profundidad_brazas_min": 2.5,
+                        "profundidad_brazas_max": 6.0,
+                        "confirmado_por_usv": True,
+                        "riesgo_roca_hidrofono": False,
+                        "recomendacion_tactica": "Agua clara somera; cámara de quilla Low-Light HD + Jetson YOLOv8 contabilizó alta densidad de jaiba adulta activa sobre arena firme.",
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-111.968, 28.822],
+                            [-111.950, 28.822],
+                            [-111.950, 28.808],
+                            [-111.968, 28.808],
+                            [-111.968, 28.822],
+                        ]],
+                    },
+                },
+            ]
+        elif is_camaron:
             features = [
                 {
                     "type": "Feature",
@@ -223,7 +301,112 @@ def get_daily_polygons_dataset(zona: str = "Topolobampo-Ohuira", turno: str = "N
             ]
     else:
         # ZONA POR DEFECTO: TOPOLOBAMPO – OHUIRA – CANAL DE LA BARRA (SINALOA)
-        if turno == "NOCTURNO_CAMARON":
+        if is_jaiba:
+            features = [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "id": "topo-jaiba-01",
+                        "codigo_zona": "TOPO-J1",
+                        "nombre_canal": "Corredor Las Copas – Ecótono Conchal Bahía de Ohuira",
+                        "especie_objetivo": "Jaiba Azul y Café (C. arcuatus / C. bellicosus)",
+                        "prioridad": 1,
+                        "score_hsi": 97.1 if tier == "GRADO_CIENTIFICO" else 95.2,
+                        "sst_centigrados": 26.8,
+                        "temp_fondo_centigrados": 26.2,
+                        "salinidad_psu": 31.8,
+                        "oxigeno_disuelto_mg_l": 5.4,
+                        "sustrato_sidescan": "ECOTONO_ARENA_CONCHAL",
+                        "densidad_trampas_sugerida_ha": 25,
+                        "turbidez_ndti": 0.135,
+                        "clorofila_mg_m3": 2.40,
+                        "profundidad_brazas_min": 1.5,
+                        "profundidad_brazas_max": 5.0,
+                        "confirmado_por_usv": True,
+                        "riesgo_roca_hidrofono": False,
+                        "recomendacion_tactica": "ZONA JAIBERA #1: Side-Scan 800 kHz / Oculus mapeó ecótono de arena-conchal con alta actividad acústica de quelas triturando almejas (1.8–2.9 kHz) y oxígeno disuelto normóxico (5.4 mg/L). Calar línea de 25 trampas/ha.",
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-109.020, 25.618],
+                            [-109.002, 25.618],
+                            [-109.004, 25.601],
+                            [-109.022, 25.601],
+                            [-109.020, 25.618],
+                        ]],
+                    },
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "id": "topo-jaiba-02",
+                        "codigo_zona": "TOPO-J2",
+                        "nombre_canal": "Canal Somero Sur El Maviri – Banco de Almeja",
+                        "especie_objetivo": "Jaiba Café Guerrera (Callinectes bellicosus)",
+                        "prioridad": 1,
+                        "score_hsi": 91.8,
+                        "sst_centigrados": 26.2,
+                        "temp_fondo_centigrados": 25.8,
+                        "salinidad_psu": 34.0,
+                        "oxigeno_disuelto_mg_l": 5.8,
+                        "sustrato_sidescan": "LODO_FIRME_CONCHAL",
+                        "densidad_trampas_sugerida_ha": 20,
+                        "turbidez_ndti": 0.122,
+                        "clorofila_mg_m3": 2.15,
+                        "profundidad_brazas_min": 2.0,
+                        "profundidad_brazas_max": 6.5,
+                        "confirmado_por_usv": True,
+                        "riesgo_roca_hidrofono": False,
+                        "recomendacion_tactica": "Corriente moderada de vaciante dispersa el olor de la carnada a lo largo del canal; excelente oxigenación de fondo (5.8 mg/L) y 0 trampas fantasma.",
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-109.095, 25.576],
+                            [-109.075, 25.576],
+                            [-109.077, 25.566],
+                            [-109.097, 25.566],
+                            [-109.095, 25.576],
+                        ]],
+                    },
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "id": "topo-jaiba-hypoxia",
+                        "codigo_zona": "TOPO-HIPOXIA",
+                        "nombre_canal": "Rincón Estancado Interior Ohuira (EXCLUSIÓN HIPOXIA DO < 2.0 mg/L)",
+                        "especie_objetivo": "ALERTA MORTALIDAD EN TRAMPA (Hipoxia Severa)",
+                        "prioridad": 3,
+                        "score_hsi": 14.0,
+                        "sst_centigrados": 28.4,
+                        "temp_fondo_centigrados": 27.9,
+                        "salinidad_psu": 29.5,
+                        "oxigeno_disuelto_mg_l": 1.65,
+                        "sustrato_sidescan": "FANGO_ANOXICO",
+                        "densidad_trampas_sugerida_ha": 0,
+                        "turbidez_ndti": 0.195,
+                        "clorofila_mg_m3": 4.80,
+                        "profundidad_brazas_min": 1.0,
+                        "profundidad_brazas_max": 2.8,
+                        "confirmado_por_usv": True,
+                        "riesgo_roca_hidrofono": True,
+                        "recomendacion_tactica": "¡PROHIBIDO CALAR TRAMPAS JAIBERAS AQUÍ! La sonda óptica DO del USV registró hipoxia crítica de fondo (1.65 mg/L). Cualquier jaiba que entre a las nasas morirá asfixiada antes del levante.",
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [-108.995, 25.635],
+                            [-108.980, 25.635],
+                            [-108.980, 25.622],
+                            [-108.995, 25.622],
+                            [-108.995, 25.635],
+                        ]],
+                    },
+                },
+            ]
+        elif is_camaron:
             features = [
                 {
                     "type": "Feature",
@@ -430,11 +613,18 @@ def get_daily_polygons_dataset(zona: str = "Topolobampo-Ohuira", turno: str = "N
     }
 
 
-def get_usv_live_telemetry(zona: str = "Topolobampo-Ohuira", turno: str = "NOCTURNO_CAMARON") -> Dict[str, Any]:
+def get_usv_live_telemetry(
+    zona: str = "Topolobampo-Ohuira",
+    turno: str = "NOCTURNO_CAMARON",
+    tier: str = "MVP_BAJO_COSTO",
+) -> Dict[str, Any]:
     """
-    Devuelve la telemetría en vivo del USV Trimarán Híbrido 48V y su ruta de barrido en Zig-Zag (Waypoints).
+    Devuelve la telemetría en vivo del USV Trimarán Híbrido 48V y su ruta de barrido en Zig-Zag (Waypoints)
+    para las 3 opciones (Camarón, Pescado, Jaiba) y los 2 tiers (MVP_BAJO_COSTO vs GRADO_CIENTIFICO).
     """
-    is_night = turno == "NOCTURNO_CAMARON"
+    is_jaiba = "JAIBA" in turno.upper()
+    is_night = "CAMARON" in turno.upper() or is_jaiba
+    is_sci = tier.upper() == "GRADO_CIENTIFICO"
     if zona == "Bahia de Kino":
         pos = [-111.9410, 28.7830] if is_night else [-112.0180, 28.8090]
         track = (
@@ -515,17 +705,22 @@ def get_usv_live_telemetry(zona: str = "Topolobampo-Ohuira", turno: str = "NOCTU
 
     return {
         "usv_id": "TRIMARAN-STEALTH-48V-01",
+        "sensor_tier": tier,
         "estado_mision": (
-            "BARRIDO ZIG-ZAG 100% ELÉCTRICO (MOTOR 4T APAGADO • 3.0 KT) — CAMARÓN"
-            if is_night
-            else "BARRIDO ZIG-ZAG DIURNO (50 kHz + CLOROFILA-A) — SARDINA/ESCAMA"
+            "BARRIDO SIDE-SCAN 800kHz / OCULUS + SONDA DO — PROSPECCIÓN JAIBA (TRAMPAS)"
+            if is_jaiba
+            else (
+                "BARRIDO ZIG-ZAG 100% ELÉCTRICO (MOTOR 4T APAGADO • 3.0 KT) — CAMARÓN"
+                if is_night
+                else "BARRIDO ZIG-ZAG DIURNO (50 kHz + CLOROFILA-A) — PESCADO/ESCAMA"
+            )
         ),
         "coordinates": pos,
         "track_coordinates": track,
         "propulsion_48v": {
             "motores": "2x Flipsky 65161 Brushless 3.0 kW (6.0 kW Total)",
             "controlador": "Flipsky Dual FSESC75200 Pro (Water Cooled)",
-            "velocidad_actual_nudos": 3.1 if is_night else 8.4,
+            "velocidad_actual_nudos": 2.8 if is_jaiba else (3.1 if is_night else 8.4),
             "velocidad_max_crucero_nudos": 11.5,
             "generador_4t_estado": "APAGADO (Sigilo Acústico Activo)" if is_night else "ENCENDIDO (Híbrido Auto-Carga)",
         },
@@ -539,19 +734,24 @@ def get_usv_live_telemetry(zona: str = "Topolobampo-Ohuira", turno: str = "NOCTU
             "autopiloto": "CubePilot Cube Orange+ (ArduBoat)",
             "heading_rtk": "2x u-blox ZED-F9P Moving Baseline (0.1° True Yaw)",
             "rumbo_grados": 294.2 if is_night else 218.6,
-            "vision_nocturna": "Teledyne FLIR Boson 320 LWIR + Radar Ainstein 24 GHz (Sin obstáculos a 100m)",
+            "vision_nocturna": "FLIR Boson 640 Radiométrica + SubC Estéreo" if is_sci else "FLIR Boson 320 LWIR + Cámara Quilla Low-Light HD",
             "telemetria": "Starlink Mini (Activo 42 Mbps) + RFD900x 915MHz (En espera) + AIS Clase B SEMAR",
         },
         "sensores_submarinos": {
-            "sonar_chirp": "Garmin GSD 25 + Airmar B265LH 1kW",
-            "frecuencia_activa_khz": 200 if is_night else 50,
-            "profundidad_actual_brazas": 4.8 if is_night else 31.5,
-            "hidrofono_ethernet": "Aquarian H3d-Ethernet (Lodo Orgánico Limpio - 0% Roca)" if is_night else "Aquarian H3d-Ethernet (Coro Curvina 460 Hz Detectado)",
+            "sonar_chirp": "Simrad EK80 WBT Mini + Oculus M1200d (Grado Científico)" if is_sci else "Garmin GSD 25 + Airmar B265LH + Side-Scan GT56UHD (MVP)",
+            "frecuencia_activa_khz": 800 if is_jaiba else (200 if is_night else 50),
+            "profundidad_actual_brazas": 3.2 if is_jaiba else (4.8 if is_night else 31.5),
+            "hidrofono_ethernet": (
+                "Forrajeo Jaiba Bivalvos Confirmado (1.9 kHz)"
+                if is_jaiba
+                else ("Aquarian H3d-Ethernet (Lodo Orgánico Limpio - 0% Roca)" if is_night else "Aquarian H3d-Ethernet (Coro Curvina 460 Hz Detectado)")
+            ),
             "sonda_turner_c_fin": {
-                "clorofila_a_mg_m3": 2.65 if is_night else 5.12,
-                "turbidez_ntu": 14.2 if is_night else 4.8,
-                "temp_fondo_c": 26.1 if is_night else 18.6,
-                "salinidad_psu": 33.8 if is_night else 35.0,
+                "clorofila_a_mg_m3": 2.40 if is_jaiba else (2.65 if is_night else 5.12),
+                "turbidez_ntu": 11.5 if is_jaiba else (14.2 if is_night else 4.8),
+                "temp_fondo_c": 26.2 if is_jaiba else (26.1 if is_night else 18.6),
+                "salinidad_psu": 31.8 if is_jaiba else (33.8 if is_night else 35.0),
+                "oxigeno_disuelto_mg_l": 5.4 if is_jaiba else (5.2 if is_night else 6.1),
             },
         },
     }

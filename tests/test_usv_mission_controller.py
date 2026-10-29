@@ -10,6 +10,7 @@ from usv_mission_controller import (
     DualF9PMovingBaseline,
     VictronBatteryBank48V,
     USVMissionController48V,
+    SubseaSensorFrame,
 )
 
 
@@ -66,3 +67,50 @@ def test_stealth_electric_mode_nocturno_camaron():
     assert status["target_speed_knots"] == 3.0
     assert status["mavlink_mode"] == "AUTO_SWEEP"
     assert "0 dB" in status["generator_4t"]
+
+
+def test_jaiba_mode_sidescan_and_hypoxia_protection():
+    """Valida prospección de Jaiba con Side-Scan 800kHz/Oculus y bloqueo por hipoxia DO."""
+    controller = USVMissionController48V(
+        shift_mode="PROSPECCION_JAIBA",
+        sensor_tier="GRADO_CIENTIFICO",
+    )
+
+    # 1. Caso Hipoxia en fondo (<2.2 mg/L) -> Abortar calado de trampas
+    hypoxic_frame = SubseaSensorFrame(
+        sonar_freq_khz=800,
+        depth_brazas=2.5,
+        biomass_echo_db=-45.0,
+        hydrophone_peak_freq_khz=2.1,
+        hydrophone_rms_db=-46.0,
+        chlorophyll_a_mg_m3=3.2,
+        turbidity_ntu=14.0,
+        bottom_temp_c=26.5,
+        salinity_psu=31.0,
+        dissolved_oxygen_mg_l=1.7,
+        sidescan_substrate="ECOTONO_ARENA_CONCHAL",
+    )
+    res_hyp = controller.analyze_subsea_frame_and_adapt_route(25.61, -109.02, hypoxic_frame)
+    assert res_hyp["classification"] == "ZONA_HIPOXICA_MORTALIDAD_TRAMPAS"
+    assert res_hyp["action"] == "ABORT_TRAP_DEPLOYMENT_AND_BYPASS"
+
+    # 2. Caso Corredor Jaibero Óptimo -> Trazar línea de trampas
+    optimal_frame = SubseaSensorFrame(
+        sonar_freq_khz=800,
+        depth_brazas=3.2,
+        biomass_echo_db=-44.0,
+        hydrophone_peak_freq_khz=2.2,
+        hydrophone_rms_db=-45.0,
+        chlorophyll_a_mg_m3=2.4,
+        turbidity_ntu=11.0,
+        bottom_temp_c=26.0,
+        salinity_psu=32.5,
+        dissolved_oxygen_mg_l=5.4,
+        sidescan_substrate="ECOTONO_ARENA_CONCHAL",
+    )
+    res_opt = controller.analyze_subsea_frame_and_adapt_route(25.61, -109.02, optimal_frame)
+    assert res_opt["classification"] == "CORREDOR_JAIBA_CONFIRMADO_IN_SITU"
+    assert res_opt["action"] == "DEPLOY_TRAP_LINE_AND_SWEEP"
+    assert res_opt["sonar_freq_khz"] == 1200
+    assert len(res_opt["zigzag_waypoints"]) == 6
+

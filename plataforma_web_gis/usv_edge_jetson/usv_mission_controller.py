@@ -58,25 +58,33 @@ class VictronBatteryBank48V:
 
 @dataclass
 class SubseaSensorFrame:
-    sonar_freq_khz: int               # 200 (Camarón) o 50 (Sardina)
+    sonar_freq_khz: int               # 200 (Camarón), 50 (Pescado/Sardina) o 800 (Side-Scan Jaiba)
     depth_brazas: float               # 1 braza = 1.8288 m
     biomass_echo_db: float            # Intensidad de retrodispersión acústica (-30 a -75 dB)
-    hydrophone_peak_freq_khz: float   # >2.4 kHz = Camarón pistola/Arrecife rocoso; 0.45 kHz = Curvina
+    hydrophone_peak_freq_khz: float   # >2.4 kHz = Roca (Camarón) o Forrajeo Bivalvos (Jaiba); 0.45 kHz = Curvina
     hydrophone_rms_db: float
-    chlorophyll_a_mg_m3: float        # Sonda Turner Cyclops-7F
-    turbidity_ntu: float              # Sonda Turner Cyclops-7F
-    bottom_temp_c: float              # Micro-CTD
-    salinity_psu: float               # Micro-CTD
+    chlorophyll_a_mg_m3: float        # Sonda Turner Cyclops-7F / RBRconcerto³
+    turbidity_ntu: float              # Sonda Turner Cyclops-7F / RBRconcerto³
+    bottom_temp_c: float              # Micro-CTD / RBRconcerto³
+    salinity_psu: float               # Micro-CTD / RBRconcerto³
+    dissolved_oxygen_mg_l: float = 5.4                    # Sonda Óptica DO Atlas EZO-DO / RBR optode
+    sidescan_substrate: str = "ECOTONO_ARENA_CONCHAL"     # LODO_ORGANICO, ECOTONO_ARENA_CONCHAL, ZOSTERA_PASTO, ROCA_DURA
 
 
 class USVMissionController48V:
     """
-    Cerebro autónomo ejecutado en la NVIDIA Jetson Orin Nano conectada por UART/MAVLink
-    al CubePilot Cube Orange+.
+    Cerebro autónomo ejecutado en la NVIDIA Jetson Orin Nano (MVP) / AGX Orin (Científico)
+    conectada por UART/MAVLink al CubePilot Cube Orange+.
+    Soporta 3 modos de prospección: NOCTURNO_CAMARON, DIURNO_SARDINA (Pescado) y PROSPECCION_JAIBA.
     """
 
-    def __init__(self, shift_mode: str = "NOCTURNO_CAMARON") -> None:
+    def __init__(
+        self,
+        shift_mode: str = "NOCTURNO_CAMARON",
+        sensor_tier: str = "MVP_BAJO_COSTO",
+    ) -> None:
         self.shift_mode = shift_mode
+        self.sensor_tier = sensor_tier
         self.rtk_yaw = DualF9PMovingBaseline()
         self.battery = VictronBatteryBank48V()
         self.generator_4t_running = False
@@ -151,7 +159,41 @@ class USVMissionController48V:
         - Si confirma alta densidad de camarón (200 kHz) o sardina/clorofila (50 kHz), genera
           automáticamente un patrón de barrido en Zig-Zag (Lawnmower) para delimitar la mancha.
         """
-        # 1. Filtro Acústico Anti-Roca (Hidrófono Aquarian H3d-Ethernet)
+        # 1. Evaluación Modo 3: Prospección de Jaiba Bentónica (Side-Scan 800 kHz / Oculus + Sonda DO)
+        if "JAIBA" in self.shift_mode.upper():
+            if frame.dissolved_oxygen_mg_l < 2.2:
+                return {
+                    "classification": "ZONA_HIPOXICA_MORTALIDAD_TRAMPAS",
+                    "action": "ABORT_TRAP_DEPLOYMENT_AND_BYPASS",
+                    "sonar_freq_khz": 800,
+                    "heading_rtk_deg": self.rtk_yaw.compute_true_yaw_deg(),
+                    "reason": (
+                        f"ALERTA ROJA HIPOXIA: Oxígeno disuelto en fondo ({frame.dissolved_oxygen_mg_l} mg/L) "
+                        "por debajo del umbral letal (2.2 mg/L). Prohibido calar trampas jaiberas."
+                    ),
+                    "zigzag_waypoints": [],
+                }
+
+            is_jaiba_corridor = (
+                0.8 <= frame.depth_brazas <= 8.5
+                and frame.bottom_temp_c >= 20.0
+                and frame.sidescan_substrate in ("ECOTONO_ARENA_CONCHAL", "ZOSTERA_PASTO", "LODO_ORGANICO")
+            )
+            if is_jaiba_corridor:
+                zigzag = self.generate_lawnmower_zigzag(lat, lon, span_deg=0.0030)
+                return {
+                    "classification": "CORREDOR_JAIBA_CONFIRMADO_IN_SITU",
+                    "action": "DEPLOY_TRAP_LINE_AND_SWEEP",
+                    "sonar_freq_khz": 800 if self.sensor_tier == "MVP_BAJO_COSTO" else 1200,
+                    "heading_rtk_deg": self.rtk_yaw.compute_true_yaw_deg(),
+                    "reason": (
+                        f"Hábitat óptimo de Jaiba confirmado por Side-Scan ({frame.sidescan_substrate}) a {frame.depth_brazas} bz, "
+                        f"DO {frame.dissolved_oxygen_mg_l} mg/L, Temp {frame.bottom_temp_c}°C. Trazando línea de 25 trampas/ha."
+                    ),
+                    "zigzag_waypoints": zigzag,
+                }
+
+        # 2. Filtro Acústico Anti-Roca para Redes de Arrastre (Hidrófono Aquarian H3d-Ethernet)
         if frame.hydrophone_peak_freq_khz >= 2.4 and frame.hydrophone_rms_db >= -48.0:
             return {
                 "classification": "ZONA_EXCLUSION_ROCA_ROMPE_REDES",
@@ -164,8 +206,8 @@ class USVMissionController48V:
                 "zigzag_waypoints": [],
             }
 
-        # 2. Evaluación Turno Noche (Camarón en 2 a 12 brazas con CHIRP 200 kHz)
-        if self.shift_mode == "NOCTURNO_CAMARON":
+        # 3. Evaluación Modo 1: Turno Noche (Camarón en 2 a 12 brazas con CHIRP 200 kHz)
+        if "CAMARON" in self.shift_mode.upper():
             is_shrimp_hotspot = (
                 2.0 <= frame.depth_brazas <= 12.5
                 and frame.biomass_echo_db >= -52.0
@@ -185,8 +227,8 @@ class USVMissionController48V:
                     "zigzag_waypoints": zigzag,
                 }
 
-        # 3. Evaluación Turno Día (Sardina / Curvina con CHIRP 50 kHz + Clorofila-a Turner)
-        if self.shift_mode == "DIURNO_SARDINA":
+        # 4. Evaluación Modo 2: Turno Día (Pescado / Sardina / Curvina con CHIRP 50 kHz + Clorofila-a)
+        if "SARDINA" in self.shift_mode.upper() or "PESCADO" in self.shift_mode.upper() or "DIURNO" in self.shift_mode.upper():
             is_pelagic_school = (
                 frame.chlorophyll_a_mg_m3 >= 2.5
                 and frame.biomass_echo_db >= -46.0
