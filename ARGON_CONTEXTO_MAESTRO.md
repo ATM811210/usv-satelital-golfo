@@ -1,63 +1,40 @@
-# CONTEXTO MAESTRO DEL PROYECTO: ANALÍTICA SATELITAL Y TRIMARÁN USV MULTIESPECIE (48V "STEALTH")
-*Documento Consolidado de Alta Densidad para Ingesta en Modelos de Razonamiento (Argon) - Temperatura recomendada: 0.2*
+# CONTEXTO MAESTRO DEL PROYECTO: ANALÍTICA SATELITAL 3M Y TRIMARÁN USV TRI-ESPECIE (48V "STEALTH")
+*Documento Consolidado de Alta Densidad para Contexto de Ingeniería y Modelos Agénticos (SSOT)*
 
 ---
 
-## 1. Misión, Operación y Estrategia Comercial de Doble Turno
-* **Objetivo:** Optimizar la pesca industrial y cooperativa en el Golfo de California (Topolobampo $\leftrightarrow$ Bahía de Kino) eliminando la prospección empírica.
-* **Estrategia en Dos Fases:**
-  * **Semana 3 (Día 21) - Satélite Diario PlanetScope 3 m:** Antes de que el USV entre al agua, se activa la plataforma web con fotos diarias de 3 metros y capas térmicas VIIRS/GOES. Las pangas reciben a las 10:00 PM las coordenadas exactas de las plumas de turbidez. Costo: **$3,600 USD por 6 meses ($600 USD/mes)**.
-  * **Semana 8 - Trimarán Híbrido Multiespecie 48V:**
-    * *Turno Noche (Camarón: 11 PM a 5 AM):* Barrido a 200 kHz en fondos someros (2 a 15 brazas). Despacho a pangueros antes de las 5:30 AM.
-    * *Turno Día (Sardina y Escama: 5:30 AM a 12 PM):* Conmutación a 50 kHz y sensor óptico de clorofila para cardúmenes de sardina monterrey, crinuda, macarela y frentes de medusa/curvina en mar abierto.
+## 1. Misión, Operación y 3 Opciones de Prospección (Camarón, Pescado y Jaiba)
+* **Objetivo:** Eliminar la prospección pesquera a ciegas en el Golfo de California (Topolobampo–Ohuira–Santa María, SIN $\leftrightarrow$ Bahía de Kino / Guaymas, SON) combinando satélites comerciales de **3.0 metros diarios (PlanetScope 8-Bandas)** con verificación in-situ mediante un **USV Trimarán Híbrido de 48V ("Stealth")**.
+* **3 Opciones Operativas en Plataforma Web GIS y USV:**
+  1. **Opción 1 — Camarón (`NOCTURNO_CAMARON`, 22:00 a 05:15 hrs):** Camarón azul (*L. stylirostris*) y café (*F. californiensis*) en canales de 2.0 a 12.5 brazas. Fusión de turbidez PlanetScope 3m ($\text{NDTI} \in [0.06, 0.22]$), ventana termohalina de fondo ($24.0^\circ\text{C}\text{--}28.5^\circ\text{C}$, $28\text{--}36\text{ PSU}$), sonar CHIRP a 200 kHz y exclusión acústica de roca rompe-redes ($>2.4\text{ kHz}$ en hidrófono).
+  2. **Opción 2 — Pescado y Pelágicos (`DIURNO_SARDINA` / `PESCADO`, 05:30 a 12:00 hrs):** Sardina Monterrey, curvina golfina, pargo y aguamala en 10 a 90 brazas. Basado en frentes de Clorofila-a RedEdge ($>2.5\text{ mg/m}^3$), surgencia térmica ($17.5^\circ\text{C}\text{--}23.0^\circ\text{C}$), sonar CHIRP a 50 kHz (penetración 250 m) y detección hidrofónica de coros de curvina ($450\text{ Hz}$).
+  3. **Opción 3 — Jaiba Bentónica (`PROSPECCION_JAIBA`, 0.8 a 8.5 brazas):** Jaiba café guerrera (*Callinectes bellicosus*) y jaiba azul (*Callinectes arcuatus*) para calado de trampas/nasas. Integra:
+     - **Sonda Óptica de Oxígeno Disuelto ($DO$) en Fondo:** Bloquea el calado de trampas si $DO < 2.2\text{ mg/L}$ (evita mortandad por hipoxia estuarina dentro de la nasa; óptimo $\ge 3.2\text{ mg/L}$).
+     - **Sonar de Barrido Lateral UHD (*Side-Scan* 455/800/1000 kHz o Cámara Acústica Oculus 1.2 MHz):** Resuelve la zona ciega del haz nadir identificando ecótonos arena-conchal, praderas de *Zostera* y trampas fantasma.
+     - **Acústica Pasiva Trófica (`H3d` en banda 1.2–3.5 kHz):** Detecta el crujido de bivalvos/almejas triturados por quelas de jaiba en alimentación activa.
 
 ---
 
-## 2. Arquitectura Naval y Casco
-* **Diseño "Stealth" Antirrobo:** Cero paneles solares en cubierta (evita reflejos visibles a kilómetros en Sinaloa/Sonora y baja resistencia al viento en tormentas Beaufort 6). Cubierta plana de aluminio gris mate con aspecto de balsa pesada.
-* **Opciones de Casco Evaluadas:**
-  * **Opción 1: Trimarán de Aluminio 5083 Fabricado desde Cero:** **$5,600 USD** (Quilla central en V profunda + flotadores + tanque 60 L con snorkel).
-  * **Opción 2: Pontón Recreativo Usado ($45,000 MXN base) Modificado:** **$4,425 USD total ($88,500 MXN)**. Base usada ($45k MXN) con tanque marino integrado de 90–150 L + pontón central de aluminio ($18k MXN) + tajamar disipador de olas a 45° ($8k MXN) + soportes de popa y cajas ($17.5k MXN).
-  * **Opciones Comerciales (OceanAlpha / Otter Pro):** >$75,000 a $85,000 USD landed en México (descartadas por costo, hélices expuestas y nula hibridación).
+## 2. Fundamentos Físicos y Biológicos Clave (Destilados de Investigación)
+* **Reflectancia Acústica sin Vejiga Natatoria:** Ni el camarón ni la jaiba poseen vejiga natatoria ($TS \approx -45\text{ a }-65\text{ dB}$). En el MVP Comercial se discrimina el hábitat por dureza/textura de sustrato (CHIRP 200 kHz + Side-Scan 800 kHz) y variables fisicoquímicas ($DO$, Temp, Salinidad, Turbidez); en el Grado Científico se cuantifica biomasa absoluta ($g/m^3$) mediante inversión multifrecuencia de banda ancha (**Simrad EK80 WBT Mini 70/120/200/333 kHz** calibrado con esfera de carburo de tungsteno) e imagen multihaz (**Blueprint Subsea Oculus M1200d**).
+* **Dualidad del Hidrófono Submarino:** El chasquido de alta intensidad ($>2.4\text{ kHz}$) en mar abierto proviene de camarón pistola (*Alpheidae*) asociado a arrecife/piedra viva. Para redes de arrastre camaroneras es un **filtro estricto de exclusión rompe-redes**; para trampas fijas de jaiba, la banda de $1.2\text{ a }3.5\text{ kHz}$ sobre ecótono arena-conchal actúa como **indicador positivo de forrajeo**.
+* **Inmunidad Electromagnética de Rumbo:** Los 80A–125A DC del bus de 48V y el alternador desvían cualquier brújula magnética hasta $35^\circ$. Es obligatorio usar **2x u-blox ZED-F9P en Moving Baseline** ($0.1^\circ$ True Yaw satelital).
+* **Flotabilidad Positiva sin Absorción Salina:** Se priorizan mamparas estancas soldadas con purga e inyección controlada de celda cerrada, evitando poliuretano abierto que absorbe salmuera por delaminación.
+* **Starlink Embarcado Indispensable:** El enlace **Starlink Mini DC (o Flat High Performance)** activo a bordo del USV es indispensable para transmitir ecogramas, mosaicos Side-Scan y alertas de hipoxia desde 25 MN mar adentro antes de que salgan las pangas, respaldado por radioenlace **RFD900x (915 MHz, 40+ km)**.
 
 ---
 
-## 3. Tren Motriz de Alta Potencia (48V) y Respaldo Masivo LiFePO4
-* **Propulsión:** **2x Pods Submarinos Brushless de 3.0 kW (48V)** (~10-12 HP hidrodinámicos) con toberas corta-cabos.
-  * Velocidad de tránsito: **10 a 12 nudos** (llega al polígono en la mitad de tiempo).
-  * Velocidad de escaneo: 3 nudos en modo silencioso.
-* **Planta Híbrida 4T Automatizada:** Motor térmico con generador 48V (3.5 kW) con arranque eléctrico gobernado por relé.
-* **Banco Masivo LiFePO4 Doble Respaldo (10.24 kWh - 48V 200Ah + BMS):**
-  * **Capacidad Limp-Home:** Si el generador falla a **20 millas náuticas** de Topolobampo a las 3:00 AM, las baterías garantizan **25 millas de regreso** a 4.5 nudos en modo 100% eléctrico, evitando que el USV quede a la deriva con equipo de alto valor.
+## 3. Tres Modalidades Comerciales y Presupuesto Auditado (Mano de Obra Separada)
+
+| Modalidad | Alcance y Equipos Clave | Materiales / Equipos / Satélite | Mano de Obra (Astillero + Ingeniería Separada) | Total Llave en Mano (USD) |
+| :--- | :--- | :---: | :---: | :---: |
+| **1. Etapa 1 Independiente (`ETAPA_1_SATELITAL` — Día 21, Sin USV)** | Solo Análisis Satelital de Máxima Precisión (**PlanetScope 3.0m Diario 8-Bandas** + CMEMS Fondo $DO$/Temp/Sal + VIIRS + Sentinel-2 por 6 meses) + Cloud PostGIS/n8n + App Móvil Capitán Offline para **Camarón, Pescado y Jaiba**. | **\$4,320 USD** *(\$3,600 satélite 6m + \$720 cloud; o \$8,220 cobertura extendida)* | **\$6,800 USD** *(Ingeniería de Software Tri-Especie y App)* | **\$11,120 USD** *(Estándar)*<br/>**\$15,020 USD** *(Extendida)* |
+| **2. MVP Comercial Trimarán 48V Completo (`MVP_BAJO_COSTO`)** | Materiales Navales Aluminio 5083 + 2x Pods 48V 3kW + LiFePO4 10.24 kWh (25 MN *Limp-Home*) + Generador 4T + Cube Orange+ + 2x RTK F9P + Jetson Orin Nano + FLIR Boson 320 + Radar 24GHz + AIS SEMAR (**\$17,429** con Pontón / **\$18,604** desde Cero) + **Starlink Mini Indispensable 6m + RFD900x (\$1,749)** + **Sensores 3 Especies: Garmin CHIRP + Side-Scan 800kHz + Turner CTD/Chl + Sonda DO + Hidrófono H3d (\$10,550)** + **Satélite 3m 6m (\$4,320)**. | **\$34,049 USD** *(con Pontón)*<br/>**\$35,224 USD** *(Casco Cero)* | **\$3,500 USD** *(Astillero TIG)*<br/>**+ \$16,400 USD** *(Ingeniería 4 Hitos)*<br/>**= \$19,900 USD** | **\$53,949 USD** *(con Pontón)*<br/>**\$55,124 USD** *(Casco Cero)* |
+| **3. Grado Científico INAPESCA / CIBNOR (`GRADO_CIENTIFICO`)** | Trimarán 48V + Jetson AGX Orin 275 TOPS + FLIR 640 (**\$25,400**) + **Starlink Marítimo Prioritario (\$3,500)** + **Simrad EK80 WBT Mini + Cámara Acústica Oculus M1200d + Side-Scan Edgetech + RBRconcerto³ CTD-DO + icListen HF (\$78,400)** + **PlanetScope 3m Regional + Radar SAR (\$12,600)**. | **\$119,900 USD** | **\$4,500 USD** *(Astillero)*<br/>**+ \$24,000 USD** *(Ingeniería y Calibración Acústica)*<br/>**= \$28,500 USD** | **\$148,400 USD** |
 
 ---
 
-## 4. Aviónica, Cómputo y Seguridad Legal
-* **Autopiloto:** CubePilot The Cube Orange+ Standard Set con triple IMU amortiguada corriendo ArduPilot (ArduBoat).
-* **Geoposicionamiento y Rumbo Verdadero:** **Dual u-blox ZED-F9P RTK (Moving Baseline)** del consultor (**$800 USD**) calculando True Yaw a 0.1° sin desvío magnético.
-* **Computadora de Misión:** **NVIDIA Jetson Orin Nano Super (8GB, 67 TOPS)** + NVMe 1TB Industrial (fusión de datos, ROS2 y telemetría).
-* **Seguridad y Visión:** Cámara térmica FLIR Boson + Transpondedor AIS Clase B homologado ante SEMAR + Luces COLREG.
-* **Comunicaciones:** Starlink Mini / Marítimo DC + Radioenlace RFDesign RFD900x (915 MHz).
-
----
-
-## 5. Sensores Submarinos Multiespecie
-* **Ecosonda CHIRP Doble Frecuencia (50 kHz / 200 kHz):** Airmar B75M / TM185 (Camarón a 200 kHz somero / Sardina a 50 kHz profundo hasta 250 m).
-* **Minisonda CTD + Fluorómetro de Clorofila-a y Turbidez:** Turner Designs Cyclops-7F integrado en la quilla para frentes biológicos diurnos.
-* **Hidrófono Pasivo:** Filtro de exclusión para descartar fondos rocosos con chasquidos de camarón pistola.
-
----
-
-## 6. Cuadro Financiero Consolidado Llave en Mano ($54,320 USD)
-
-| Rubro de Inversión | Descripción Técnica | Monto (USD) |
-| :--- | :--- | :--- |
-| **1. Casco Trimarán** | Aluminio 5083 + Tubos PAD con Espuma + Tanque 60L con Snorkel (*o Pontón Modificado*) | **\$5,600 USD** |
-| **2. Propulsión Alta Potencia** | 2x Pods 3 kW 48V Brushless + Planta Híbrida 4T Automatizada | **\$4,400 USD** |
-| **3. Banco Baterías Doble Respaldo** | 10.24 kWh LiFePO4 (48V 200Ah + Smart BMS 200A) con respaldo 25 millas | **\$2,650 USD** |
-| **4. Aviónica, Cómputo y Legal** | Cube Orange+, Dual F9P RTK (\$800), Jetson, Starlink, FLIR Boson, AIS SEMAR | **\$8,250 USD** |
-| **5. Sensores Submarinos** | CHIRP Dual 50/200 kHz + Hidrófono de descarte + CTD/Clorofila/Turbidez | **\$7,700 USD** |
-| **6. Logística, Aduanas e Insumos** | Fletes Hazmat, aranceles (IVA/IGI), tornillería Inox 316, cables marinos AWG 2/0 y cajas IP68 | **\$5,720 USD** |
-| **7. Satélite Diario PlanetScope** | Suscripción comercial diaria 3 m para Topolobampo / Ohuira (6 Meses a \$600/mes) | **\$3,600 USD** |
-| **8. Ingeniería y Software** | Ingeniería naval, plataforma Web GIS satelital, orquestación n8n, gestoría SEMAR y ensamble | **\$16,400 USD** |
-| **TOTAL LLAVE EN MANO (OPCIÓN A)** | **Trimarán Híbrido 48V Comercial Multiespecie Completo** | **\$54,320 USD** |
+## 4. Estado Actual de Avance de Ingeniería (MVP Web al 80% — 104 de 130 Horas Completadas)
+* **Completado en Código y Pruebas (`12 passed in 0.02s`):**
+  * Motor matemático tri-especie (`engine_hsi.py`), conectores y datasets (`satellite_connectors.py`), API FastAPI (`main.py`), exportadores `.GPX`/`.KML`, controlador de misión Edge (`usv_mission_controller.py`), fusión de visión térmica y biomasa (`edge_vision_fusion.py`), portal interactivo (`index.html`) y CI/CD en GitHub Actions (`.github/workflows/ci.yml`).
+* **Restante para Cerrar MVP Web (26 horas / ~3.5 días):** Conectar credenciales vivas de PlanetScope/CMEMS en `.env`, desplegar contenedores Docker (`postgis` + `n8n` + `fastapi`) en VPS y activar webhook de alertas WhatsApp/Telegram.

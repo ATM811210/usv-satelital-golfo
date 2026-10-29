@@ -23,8 +23,10 @@ node_modules/
 dist/
 build/
 
-# Datos crudos masivos de campo (NMEA, Sonar, Bagfiles)
+# Datos crudos masivos de campo y notas privadas de investigación (No públicos en GitHub)
 *.bag
 *.pcap
 *.bin
+*.rtf
 investigacion_transcripcion_completa.txt
+08_preguntas_respuestas_y_fuentes.md

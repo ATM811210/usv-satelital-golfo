@@ -1,50 +1,63 @@
-# 12. Plan Maestro de Programación Etapa por Etapa (Arquitectura Full-Stack: Cloud Satelital 3m + App Panga Offline + Cerebro Edge USV 48V)
+# 12. Plan de Acción y Programación Etapa por Etapa (Con Recálculo de Horas Necesarias vs. Avanzadas)
 
-Este documento define la hoja de ruta de ingeniería de software dividida en **6 Etapas Modulares**, abarcando desde el servidor geoespacial en la nube (**Hito 1 — Día 21**) y la **App Móvil Progresiva (PWA Offline)** para los capitanes de panga/barcos sardineros, hasta el software embebido en la **NVIDIA Jetson Orin Nano + CubePilot Cube Orange+** a bordo del **USV Trimarán Híbrido de 48V "Stealth"** (**Hitos 3 y 4 — Semanas 6 a 8**).
+Este documento define la hoja de ruta de ingeniería de software y mecatrónica dividida en **6 Etapas Modulares**, incluyendo el **balance real de horas de ingeniería (Presupuestadas vs. Ya Avanzadas vs. Restantes)** tras haber completado y probado la arquitectura Tri-Especie (**Camarón, Pescado y Jaiba**) y las **3 Modalidades (`ETAPA_1_SATELITAL`, `MVP_BAJO_COSTO` y `GRADO_CIENTIFICO`)**.
 
 ---
 
-## Mapa General de las 6 Etapas de Programación
+## 1. Balance Recalculado de Horas de Ingeniería (MVP Web + Cerebro Edge USV)
+
+| Etapa del Plan de Acción | Alcance Técnico Actualizado (Camarón + Pescado + Jaiba) | Horas Totales Necesarias | Horas Ya Avanzadas (Completadas) | Horas Restantes | % Avance | Entregables Listos vs. Tareas Pendientes |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **ETAPA 1:** Conectores Satelitales 3m y Dinámica de Mareas | `PlanetScope3mConnector` (3m 8-bandas), `CMEMS/GEE` (Temp fondo, Salinidad, $DO$, SST) y `tide_and_moon.py`. | **28 hrs** | **20 hrs** | **8 hrs** | **71%** | **Listo:** Estructura API, datasets Topolobampo/Kino y cálculo lunar/marea.<br/>**Falta (8h):** Insertar `PLANET_API_KEY` viva y credenciales `copernicusmarine` en `.env`. |
+| **ETAPA 2:** Motor Geofísico Tri-Especie + Base PostGIS | Algoritmos `score_shrimp_night_hsi` (Camarón), `score_sardine_day_hsi` (Pescado) y `score_crab_jaiba_hsi` (Jaiba con filtro $DO$ e hipoxia) + `init_postgis.sql` + Tests. | **36 hrs** | **30 hrs** | **6 hrs** | **83%** | **Listo:** Motor matemático 3 especies, perfiles de sensores y suite `pytest`.<br/>**Falta (6h):** Levantar contenedor `postgis` en VPS Cloud y migrar esquema SQL. |
+| **ETAPA 3:** Backend FastAPI + Exportadores `.GPX`/`.KML` + `n8n` | Endpoints REST (`main.py`), bloqueo por Token, selector de 3 niveles de proyecto, exportadores `.GPX`/`.KML` y workflow `n8n`. | **32 hrs** | **24 hrs** | **8 hrs** | **75%** | **Listo:** API FastAPI v2.1, generación `.GPX`/`.KML` y JSON de `n8n`.<br/>**Falta (8h):** Conectar webhook de WhatsApp/Telegram para envío automático (21:30 / 04:00 / 04:45). |
+| **ETAPA 4:** App Móvil Capitán (PWA Offline-First) y Portal GIS | Interfaz interactiva `index.html`, Service Worker `sw.js`, Manifest, 3 opciones en vivo (`Camarón`, `Pescado`, `Jaiba`), tablas auditadas y modo Capitán. | **34 hrs** | **30 hrs** | **4 hrs** | **88%** | **Listo:** Portal Web GIS en vivo en GitHub Pages + PWA Offline + Simulador.<br/>**Falta (4h):** Pruebas de campo en celular Android/iOS sin señal en muelle. |
+| **SUBTOTAL MVP WEB (Etapas 1 a 4 — Hito Día 21)** | **Plataforma Satelital 3m Tri-Especie + App Capitán** | **130 hrs** | **104 hrs** | **26 hrs** | **80.0%** | **Solo restan 26 horas (~3.5 días de enfoque) para cerrar al 100% la Etapa 1 en servidor productivo.** |
+| **ETAPA 5:** Cerebro Edge AI en USV (Jetson Orin Nano / AGX) | `usv_mission_controller.py` + `edge_vision_fusion.py` (FLIR Boson TTC COLREGs, Side-Scan Jaiba 800kHz/Oculus, Sonda $DO$ e Hidrófono H3d). | **48 hrs** | **22 hrs** *(Lógica + Tests)* | **26 hrs** *(Hardware)* | **46%** | **Listo:** Lógica de control, visión, biomasa y 12 unit tests en CI/CD.<br/>**Falta (26h):** Ingesta física Ethernet/Serial con sensores reales en banco. |
+| **ETAPA 6:** Supervivencia 48V, Hibridación y Pruebas de Mar | Máquina de estados *Limp-Home* 25 MN (LiFePO4 10.24 kWh), extractor ISO 8846 (90s), failover **Starlink Mini Indispensable** $\rightarrow$ RFD900x 915 MHz. | **42 hrs** | **16 hrs** *(Software)* | **26 hrs** *(En Agua)* | **38%** | **Listo:** Máquina de estados de potencia 48V y simulador de failsafes.<br/>**Falta (26h):** Integración eléctrica con Cube Orange+ / VESC y pruebas de mar. |
+| **TOTAL PROYECTO COMPLETO (Etapas 1 a 6)** | **Sistema Satelital 3m + USV Trimarán Híbrido 48V** | **220 hrs** | **142 hrs** | **78 hrs** | **64.5%** | **142 horas ya ejecutadas y respaldadas en GitHub; restan 26h Web + 52h Hardware.** |
+
+---
+
+## 2. Mapa de Arquitectura de las 6 Etapas (Tri-Especie: Camarón, Pescado y Jaiba)
 
 ```mermaid
 flowchart TD
-    subgraph E1["ETAPA 1 (Días 1-4): Conectores Satelitales y Astronómicos"]
-        S1["PlanetScope API (3.0m Diario 8-Bandas)<br/>Modo Trial Evaluación + Producción"]
+    subgraph E1["ETAPA 1 (20/28 hrs Completadas): Conectores Satelitales 3m"]
+        S1["PlanetScope API (3.0m Diario 8-Bandas)<br/>Trial Evaluación + Suscripción Semestral"]
         S2["Google Earth Engine + NOAA VIIRS<br/>SST Nocturna + Sentinel-2 10m"]
-        S3["Copernicus Marine (CMEMS)<br/>Temp Fondo (bottomT) + Salinidad + Clorofila"]
+        S3["Copernicus Marine (CMEMS)<br/>Temp Fondo + Salinidad + Oxígeno Disuelto (DO)"]
         S4["Motor Astronómico y Mareas<br/>Fase Lunar + Corriente de Vaciante (Nudos)"]
     end
 
-    subgraph E2["ETAPA 2 (Días 5-9): Motor Geofísico Doble Turno + PostGIS"]
-        M1["Algoritmo Turno Noche (Camarón 2-12 bz)<br/>NDTI 3m (35%) + Termohalino (25%) + Batimetría (20%) + Marea (20%)"]
-        M2["Algoritmo Turno Día (Sardina/Curvina 10-90 bz)<br/>Clorofila-a RedEdge (45%) + Frente SST (35%) + Talud (20%)"]
-        M3["Esquema Espacial PostgreSQL 16 + PostGIS<br/>Polígonos GeoJSON, Telemetría USV y Bitácora"]
+    subgraph E2["ETAPA 2 (30/36 hrs Completadas): Motor Geofísico Tri-Especie + PostGIS"]
+        M1["Opción 1: Camarón (2-12 bz)<br/>NDTI 3m + Termohalino + Exclusión Roca"]
+        M2["Opción 2: Pescado/Escama (10-90 bz)<br/>Clorofila-a RedEdge + Frente SST + Talud"]
+        M3["Opción 3: Jaiba Bentónica (0.8-8.5 bz)<br/>Oxígeno Disuelto DO >= 3.2 mg/L + Side-Scan Conchal"]
     end
 
-    subgraph E3["ETAPA 3 (Días 10-15): Backend FastAPI + Exportadores .GPX/.KML + n8n"]
-        B1["API Multi-Tenant con Bloqueo por Token<br/>(Corte automático por falta de pago)"]
-        B2["Exportador Dual para Plotters Marinos<br/>.GPX (Waypoints/Rutas Garmin/Simrad) y .KML"]
-        B3["Orquestador n8n: Corte 21:30 PM (Camarón)<br/>y 04:45 AM (Sardina) vía WhatsApp/Telegram"]
+    subgraph E3["ETAPA 3 (24/32 hrs Completadas): Backend FastAPI + .GPX/.KML + n8n"]
+        B1["API Multi-Tenant + Selector de 3 Modalidades<br/>(Etapa 1 $11.1k | MVP $53.9k | Científico $148.4k)"]
+        B2["Exportador Dual para Plotters Marinos<br/>.GPX (Waypoints/Líneas de Trampas) y .KML"]
+        B3["Orquestador n8n: Cortes 21:30 PM (Camarón),<br/>04:00 AM (Jaiba) y 04:45 AM (Pescado)"]
     end
 
-    subgraph E4["ETAPA 4 (Días 16-21 — HITO 1): App Móvil Capitán (PWA Offline-First)"]
-        A1["Service Worker (sw.js) + Web App Manifest<br/>Instalable en Android/iPhone sin tiendas"]
-        A2["Modo Capitán en Altamar (Sin Señal Celular)<br/>Rumbo (BRG), Distancia (MN) y ETA al Polígono #1"]
-        A3["Geocerca Acústica Anti-Roca (>2.4 kHz)<br/>Alerta sonora/visual si la panga se acerca a piedra"]
-        A4["Bitácora de Capturas Offline (IndexedDB/Local)<br/>Sincronización diferida al volver al muelle"]
+    subgraph E4["ETAPA 4 (30/34 hrs Completadas — HITO 1): App Capitán PWA Offline"]
+        A1["Portal GIS + Service Worker (sw.js)<br/>Operación sin señal celular en altamar"]
+        A2["Selector en Vivo: Camarón / Pescado / Jaiba<br/>+ Tablas BOM con Mano de Obra Separada"]
+        A3["Alertas Acústicas y de Hipoxia de Fondo<br/>(Prohibición de calar trampas si DO < 2.2 mg/L)"]
     end
 
-    subgraph E5["ETAPA 5 (Semanas 5-6 — HITO 3): Cerebro Edge AI en USV (Jetson Orin Nano)"]
-        U1["Ingesta Ethernet Sonar Garmin GSD 25 + Airmar B265LH<br/>Conmutación automática 200 kHz (Noche) / 50 kHz (Día)"]
-        U2[" Clasificador Acústico Hidrófono Aquarian H3d-Ethernet<br/>Exclusión Roca (>2.4 kHz) y Detección Curvina (450 Hz)"]
-        U3["Lectura Serial Sonda Turner Cyclops-7F<br/>Clorofila-a + Turbidez + Micro-CTD de Fondo"]
-        U4["Navegación Reactiva MAVLink hacia Cube Orange+<br/>Rumbo Dual RTK F9P (0.1°) + Barrido Zig-Zag"]
+    subgraph E5["ETAPA 5 (22/48 hrs Completadas): Cerebro Edge AI en USV"]
+        U1["Sonar Nadir (Garmin 50/200 kHz o Simrad EK80)<br/>+ Side-Scan Jaiba (800 kHz o Oculus 1.2 MHz)"]
+        U2["Hidrófono Dual H3d / icListen HF<br/>Roca (>2.4kHz), Quelas Jaiba (1.2-3.5kHz), Curvina (450Hz)"]
+        U3["Sonda Turner / RBRconcerto³ + Sonda Óptica DO<br/>Clorofila-a + Turbidez + Oxígeno Disuelto Fondo"]
     end
 
-    subgraph E6["ETAPA 6 (Semanas 7-8 — HITO 4): Supervivencia, Hibridación y Failsafes"]
-        F1["Control Automático Generador 4T e Extractor ISO 8846<br/>Sigilo 100% Eléctrico (3 kt) sobre manchas de camarón"]
-        F2["Seguro Anti-Deriva Limp-Home (25 Millas Náuticas)<br/>Retorno autónomo con banco LiFePO4 10.24 kWh si falla generador"]
-        F3["Failover de Comunicaciones y Anticolisión Nocturna<br/>Starlink Mini -> Radio RFD900x 915MHz + Evasión FLIR/Radar 24GHz"]
+    subgraph E6["ETAPA 6 (16/42 hrs Completadas): Supervivencia 48V y Starlink"]
+        F1["Control Híbrido 48V + Extractor ISO 8846 (90s)<br/>Sigilo 100% Eléctrico (2.8 - 3.0 kt)"]
+        F2["Seguro Anti-Deriva Limp-Home (25 Millas Náuticas)<br/>Banco LiFePO4 10.24 kWh (48V 200Ah)"]
+        F3["Starlink Mini DC Indispensable + Backup RFD900x<br/>+ Evasión Nocturna FLIR Boson / Radar 24GHz"]
     end
 
     E1 --> E2 --> E3 --> E4
@@ -53,42 +66,13 @@ flowchart TD
 
 ---
 
-## Desglose Técnico Etapa por Etapa
+## 3. Plan de Acción Inmediato para Cerrar las 26 Horas Restantes del MVP Web (Compuertas de 15 Minutos)
 
-### Etapa 1: Conectores Satelitales de Alta Precisión y Dinámica de Mareas (Días 1 a 4)
-* **Archivos:** `backend/satellite_connectors.py` y `backend/tide_and_moon.py`.
-* **Funciones Clave:**
-  1. **Conector `PlanetScope3mConnector`:** Consulta el catálogo `PSScene` de Planet Labs sobre los polígonos de Topolobampo–Ohuira–Santa María y Bahía de Kino, descargando el activo `ortho_analytic_8b_sr` (8 bandas a **3.0 metros de resolución diaria**). Soporta tanto la llave de evaluación (*Commercial Trial 14–30 días*) como la suscripción semestral de \$600 USD/mes.
-  2. **Conector `CMEMS & GEE`:** Extrae temperatura potencial de fondo (`bottomT`), salinidad (`so`), clorofila regional (`chl`) y temperatura superficial nocturna (`VIIRS SST`).
-  3. **Módulo Astronómico y de Mareas (`tide_and_moon.py`):** Calcula la iluminación y fase lunar exacta (luna nueva/llena = mareas vivas de máxima actividad camaronera) y estima la velocidad de vaciante (reflujo en nudos) en las bocas de Topolobampo y Estero La Cruz.
-
-### Etapa 2: Motor Matemático Multi-Especie Doble Turno y Base Espacial PostGIS (Días 5 a 9)
-* **Archivos:** `backend/engine_hsi.py` y `db/init_postgis.sql`.
-* **Funciones Clave:**
-  1. **Cálculo Nocturno ($\text{HSI}_{\text{Camarón}}$):** Evalúa píxel a píxel el gradiente de turbidez fina a 3 m ($\text{NDTI} \in [0.06, 0.22]$), la ventana térmica de fondo ($24.0^\circ\text{C}\text{--}28.5^\circ\text{C}$), la salinidad ($28\text{--}36\text{ PSU}$), la batimetría somera ($2\text{ a }12\text{ brazas}$) y la corriente de reflujo.
-  2. **Cálculo Diurno ($\text{HSI}_{\text{Sardina/Escama}}$):** Evalúa el índice RedEdge de Clorofila-a ($\text{NDCI} > 2.5\text{ mg/m}^3$), los frentes térmicos de surgencia ($17.5^\circ\text{C}\text{--}22.5^\circ\text{C}$) y batimetría exterior ($10\text{ a }90\text{ brazas}$) para rentar coordenadas de día a barcos sardineros y escameros.
-  3. **Filtro Acústico Anti-Roca:** Penaliza automáticamente cualquier polígono donde el hidrófono del USV haya registrado firma acústica de arrecife/laja ($>2.4\text{ kHz}$), marcándolo como **Zona de Exclusión Rompe-Redes**.
-
-### Etapa 3: API Backend Multi-Tenant, Exportador `.GPX`/`.KML` y Orquestación `n8n` (Días 10 a 15)
-* **Archivos:** `backend/main.py`, `backend/gpx_kml_exporter.py` y `n8n_workflows/flujo_diario_10pm_y_5am.json`.
-* **Funciones Clave:**
-  1. **Control de Suscripciones por Token:** Valida en cada petición si el token de la cooperativa o barco sardinero está vigente; si presenta adeudo, bloquea la descarga de polígonos y telemetría.
-  2. **Exportador Dual `.GPX` + `.KML` (`gpx_kml_exporter.py`):** Genera tanto polígonos `.KML` para celulares/tablets como archivos estándar **`.GPX` (con `<wpt>` de los centroides prioritarios y `<rte>` del canal navegable seguro)** para insertarse por tarjeta SD o Wi-Fi directo en plotters **Garmin, Simrad, Lowrance, Furuno y Raymarine**.
-
-### Etapa 4: Aplicación Móvil Progresiva Offline-First para Capitanes (Días 16 a 21 — Hito 1)
-* **Archivos:** `frontend/index.html`, `frontend/manifest.webmanifest` y `frontend/sw.js`.
-* **Funciones Clave:**
-  1. **Instalación Nativa (`PWA`) y Caché en Altamar (`sw.js`):** Guarda en el teléfono la interfaz, los polígonos de las 10:00 PM y la ruta segura del canal antes de salir del muelle.
-  2. **Vista Táctica "Modo Capitán / Panga":**
-     - Muestra con números gigantes de alto contraste nocturno el **Rumbo (`BRG` en grados)**, la **Distancia (`MN` millas náuticas)** y el **Tiempo Estimado (`ETA`)** desde el GPS de la panga hasta el Polígono Confirmado #1.
-     - **Alarma de Geocerca Anti-Roca:** Si el GPS del capitán se acerca a una zona marcada como piedra por el hidrófono del USV, emite una alerta visual y acústica inmediata (*"¡PELIGRO DE ENGANCHE A 0.2 MN!"*).
-     - **Bitácora Offline con Cola de Sincronización:** Guarda los reportes de captura en `localStorage` cuando no hay señal en altamar y los sube al servidor en cuanto detecta conexión.
-
-### Etapa 5 y Etapa 6: Controlador de Misión Edge AI y Failsafes del USV Trimarán 48V (Semanas 5 a 8)
-* **Archivo:** `usv_edge_jetson/usv_mission_controller.py`.
-* **Funciones Clave:**
-  1. **Máquina de Estados de Propulsión Híbrida 48V:**
-     - **Modo Tránsito Rápido (10.5 nudos):** Activa el pre-barrido de vapores de sentina por 90 segundos (**extractor ISO 8846**), arranca el generador 4T y alimenta los **2x motores Flipsky 65161 de 3.0 kW**.
-     - **Modo Sigilo Eléctrico Camaronero (3.0 nudos):** Al entrar al polígono satelital nocturno, apaga el generador 4T para lograr **cero firma acústica submarina** y no espantar al camarón.
-  2. **Seguro Anti-Deriva (*Limp-Home* de 25 Millas Náuticas):** Monitorea mediante el **Victron SmartShunt 500A** el estado de carga del banco **LiFePO4 48V 200Ah (10.24 kWh)**. Si el generador 4T falla en mar abierto o el SoC baja al umbral de reserva de retorno, aborta el barrido y regresa autónomamente al muelle a 4.5 nudos.
-  3. **Navegación Reactiva MAVLink + Dual RTK F9P ($0.1^\circ$):** Lee el rumbo verdadero desde los **2x u-blox ZED-F9P** (inmune al magnetismo de los cables de 125A) y ordena un patrón de barrido en zig-zag cerrado cuando el sonar CHIRP y la sonda Turner detectan biomasa.
+1. **Bloque Cloud 1 (6 hrs — Base de Datos Espacial PostGIS):**
+   - Actualizar `db/init_postgis.sql` con las columnas de **Jaiba (`oxigeno_disuelto_mg_l`, `sustrato_sidescan`, `densidad_trampas_ha`)** y levantar el contenedor `postgis/postgis:16-3.4`.
+2. **Bloque Cloud 2 (8 hrs — Ingesta Satelital Viva en `.env`):**
+   - Configurar `PLANET_API_KEY` (cuenta Trial/Producción de PlanetScope 3m) y credenciales de Copernicus Marine (`CMEMS_USER` / `CMEMS_PASS`) para automatizar la descarga raster diaria sobre Topolobampo y Bahía de Kino.
+3. **Bloque Cloud 3 (8 hrs — Automatización `n8n` y Despacho WhatsApp/Telegram):**
+   - Importar `n8n_workflows/flujo_diario_10pm_y_5am.json` agregando el corte de las **04:00 AM para Jaiba (Líneas de Trampas)** junto con el de **21:30 PM (Camarón)** y **04:45 AM (Pescado)**.
+4. **Bloque Campo 4 (4 hrs — Prueba Piloto PWA con Capitanes):**
+   - Instalar la PWA desde `https://atm811210.github.io/usv-satelital-golfo/` en teléfonos de prueba, verificar caché offline sin señal y descarga de `.GPX` en plotter Garmin/Simrad.
