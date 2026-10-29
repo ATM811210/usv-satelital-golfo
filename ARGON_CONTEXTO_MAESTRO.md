@@ -34,7 +34,7 @@
 
 ---
 
-## 4. Estado Actual de Avance de Ingeniería (MVP Web al 80% — 104 de 130 Horas Completadas)
-* **Completado en Código y Pruebas (`12 passed in 0.02s`):**
-  * Motor matemático tri-especie (`engine_hsi.py`), conectores y datasets (`satellite_connectors.py`), API FastAPI (`main.py`), exportadores `.GPX`/`.KML`, controlador de misión Edge (`usv_mission_controller.py`), fusión de visión térmica y biomasa (`edge_vision_fusion.py`), portal interactivo (`index.html`) y CI/CD en GitHub Actions (`.github/workflows/ci.yml`).
-* **Restante para Cerrar MVP Web (26 horas / ~3.5 días):** Conectar credenciales vivas de PlanetScope/CMEMS en `.env`, desplegar contenedores Docker (`postgis` + `n8n` + `fastapi`) en VPS y activar webhook de alertas WhatsApp/Telegram.
+## 4. Estado Actual de Avance de Ingeniería (MVP Web al 90.8% — 118 de 130 Horas Completadas, 100% Código/Docker)
+* **Completado en Código, Base de Datos, Docker y Pruebas (`14 passed in 0.01s`):**
+  * Motor matemático tri-especie (`engine_hsi.py`), conectores y datasets (`satellite_connectors.py`), API FastAPI (`main.py`), `Dockerfile`, `docker-compose.yml` (`postgis` + `backend_gis` + `n8n`), esquema espacial (`init_postgis.sql`), workflow tri-especie (`flujo_diario_10pm_y_5am.json`), controlador de misión Edge (`usv_mission_controller.py`), fusión de visión térmica y biomasa (`edge_vision_fusion.py`), portal interactivo (`index.html`) y CI/CD en GitHub Actions (`.github/workflows/ci.yml`).
+* **Restante Operativo al Contratar Cliente (12 horas / ~1.5 días):** Insertar credenciales vivas de PlanetScope/CMEMS del cliente en `.env` (4h), vincular número de WhatsApp/Telegram en `n8n` (4h) y realizar prueba piloto en muelle con capitanes (4h).

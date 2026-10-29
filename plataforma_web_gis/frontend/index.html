@@ -1258,24 +1258,24 @@
       </div>
     </div>
 
-    <!-- SECCIÓN 4: BALANCE RECALCULADO DE HORAS DE INGENIERÍA (MVP WEB 80% AVANZADO) Y 4 HITOS -->
+    <!-- SECCIÓN 4: BALANCE RECALCULADO DE HORAS DE INGENIERÍA (MVP WEB 90.8% AVANZADO) Y 4 HITOS -->
     <div class="grid-2col">
       <div class="section-block">
-        <h3>4. Plan de Acción y Balance Recalculado de Horas (MVP Web al 80% — 104 de 130 Hrs Avanzadas)</h3>
+        <h3>4. Plan de Acción y Balance Recalculado de Horas (MVP Web al 90.8% — 118 de 130 Hrs Completadas)</h3>
         <div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.81rem;">
           <div style="background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.4); padding:0.65rem; border-radius:6px;">
             <strong style="color:#34d399; display:block; margin-bottom:0.25rem;">📊 Estado Actual del MVP Web Tri-Especie (Etapas 1 a 4 — Hito Día 21):</strong>
             <div style="color:#e2e8f0; line-height:1.45;">
-              • <strong>Etapa 1 (Conectores PlanetScope 3m + CMEMS DO/Temp + Mareas):</strong> 20 / 28 hrs avanzadas (<strong>Restan 8 hrs</strong>: llaves vivas en <code>.env</code>).<br/>
-              • <strong>Etapa 2 (Motor Matemático Camarón + Pescado + Jaiba + PostGIS):</strong> 30 / 36 hrs avanzadas (<strong>Restan 6 hrs</strong>: contenedor VPS).<br/>
-              • <strong>Etapa 3 (API FastAPI + Exportadores .GPX/.KML + Flujo n8n):</strong> 24 / 32 hrs avanzadas (<strong>Restan 8 hrs</strong>: webhook WhatsApp).<br/>
-              • <strong>Etapa 4 (Portal GIS + App Capitán PWA Offline + 12 Tests CI):</strong> 30 / 34 hrs avanzadas (<strong>Restan 4 hrs</strong>: prueba piloto en muelle).<br/>
-              <span style="color:#67e8f9; font-weight:700;">⚡ Subtotal MVP Web: 104 hrs completadas de 130 hrs (80.0% listo) → Solo faltan 26 horas (~3.5 días) para producción Cloud.</span>
+              • <strong>Etapa 1 (Conectores PlanetScope 3m + CMEMS DO/Temp + .env):</strong> 24 / 28 hrs avanzadas (<strong>Restan 4 hrs</strong>: llaves vivas del cliente).<br/>
+              • <strong>Etapa 2 (Motor Matemático Camarón + Pescado + Jaiba + PostGIS SQL):</strong> 36 / 36 hrs avanzadas (<strong>100% Completado en código y Docker</strong>).<br/>
+              • <strong>Etapa 3 (API FastAPI + Dockerfile + .GPX/.KML + Flujo n8n 3 Cortes):</strong> 28 / 32 hrs avanzadas (<strong>Restan 4 hrs</strong>: token WhatsApp).<br/>
+              • <strong>Etapa 4 (Portal GIS + App Capitán PWA Offline + 14 Tests CI):</strong> 30 / 34 hrs avanzadas (<strong>Restan 4 hrs</strong>: prueba piloto en muelle).<br/>
+              <span style="color:#67e8f9; font-weight:700;">⚡ Subtotal MVP Web: 118 hrs completadas de 130 hrs (90.8% listo, 100% código/Docker) → Solo restan 12 horas operativas (~1.5 días) al activar cliente.</span>
             </div>
           </div>
           <div style="background:rgba(16,185,129,0.08); border-left:4px solid #10b981; padding:0.55rem; border-radius:6px;">
             <strong>Hito 1 (Entrega Día 21 — Etapa 1 Satelital Tri-Especie): $4,800 USD (+ $780 USD de 2x F9P)</strong>
-            <p style="color:#cbd5e1; margin-top:0.15rem;">Cierre de las 26 hrs restantes de Cloud PostGIS + n8n y despacho diario 21:30 PM (Camarón), 04:00 AM (Jaiba) y 04:45 AM (Pescado).</p>
+            <p style="color:#cbd5e1; margin-top:0.15rem;">Activación en servidor con llaves PlanetScope 3m + CMEMS y despacho diario 21:30 PM (Camarón), 04:00 AM (Jaiba) y 04:45 AM (Pescado).</p>
           </div>
           <div style="background:rgba(6,182,212,0.08); border-left:4px solid #06b6d4; padding:0.55rem; border-radius:6px;">
             <strong>Hito 2 (Semana 4 — Casco Naval y Tanque ISO 8846): $2,800 USD</strong>
@@ -1334,10 +1334,12 @@
               Polígono Destino Seleccionado:
             </label>
             <select id="pangaTargetSelect" style="width:100%;">
-              <option value="25.6070,-109.0140|TOPO-N1 (Camarón Azul 96.2%)">🎯 TOPO-N1: Canal Las Copas (HSI 96.2%)</option>
-              <option value="25.5700,-109.0880|TOPO-N2 (Camarón Canal Maviri 91.4%)">🎯 TOPO-N2: Sur Isla El Maviri (HSI 91.4%)</option>
-              <option value="25.5270,-109.2035|TOPO-D1 (Sardina Talud Exterior 95.4%)">🎯 TOPO-D1: Frente Clorofila Sardina (HSI 95.4%)</option>
-              <option value="28.7785,-111.9480|KINO-N1 (Camarón Estero La Cruz 94.8%)">🎯 KINO-N1: Boca Estero La Cruz (HSI 94.8%)</option>
+              <option value="25.6070,-109.0140|TOPO-N1 (Camarón Azul 96.2%)">🎯 TOPO-N1: Canal Las Copas (Camarón HSI 96.2%)</option>
+              <option value="25.5700,-109.0880|TOPO-N2 (Camarón Canal Maviri 91.4%)">🎯 TOPO-N2: Sur Isla El Maviri (Camarón HSI 91.4%)</option>
+              <option value="25.5270,-109.2035|TOPO-D1 (Pescado/Sardina Talud 95.4%)">🎯 TOPO-D1: Frente Clorofila Pescado/Sardina (HSI 95.4%)</option>
+              <option value="25.6095,-109.0205|TOPO-J1 (Jaiba Café Guerrera 95.8% - 25 Trampas/ha)">🦀 TOPO-J1: Canal Interior Maviri (Jaiba HSI 95.8% • DO 5.1 mg/L)</option>
+              <option value="28.7785,-111.9480|KINO-N1 (Camarón Estero La Cruz 94.8%)">🎯 KINO-N1: Boca Estero La Cruz (Camarón HSI 94.8%)</option>
+              <option value="28.7745,-111.9535|KINO-J1 (Jaiba Guerrera Sonora 96.4% - 25 Trampas/ha)">🦀 KINO-J1: Canal Boca La Cruz (Jaiba HSI 96.4% • DO 5.4 mg/L)</option>
             </select>
           </div>
         </div>
