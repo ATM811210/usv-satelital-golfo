@@ -68,15 +68,24 @@
 
 ---
 
-## 4. Paquete de Sensores Submarinos Multiespecie (Bolsa 5: \$7,700 USD)
+## 4. Paquete de Sensores Submarinos Tri-Especie (Camarón, Pescado y Jaiba) — Dos Configuraciones
 
-1. **Ecosonda Acústica de Banda Ancha CHIRP (50 kHz / 200 kHz):**
-   * Transductor pasacascos de bronce Airmar B75M / TM185.
-   * **Modo Noche (Camarón):** 200 kHz para discriminación de fango suave en 2 a 15 brazas.
-   * **Modo Día (Sardina y Escama):** Conmutación por software a 50 kHz para cardúmenes profundos (hasta 250 m).
-2. **Minisonda Oceanográfica CTD + Fluorómetro de Clorofila-a y Turbidez:**
-   * Sensor óptico Turner Designs Cyclops-7F integrado en la quilla para medir manchas de fitoplancton (sardina) y frentes salinos (medusa/curvina).
-3. **Hidrófono Pasivo de Banda Ancha:** Filtro de exclusión para detección de chasquidos de alta frecuencia de camarón pistola (*snapping shrimp*), descartando fondos rocosos.
+### Configuración A: MVP de Bajo Costo / Cooperativas (\$8,770 USD)
+1. **Ecosonda Nadir CHIRP Dual (50 kHz / 200 kHz — Garmin GSD 25 + Airmar B265LH):**
+   * **Modo Camarón (Noche):** 200 kHz para discriminación de fango orgánico suave en 2 a 12.5 brazas.
+   * **Modo Pescado / Pelágicos (Día):** Conmutación a 50 kHz para cardúmenes de sardina, curvina y pargo (10 a 90 brazas).
+2. **Sonar de Barrido Lateral UHD para Jaiba (*Side-Scan* 455/800/1000 kHz — Garmin GT56UHD / Cerulean Omniscan 450):**
+   * Escaneo transversal de 30 a 50 m por banda en aguas someras (0.8 a 8.5 brazas) para mapear ecótonos arena-lodo, conchal, praderas de *Zostera* y localizar trampas jaiberas fantasma.
+3. **Sonda Fisicoquímica de Fondo: Turner Cyclops-7F (Clorofila-a / Turbidez) + Sonda Óptica Oxígeno Disuelto (Atlas EZO-DO) + Micro-CTD:**
+   * Mide fitoplancton (sardina/pescado), temperatura/salinidad de fondo (camarón/jaiba) y **Oxígeno Disuelto ($DO \ge 3.0\text{ mg/L}$)** para evitar calar trampas jaiberas en zonas de hipoxia estuarina.
+4. **Hidrófono Digital Pasivo (`Aquarian H3d-Ethernet`) + Cámara Quilla Low-Light HD con LED Ámbar:**
+   * Procesamiento DSP en Jetson Orin Nano: descarta fondos rocosos en arrastre camaronero ($>2.4\text{ kHz}$), detecta actividad trófica de quelas de jaiba triturando bivalvos ($1.2\text{--}3.5\text{ kHz}$) y coros de curvina ($450\text{ Hz}$).
+
+### Configuración B: Grado Científico / Certificación Oceanográfica INAPESCA-CIBNOR (\$78,400 USD en Sensores)
+1. **Ecosonda Científica Multifrecuencia Simrad EK80 WBT Mini (70/120/200/333 kHz):** Cuantificación absoluta de biomasa ($g/m^3$) calibrada con esfera de carburo de tungsteno.
+2. **Cámara Acústica Multihaz Blueprint Subsea Oculus M1200d (1.2 / 2.1 MHz) + Side-Scan Edgetech 4125i:** Imagen acústica de alta resolución para conteo individual de jaiba y camarón en turbidez extrema.
+3. **Perfilador Multiparamétrico RBRconcerto³ C.T.D.DO.Chl.Turb:** Estándar metrológico internacional ($\pm 0.002^\circ\text{C}$, $\pm 0.003\text{ mS/cm}$, optodo rápido de $O_2$).
+4. **Hidrófono Calibrado Ocean Sonics icListen HF (10 Hz – 200 kHz) + Computadora NVIDIA Jetson AGX Orin Industrial (275 TOPS).**
 
 ---
 
