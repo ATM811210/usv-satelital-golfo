@@ -4,7 +4,7 @@
 * **Proyecto:** Plataforma Satelital Comercial Diaria (3.0 m) y Vehículo Autónomo de Superficie (USV Trimarán Híbrido 48V "Stealth") para Prospección Pesquera Tri-Especie (**1. Camarón Noche**, **2. Pescado/Escama Día** y **3. Jaiba Bentónica**).
 * **Zona Geográfica:** Golfo de California (Sistema Lagunar Topolobampo–Ohuira–Santa María, SIN $\leftrightarrow$ Bahía de Kino / Guaymas, SON).
 * **Director de Ingeniería:** Ingeniero en Cibernética y Electrónica.
-* **Avance Actual del MVP Web (Etapas 1 a 4 — Hito Día 21):** **80% Completado (104 de 130 horas ejecutadas y probadas con 12 tests unitarios en verde)**. Solo restan **26 horas** de despliegue Cloud y enlace de credenciales vivas.
+* **Avance Actual del MVP Web (Etapas 1 a 4 — Hito Día 21):** **90.8% Completado (118 de 130 horas ejecutadas, 100% del código y Docker listos y probados con 14 tests unitarios en verde)**. Solo restan **12 horas operativas** al activar las llaves vivas del cliente.
 
 ---
 
@@ -12,7 +12,7 @@
 
 | Archivo | Propósito Principal | Estado |
 | :--- | :--- | :--- |
-| **`ARGON_CONTEXTO_MAESTRO.md`** | Manifiesto maestro unificado de contexto técnico y fundamentos físicos/biológicos. | **Activo (SSOT)** |
+| **`CONTEXTO_MAESTRO.md`** | Manifiesto maestro unificado de contexto técnico y fundamentos físicos/biológicos. | **Activo (SSOT)** |
 | **`00_estado_actual_y_roadmap.md`** | Snapshot ejecutivo, control documental y avance de horas de ingeniería. | **Actualizado** |
 | **`01_contexto_y_arquitectura.md`** | Fundamentos de negocio, perfil operativo y restricciones del Golfo de California. | Completo |
 | **`02_bitacora_investigacion.md`** | Matriz de subsistemas y Registro de Decisiones de Arquitectura (ADR-001 a ADR-007). | Completo |
@@ -25,6 +25,7 @@
 | **`10_entregable_ejecutivo_clientes_y_bom.md`** | **Entregable Comercial Auditado:** Etapa 1 Solo Satélite (\$11,120 USD), MVP Trimarán Completo (\$53,949 USD) y Grado Científico (\$148,400 USD) con Mano de Obra separada. | **Listo para presentar** |
 | **`11_arquitectura_web_gis_y_plan_programacion.md`** | Esquema PostGIS, fórmulas HSI y arquitectura FastAPI + n8n + PWA. | Completo |
 | **`12_plan_programacion_etapa_por_etapa.md`** | **Plan de Acción Recalculado:** Horas totales, horas ya avanzadas y horas restantes por etapa. | **Actualizado** |
+| **`13_guia_usuario_whatsapp_clientes.md`** | **Guía de Navegación de la Página Web (Pestaña por Pestaña) + Manual de Uso del Catamarán/Trimarán USV 48V.** | **Nuevo** |
 
 ---
 
